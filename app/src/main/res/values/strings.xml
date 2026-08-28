@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">AI Voice Detector</string>
+    <string name="camera_permission_title">Camera Permission Needed</string>
+    <string name="camera_permission_message">This accessibility app requires camera access to detect and announce objects in front of you.</string>
+    <string name="grant_permission">Grant Camera Permission</string>
+    <string name="permission_denied_message">Camera permission is required for real-time object detection.</string>
+    <string name="status_ready">Ready</string>
+    <string name="status_scanning">🔍 Scanning for objects…</string>
+    <string name="status_speaking">🔊 %1$s</string>
+    <string name="status_muted">🔇 Voice Output Muted</string>
+    <string name="mute">Mute Voice</string>
+    <string name="unmute">Unmute Voice</string>
+    <string name="tts_init_error">TTS initialization failed</string>
+    <string name="model_error">Failed to load object detection model</string>
+</resources>

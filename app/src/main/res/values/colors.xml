@@ -1,0 +1,21 @@
+<resources>
+    <!-- High contrast colors for accessibility -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="surface_dark">#D9121212</color>
+    <color name="surface_card">#E61E1E1E</color>
+    <color name="surface_border">#40FFFFFF</color>
+    
+    <color name="accent_green">#FF00E676</color>
+    <color name="accent_cyan">#FF00E5FF</color>
+    <color name="accent_yellow">#FFFFD600</color>
+    <color name="accent_red">#FFFF5252</color>
+    
+    <color name="text_primary">#FFFFFFFF</color>
+    <color name="text_secondary">#CCFFFFFF</color>
+    <color name="text_muted">#80FFFFFF</color>
+    
+    <!-- Bounding Box Colors -->
+    <color name="bbox_stroke">#FF00E676</color>
+    <color name="bbox_bg">#99000000</color>
+</resources>
