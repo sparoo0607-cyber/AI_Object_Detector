@@ -1,30 +1,33 @@
 package com.accessibility.detector.sound
 
 import android.content.Context
+import android.os.SystemClock
 import com.accessibility.detector.communication.LanguageDetector
 import com.accessibility.detector.communication.SupportedLanguage
 import com.accessibility.detector.communication.TranslationEngine
 import com.accessibility.detector.communication.TranslationResult
 import com.accessibility.detector.core.EventPriority
 import com.accessibility.detector.core.HapticManager
+import java.util.Locale
 
 interface SoundOrchestratorCallback {
     fun onNewSoundEvent(event: SoundEvent)
     fun onLiveCaption(text: String, isPartial: Boolean)
     fun onTranslation(result: TranslationResult)
     fun onListeningStatus(isListening: Boolean, message: String)
+    fun onAudioWaveLevel(level: Float)
 }
 
 /**
  * Sound & Language Orchestrator for Category 2: Sound & Language Assist.
  * Operates purely with Microphone / Audio input (NO CAMERA).
+ * Handles continuous human voice recognition, live captions, translations, and acoustic volume alerts.
  */
 class SoundOrchestrator(
     private val context: Context,
     private val callback: SoundOrchestratorCallback
-) : SoundAwarenessListener, LiveSpeechListener {
+) : LiveSpeechListener {
 
-    val soundEngine = SoundAwarenessEngine(context, this)
     val speechEngine = SpeechRecognitionEngine(context, this)
     val translationEngine = TranslationEngine()
     val languageDetector = LanguageDetector()
@@ -33,36 +36,19 @@ class SoundOrchestrator(
     var targetLanguage: SupportedLanguage = SupportedLanguage.ENGLISH
     var isLiveTranslationEnabled: Boolean = true
 
-    fun startSoundAssist() {
-        soundEngine.startListening()
-        speechEngine.startListening()
-        callback.onListeningStatus(true, "Listening to surrounding sounds and speech...")
+    private var lastLoudSpikeTime = 0L
+
+    fun startSoundAssist(locale: Locale = Locale.getDefault()) {
+        speechEngine.startContinuousListening(locale)
+        callback.onListeningStatus(true, "Listening to live speech and surrounding sounds...")
     }
 
     fun stopSoundAssist() {
-        soundEngine.stopListening()
         speechEngine.stopListening()
         callback.onListeningStatus(false, "Sound assist paused")
     }
 
-    // --- Sound Awareness Listener ---
-    override fun onSoundEvent(event: SoundEvent) {
-        // 1. Multi-Pattern Vibration based on sound hazard level
-        when (event.priority) {
-            EventPriority.CRITICAL -> hapticManager.playCriticalSosPattern()
-            EventPriority.DANGER -> hapticManager.playSoundAlertPattern()
-            else -> hapticManager.playNormalPulse()
-        }
-
-        // 2. Pass to UI
-        callback.onNewSoundEvent(event)
-    }
-
-    override fun onSoundEngineState(isActive: Boolean, message: String) {
-        callback.onListeningStatus(isActive, message)
-    }
-
-    // --- Live Speech Listener ---
+    // --- Live Speech Listener Callbacks ---
     override fun onSpeechRecognized(text: String) {
         callback.onLiveCaption(text, isPartial = false)
 
@@ -75,26 +61,52 @@ class SoundOrchestrator(
             )
             callback.onTranslation(translation)
         }
-
-        // Resume continuous listening loop for live captions
-        speechEngine.startListening()
     }
 
     override fun onSpeechPartial(partialText: String) {
         callback.onLiveCaption(partialText, isPartial = true)
     }
 
+    override fun onRmsAudioLevel(rmsdB: Float) {
+        callback.onAudioWaveLevel(rmsdB)
+
+        // Real-time acoustic threshold detection from live mic feed (e.g. horns, loud shouts, alarms)
+        val now = SystemClock.uptimeMillis()
+        if (rmsdB > 9.5f && (now - lastLoudSpikeTime > 3000L)) {
+            lastLoudSpikeTime = now
+            val soundEvent = SoundEvent(
+                label = "Loud Sound / Siren Spike",
+                icon = "🔊",
+                description = "High intensity acoustic spike detected (${rmsdB.toInt()} dB)",
+                confidence = 0.85f,
+                priority = EventPriority.DANGER
+            )
+            onSoundEvent(soundEvent)
+        }
+    }
+
+    fun onSoundEvent(event: SoundEvent) {
+        // 1. Distinct tactile vibration pattern
+        when (event.priority) {
+            EventPriority.CRITICAL -> hapticManager.playCriticalSosPattern()
+            EventPriority.DANGER -> hapticManager.playSoundAlertPattern()
+            else -> hapticManager.playNormalPulse()
+        }
+
+        // 2. Pass to UI
+        callback.onNewSoundEvent(event)
+    }
+
     override fun onListeningStateChanged(isListening: Boolean) {
-        // Update state
+        val statusMsg = if (isListening) "Listening for human voice..." else "Restarting listener..."
+        callback.onListeningStatus(isListening, statusMsg)
     }
 
     override fun onSpeechError(errorMessage: String) {
-        // Automatically restart speech recognizer loop
-        speechEngine.startListening()
+        callback.onListeningStatus(false, errorMessage)
     }
 
     fun shutdown() {
-        soundEngine.stopListening()
         speechEngine.shutdown()
     }
 

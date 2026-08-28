@@ -199,7 +199,7 @@ class VisionOrchestrator(
         // After speech prompt finishes, listen for "Yes" / "Read"
         mainHandler.postDelayed({
             if (isWaitingForVoiceConfirmation) {
-                voiceConfirmSpeechEngine.startListening()
+                voiceConfirmSpeechEngine.startContinuousListening()
             }
         }, 2200)
 
@@ -256,6 +256,8 @@ class VisionOrchestrator(
             readTextImmediately()
         }
     }
+
+    override fun onRmsAudioLevel(rmsdB: Float) {}
 
     override fun onListeningStateChanged(isListening: Boolean) {}
 

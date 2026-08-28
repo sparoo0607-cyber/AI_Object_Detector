@@ -119,7 +119,7 @@ class CommunicationActivity : AppCompatActivity(), LiveSpeechListener {
                 speechEngine.stopListening()
                 binding.btnListenOtherPerson.text = "🎤 Listen to Other Person's Response"
             } else {
-                speechEngine.startListening()
+                speechEngine.startContinuousListening()
                 binding.btnListenOtherPerson.text = "🔴 Listening... Speak now"
                 binding.tvOtherPersonResponse.text = "Listening..."
             }
@@ -145,9 +145,11 @@ class CommunicationActivity : AppCompatActivity(), LiveSpeechListener {
         }
     }
 
+    override fun onRmsAudioLevel(rmsdB: Float) {}
+
     override fun onListeningStateChanged(isListening: Boolean) {
         runOnUiThread {
-            if (!isListening) {
+            if (!isListening && !speechEngine.shouldKeepListening) {
                 binding.btnListenOtherPerson.text = "🎤 Listen to Other Person's Response"
             }
         }

@@ -1,5 +1,6 @@
 package com.accessibility.detector.ui
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -21,7 +22,7 @@ import java.util.Locale
 /**
  * Category 2: Sound & Language Assist Activity.
  * Purely Audio / Microphone based (NO CAMERA).
- * Provides Live Sound Classification, Sound-to-Vibration, Live Speech Transcription, and Live Translation.
+ * Provides Live Human Voice Transcription, Sound Classification, Vibration, and Live Translation.
  */
 class SoundAssistActivity : AppCompatActivity(), SoundOrchestratorCallback {
 
@@ -32,7 +33,7 @@ class SoundAssistActivity : AppCompatActivity(), SoundOrchestratorCallback {
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
+    ) { _ ->
         if (PermissionManager.hasSoundPermissions(this)) {
             soundOrchestrator.startSoundAssist()
         } else {
@@ -46,7 +47,7 @@ class SoundAssistActivity : AppCompatActivity(), SoundOrchestratorCallback {
         setContentView(binding.root)
 
         soundOrchestrator = SoundOrchestrator(this, this)
-        soundOrchestrator.targetLanguage = SupportedLanguage.ENGLISH
+        soundOrchestrator.targetLanguage = SupportedLanguage.TELUGU
 
         setupListeners()
         checkPermissionsAndStart()
@@ -55,6 +56,23 @@ class SoundAssistActivity : AppCompatActivity(), SoundOrchestratorCallback {
     private fun setupListeners() {
         binding.btnBack.setOnClickListener {
             finish()
+        }
+
+        // Toggle Mic Listening
+        binding.btnToggleMic.setOnClickListener {
+            if (soundOrchestrator.speechEngine.shouldKeepListening) {
+                soundOrchestrator.stopSoundAssist()
+                binding.btnToggleMic.setIconResource(R.drawable.ic_speaker_off)
+                binding.btnToggleMic.backgroundTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(this, R.color.accent_red)
+                )
+            } else {
+                soundOrchestrator.startSoundAssist()
+                binding.btnToggleMic.setIconResource(R.drawable.ic_speaker)
+                binding.btnToggleMic.backgroundTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(this, R.color.accent_green)
+                )
+            }
         }
 
         // Test / Simulation buttons for judges and demonstration
@@ -100,6 +118,13 @@ class SoundAssistActivity : AppCompatActivity(), SoundOrchestratorCallback {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (PermissionManager.hasSoundPermissions(this) && !soundOrchestrator.speechEngine.shouldKeepListening) {
+            soundOrchestrator.startSoundAssist()
+        }
+    }
+
     // --- SoundOrchestratorCallback ---
     override fun onNewSoundEvent(event: SoundEvent) {
         runOnUiThread {
@@ -132,13 +157,28 @@ class SoundAssistActivity : AppCompatActivity(), SoundOrchestratorCallback {
 
     override fun onTranslation(result: TranslationResult) {
         runOnUiThread {
-            binding.tvLiveTranslation.text = "${result.translatedText} (${result.sourceLanguage.displayName} -> ${result.targetLanguage.displayName})"
+            binding.tvLiveTranslation.text = "🌍 ${result.translatedText} (${result.targetLanguage.displayName})"
         }
     }
 
-    override fun onListeningStatus(isActive: Boolean, message: String) {
+    override fun onListeningStatus(isListening: Boolean, message: String) {
         runOnUiThread {
-            binding.tvSoundStatus.text = if (isActive) "🎙️ Active • $message" else "⏸️ $message"
+            binding.tvSoundStatus.text = if (isListening) "🎙️ Active • $message" else "⏸️ $message"
+        }
+    }
+
+    override fun onAudioWaveLevel(level: Float) {
+        runOnUiThread {
+            // Convert rmsdB (-2..12) to percentage progress (0..100)
+            val normalized = ((level + 2f) / 14f * 100f).toInt().coerceIn(5, 100)
+            binding.pbAudioLevel.progress = normalized
+            if (normalized > 35) {
+                binding.tvMicIndicator.text = "🎙️ Voice Speaking"
+                binding.tvMicIndicator.setTextColor(ContextCompat.getColor(this, R.color.accent_cyan))
+            } else {
+                binding.tvMicIndicator.text = "🎙️ Mic Active"
+                binding.tvMicIndicator.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
+            }
         }
     }
 
