@@ -1,331 +1,501 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
-    android:paddingHorizontal="22dp"
-    android:paddingTop="28dp"
-    android:paddingBottom="20dp">
+    android:fillViewport="true">
 
-    <!-- Brand Header -->
     <LinearLayout
-        android:id="@+id/headerLayout"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:paddingHorizontal="20dp"
+        android:paddingTop="28dp"
+        android:paddingBottom="24dp">
+
+        <!-- Top Header & Branding -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SAHEY"
+                    android:textColor="@color/accent_green"
+                    android:textSize="28sp"
+                    android:fontFamily="sans-serif-black"
+                    android:letterSpacing="0.04" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Assistive AI Intelligence Platform"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+
+            <!-- Settings Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSettings"
+                style="@style/Widget.MaterialComponents.Button.Icon"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                app:cornerRadius="14dp"
+                app:backgroundTint="@color/surface_card"
+                app:icon="@drawable/ic_settings"
+                app:iconTint="@color/white"
+                app:iconSize="20dp"
+                app:iconGravity="textStart"
+                app:strokeColor="@color/surface_border"
+                app:strokeWidth="1dp"
+                android:contentDescription="@string/action_settings" />
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/tvBrand"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="SAHAY"
-            android:textColor="@color/text_primary"
-            android:textSize="32sp"
-            android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.04" />
-
-        <TextView
-            android:id="@+id/tvTagline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="Assistive AI Intelligence"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="4dp"
+            android:text="Select an accessibility mode:"
             android:textColor="@color/text_secondary"
-            android:textSize="14sp"
+            android:textSize="13.5sp"
             android:fontFamily="sans-serif-medium" />
 
-        <!-- Offline Status Badge Pill -->
-        <LinearLayout
-            android:id="@+id/offlineBadgeContainer"
-            android:layout_width="wrap_content"
+        <!-- ============================================ -->
+        <!-- CATEGORY 1: VISION ASSIST (CAMERA-BASED) -->
+        <!-- ============================================ -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardVisionAssist"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@drawable/pill_accent_green"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="6dp">
+            android:clickable="true"
+            android:focusable="true"
+            app:cardBackgroundColor="@color/surface_card"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#4D10B981"
+            app:strokeWidth="1.5dp"
+            android:contentDescription="Category 1: Vision Assist. For visually impaired users. Camera based AI assistance for objects, danger radar, sign language, and reading text. Double tap to open.">
 
-            <View
-                android:layout_width="7dp"
-                android:layout_height="7dp"
-                android:background="@drawable/pill_background"
-                android:backgroundTint="@color/accent_green"
-                android:layout_marginEnd="8dp" />
-
-            <TextView
-                android:id="@+id/tvOfflineBadge"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="On-Device AI Active"
-                android:textColor="@color/accent_green"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:fontFamily="sans-serif-medium" />
-        </LinearLayout>
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/pill_accent_green"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_vision_eye"
+                            app:tint="@color/accent_green"
+                            android:contentDescription="Vision Icon" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="14dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="VISION ASSIST"
+                            android:textColor="@color/accent_green"
+                            android:textSize="19sp"
+                            android:fontFamily="sans-serif-black"
+                            android:letterSpacing="0.04" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="For visually impaired users"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12.5sp"
+                            android:fontFamily="sans-serif-medium" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/text_muted"
+                        android:contentDescription="Open" />
+                </LinearLayout>
+
+                <!-- Clean Feature Chips -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="9dp"
+                        android:paddingVertical="4dp"
+                        android:background="@drawable/pill_background"
+                        android:text="80 Objects"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+
+                    <Space android:layout_width="6dp" android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="9dp"
+                        android:paddingVertical="4dp"
+                        android:background="@drawable/pill_background"
+                        android:text="Hazard Radar"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+
+                    <Space android:layout_width="6dp" android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="9dp"
+                        android:paddingVertical="4dp"
+                        android:background="@drawable/pill_background"
+                        android:text="Sign ASL"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+
+                    <Space android:layout_width="6dp" android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="9dp"
+                        android:paddingVertical="4dp"
+                        android:background="@drawable/pill_background"
+                        android:text="OCR"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="📷 Camera &amp; Gemini Visual Reasoning • Instant Voice"
+                    android:textColor="@color/accent_green_glow"
+                    android:textSize="11.5sp"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ============================================ -->
+        <!-- CATEGORY 2: SOUND & LANGUAGE ASSIST (MIC ONLY) -->
+        <!-- ============================================ -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardSoundAssist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardBackgroundColor="@color/surface_card"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#4D3B82F6"
+            app:strokeWidth="1.5dp"
+            android:contentDescription="Category 2: Sound and Language Assist. Primarily for deaf and hard of hearing users. Live sound alerts, speech transcription, and vibrations without camera. Double tap to open.">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/pill_accent_blue"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_sound"
+                            app:tint="@color/accent_blue"
+                            android:contentDescription="Sound Icon" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="14dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="SOUND ASSIST"
+                            android:textColor="@color/accent_blue"
+                            android:textSize="19sp"
+                            android:fontFamily="sans-serif-black"
+                            android:letterSpacing="0.04" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="For deaf &amp; hard-of-hearing users"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12.5sp"
+                            android:fontFamily="sans-serif-medium" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/text_muted"
+                        android:contentDescription="Open" />
+                </LinearLayout>
+
+                <!-- Clean Feature Chips -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="9dp"
+                        android:paddingVertical="4dp"
+                        android:background="@drawable/pill_background"
+                        android:text="Siren / Horn Alerts"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+
+                    <Space android:layout_width="6dp" android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="9dp"
+                        android:paddingVertical="4dp"
+                        android:background="@drawable/pill_background"
+                        android:text="Live Voice Captions"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+
+                    <Space android:layout_width="6dp" android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="9dp"
+                        android:paddingVertical="4dp"
+                        android:background="@drawable/pill_background"
+                        android:text="Haptics"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="🎙️ Microphone Only • Offline Telugu &amp; Multi-Language"
+                    android:textColor="@color/accent_blue_glow"
+                    android:textSize="11.5sp"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ============================================ -->
+        <!-- CATEGORY 3: SPEAK & TRANSLATE ASSIST -->
+        <!-- ============================================ -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardCommunication"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardBackgroundColor="@color/surface_card"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#4D8B5CF6"
+            app:strokeWidth="1.5dp"
+            android:contentDescription="Category 3: Speak and Translate Assist. For people who cannot speak or need communication assistance. Type to speak, quick phrases, and two way translation. Double tap to open.">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/pill_accent_purple"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_translate"
+                            app:tint="@color/accent_purple"
+                            android:contentDescription="Translate Icon" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="14dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="SPEAK &amp; TRANSLATE"
+                            android:textColor="@color/accent_purple"
+                            android:textSize="19sp"
+                            android:fontFamily="sans-serif-black"
+                            android:letterSpacing="0.04" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="For non-verbal communication"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12.5sp"
+                            android:fontFamily="sans-serif-medium" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/text_muted"
+                        android:contentDescription="Open" />
+                </LinearLayout>
+
+                <!-- Clean Feature Chips -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="9dp"
+                        android:paddingVertical="4dp"
+                        android:background="@drawable/pill_background"
+                        android:text="Type to Speak"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+
+                    <Space android:layout_width="6dp" android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="9dp"
+                        android:paddingVertical="4dp"
+                        android:background="@drawable/pill_background"
+                        android:text="Quick Phrases"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+
+                    <Space android:layout_width="6dp" android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="9dp"
+                        android:paddingVertical="4dp"
+                        android:background="@drawable/pill_background"
+                        android:text="Offline ML Kit"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="⌨️ 6 Indian Languages • 2-Way Translation"
+                    android:textColor="@color/accent_purple_glow"
+                    android:textSize="11.5sp"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Hackathon Demo Panel Trigger -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDemo"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="20dp"
+            android:text="🛠️ System Health &amp; Interactive Demo"
+            android:textColor="@color/black"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            app:backgroundTint="@color/accent_cyan"
+            app:cornerRadius="14dp"
+            app:icon="@drawable/ic_demo"
+            app:iconTint="@color/black"
+            app:iconSize="18dp" />
+
     </LinearLayout>
-
-    <!-- SEE Card -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cardSee"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="22dp"
-        android:padding="20dp"
-        android:background="@drawable/card_see_bg"
-        android:clickable="true"
-        android:focusable="true"
-        app:layout_constraintTop_toBottomOf="@id/headerLayout"
-        app:layout_constraintBottom_toTopOf="@id/cardListen"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_weight="1">
-
-        <!-- Top row: Icon Badge + Arrow -->
-        <LinearLayout
-            android:id="@+id/seeIconBox"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/pill_accent_green"
-            android:gravity="center"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <ImageView
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:src="@drawable/ic_vision_eye"
-                app:tint="@color/accent_green"
-                android:contentDescription="Vision" />
-        </LinearLayout>
-
-        <ImageView
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:src="@drawable/ic_arrow_right"
-            app:tint="@color/text_muted"
-            app:layout_constraintTop_toTopOf="@id/seeIconBox"
-            app:layout_constraintBottom_toBottomOf="@id/seeIconBox"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:contentDescription="Open SEE" />
-
-        <!-- Title & Subtitle -->
-        <TextView
-            android:id="@+id/tvSeeTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="SEE"
-            android:textColor="@color/accent_green"
-            android:textSize="22sp"
-            android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.05"
-            app:layout_constraintTop_toBottomOf="@id/seeIconBox"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/tvSeeDesc"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Real-time Vision &amp; Object Recognition"
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp"
-            app:layout_constraintTop_toBottomOf="@id/tvSeeTitle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- Feature Chips -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="9dp"
-                android:paddingVertical="4dp"
-                android:background="@drawable/pill_background"
-                android:text="Objects"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
-
-            <Space
-                android:layout_width="6dp"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="9dp"
-                android:paddingVertical="4dp"
-                android:background="@drawable/pill_background"
-                android:text="Signboard Text"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
-
-            <Space
-                android:layout_width="6dp"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="9dp"
-                android:paddingVertical="4dp"
-                android:background="@drawable/pill_background"
-                android:text="₹ Currency"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- LISTEN Card -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cardListen"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="20dp"
-        android:padding="20dp"
-        android:background="@drawable/card_listen_bg"
-        android:clickable="true"
-        android:focusable="true"
-        app:layout_constraintTop_toBottomOf="@id/cardSee"
-        app:layout_constraintBottom_toTopOf="@id/btnAdmin"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_weight="1">
-
-        <!-- Top row: Icon Badge + Arrow -->
-        <LinearLayout
-            android:id="@+id/listenIconBox"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/pill_accent_cyan"
-            android:gravity="center"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <ImageView
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:src="@drawable/ic_audio_wave"
-                app:tint="@color/accent_cyan"
-                android:contentDescription="Audio" />
-        </LinearLayout>
-
-        <ImageView
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:src="@drawable/ic_arrow_right"
-            app:tint="@color/text_muted"
-            app:layout_constraintTop_toTopOf="@id/listenIconBox"
-            app:layout_constraintBottom_toBottomOf="@id/listenIconBox"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:contentDescription="Open LISTEN" />
-
-        <!-- Title & Subtitle -->
-        <TextView
-            android:id="@+id/tvListenTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="LISTEN"
-            android:textColor="@color/accent_cyan"
-            android:textSize="22sp"
-            android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.05"
-            app:layout_constraintTop_toBottomOf="@id/listenIconBox"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/tvListenDesc"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Live Whisper Captions &amp; Sound Alerts"
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp"
-            app:layout_constraintTop_toBottomOf="@id/tvListenTitle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- Feature Chips -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="9dp"
-                android:paddingVertical="4dp"
-                android:background="@drawable/pill_background"
-                android:text="Whisper AI"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
-
-            <Space
-                android:layout_width="6dp"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="9dp"
-                android:paddingVertical="4dp"
-                android:background="@drawable/pill_background"
-                android:text="Acoustic Alerts"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
-
-            <Space
-                android:layout_width="6dp"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="9dp"
-                android:paddingVertical="4dp"
-                android:background="@drawable/pill_background"
-                android:text="Offline"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- Admin Button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnAdmin"
-        android:layout_width="wrap_content"
-        android:layout_height="42dp"
-        android:minHeight="42dp"
-        android:text="⚙ Admin Control Center"
-        android:textSize="12sp"
-        android:textColor="@color/text_secondary"
-        android:fontFamily="sans-serif-medium"
-        app:backgroundTint="@color/surface_card"
-        app:strokeColor="@color/surface_border"
-        app:strokeWidth="1dp"
-        app:cornerRadius="21dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

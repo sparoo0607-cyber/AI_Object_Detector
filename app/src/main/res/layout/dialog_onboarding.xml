@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/card_background"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SAHEY"
+        android:textColor="@color/accent_green"
+        android:textSize="24sp"
+        android:fontFamily="sans-serif-black"
+        android:letterSpacing="0.04" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="@string/app_tagline"
+        android:textColor="@color/accent_cyan"
+        android:textSize="13sp"
+        android:fontFamily="sans-serif-medium" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/welcome_message"
+        android:textColor="@color/text_primary"
+        android:textSize="13.5sp"
+        android:fontFamily="sans-serif-medium"
+        android:lineSpacingExtra="3dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="14dp"
+        android:background="@color/surface_border" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="✨ Accessibility Suite Capabilities:"
+        android:textColor="@color/text_primary"
+        android:textSize="13sp"
+        android:fontFamily="sans-serif-black" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="• Real-time Object Identification\n• Hazard &amp; Danger Radar (Vehicles, Obstacles)\n• Instant OCR Printed Text Reader\n• Sign Language Recognition (ASL)\n• Emergency Sound Awareness (Sirens, Horns, Alarms)\n• Live Multilingual Speech Translation"
+        android:textColor="@color/text_secondary"
+        android:textSize="12.5sp"
+        android:fontFamily="sans-serif-medium"
+        android:lineSpacingExtra="3dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnStartLiveAssist"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:text="Start Live Assist"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:fontFamily="sans-serif-medium"
+        android:textStyle="bold"
+        app:backgroundTint="@color/accent_green"
+        app:cornerRadius="14dp" />
+
+</LinearLayout>

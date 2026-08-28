@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="24dp">
+
+        <!-- Top Header & Navigation -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBack"
+                style="@style/Widget.MaterialComponents.Button.Icon"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                app:cornerRadius="14dp"
+                app:backgroundTint="@color/surface_card"
+                app:icon="@drawable/ic_back_arrow"
+                app:iconTint="@color/white"
+                app:iconSize="20dp"
+                app:iconGravity="textStart"
+                app:strokeColor="@color/surface_border"
+                app:strokeWidth="1dp"
+                android:contentDescription="Back to Home" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="14dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SPEAK &amp; TRANSLATE"
+                    android:textColor="@color/accent_purple"
+                    android:textSize="18sp"
+                    android:fontFamily="sans-serif-black"
+                    android:letterSpacing="0.04" />
+
+                <!-- Offline / Online Status Badge -->
+                <TextView
+                    android:id="@+id/tvTranslationStatusBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="🟢 Offline ML Kit Translation Ready"
+                    android:textColor="@color/accent_green"
+                    android:textSize="11.5sp"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 1. LANGUAGE SELECTOR & SWAP BAR -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardBackgroundColor="@color/surface_card"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/surface_border"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <!-- Source Language Spinner -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="FROM"
+                            android:textColor="@color/text_muted"
+                            android:textSize="10sp"
+                            android:fontFamily="sans-serif-black"
+                            android:letterSpacing="0.05" />
+
+                        <Spinner
+                            android:id="@+id/spnSourceLanguage"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/card_background"
+                            android:theme="@style/ThemeOverlay.AppCompat.Dark" />
+                    </LinearLayout>
+
+                    <!-- Swap Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSwapLanguages"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        app:cornerRadius="22dp"
+                        app:backgroundTint="@color/surface_dark"
+                        app:strokeColor="@color/accent_purple"
+                        app:strokeWidth="1.5dp"
+                        android:text="⇄"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:contentDescription="Swap Languages" />
+
+                    <!-- Target Language Spinner -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="TO"
+                            android:textColor="@color/text_muted"
+                            android:textSize="10sp"
+                            android:fontFamily="sans-serif-black"
+                            android:letterSpacing="0.05" />
+
+                        <Spinner
+                            android:id="@+id/spnTargetLanguage"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/card_background"
+                            android:theme="@style/ThemeOverlay.AppCompat.Dark" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Missing Pack Download Banner -->
+                <LinearLayout
+                    android:id="@+id/bannerDownloadPack"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/pill_accent_green"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="8dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/tvDownloadPrompt"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="This language pack is required for offline translation (~30MB)."
+                        android:textColor="@color/accent_yellow"
+                        android:textSize="11sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnDownloadLanguagePack"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:layout_marginStart="8dp"
+                        android:text="Download"
+                        android:textColor="@color/black"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="@color/accent_yellow"
+                        app:cornerRadius="8dp" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 2. LARGE TEXT INPUT CARD -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            app:cardBackgroundColor="@color/surface_card"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#4D8B5CF6"
+            app:strokeWidth="1.5dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <EditText
+                    android:id="@+id/etMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="80dp"
+                    android:gravity="top|start"
+                    android:hint="Type what you want to say..."
+                    android:textColorHint="@color/text_muted"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:background="@android:color/transparent"
+                    android:inputType="textMultiLine|textCapSentences" />
+
+                <!-- Action Controls: Speak, Repeat, Clear -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <!-- Primary Speak Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSpeak"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1.5"
+                        android:text="🔊 Speak Aloud"
+                        android:textColor="@color/white"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"
+                        android:textSize="13.5sp"
+                        app:backgroundTint="@color/accent_purple"
+                        app:cornerRadius="12dp" />
+
+                    <Space
+                        android:layout_width="8dp"
+                        android:layout_height="wrap_content" />
+
+                    <!-- Repeat -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRepeat"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="Repeat"
+                        android:textColor="@color/white"
+                        android:textSize="13sp"
+                        app:backgroundTint="@color/surface_dark"
+                        app:strokeColor="@color/surface_border"
+                        app:strokeWidth="1dp"
+                        app:cornerRadius="12dp" />
+
+                    <Space
+                        android:layout_width="8dp"
+                        android:layout_height="wrap_content" />
+
+                    <!-- Clear -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnClear"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="0.9"
+                        android:text="Clear"
+                        android:textColor="@color/accent_red"
+                        android:textSize="13sp"
+                        app:backgroundTint="@color/surface_dark"
+                        app:strokeColor="@color/surface_border"
+                        app:strokeWidth="1dp"
+                        app:cornerRadius="12dp" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 3. TRANSLATE & SPEAK SECTION -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/card_background"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tvTranslateSectionTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="TRANSLATION &amp; TTS"
+                    android:textColor="@color/accent_cyan"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-black"
+                    android:letterSpacing="0.05" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTranslateAndSpeak"
+                    android:layout_width="wrap_content"
+                    android:layout_height="42dp"
+                    android:text="🌍 Translate &amp; Speak"
+                    android:textColor="@color/black"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    app:backgroundTint="@color/accent_cyan"
+                    app:cornerRadius="12dp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvTranslatedOutput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Translated speech will appear and play here."
+                android:textColor="@color/accent_cyan_glow"
+                android:textSize="15sp"
+                android:fontFamily="sans-serif-medium" />
+        </LinearLayout>
+
+        <!-- 4. ONE-TAP QUICK COMMUNICATION PHRASES -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="QUICK ONE-TAP PHRASES"
+            android:textColor="@color/accent_green"
+            android:textSize="11sp"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.05" />
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:columnCount="2"
+            android:alignmentMode="alignMargins"
+            android:useDefaultMargins="true">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPhraseHelp"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_columnWeight="1"
+                android:text="🆘 I NEED HELP"
+                android:textColor="@color/white"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                app:backgroundTint="@color/accent_red"
+                app:cornerRadius="14dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPhraseWater"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_columnWeight="1"
+                android:text="💧 NEED WATER"
+                android:textColor="@color/white"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                app:backgroundTint="@color/accent_blue"
+                app:cornerRadius="14dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPhraseFood"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_columnWeight="1"
+                android:text="🍲 NEED FOOD"
+                android:textColor="@color/black"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                app:backgroundTint="@color/accent_yellow"
+                app:cornerRadius="14dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPhraseHospital"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_columnWeight="1"
+                android:text="🏥 HOSPITAL"
+                android:textColor="@color/white"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                app:backgroundTint="@color/accent_red"
+                app:cornerRadius="14dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPhraseThanks"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_columnWeight="1"
+                android:text="🙏 THANK YOU"
+                android:textColor="@color/black"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                app:backgroundTint="@color/accent_green"
+                app:cornerRadius="14dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPhraseYesNo"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_columnWeight="1"
+                android:text="✅ YES / ❌ NO"
+                android:textColor="@color/white"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                app:backgroundTint="@color/surface_card"
+                app:strokeColor="@color/surface_border"
+                app:strokeWidth="1dp"
+                app:cornerRadius="14dp" />
+        </GridLayout>
+
+        <!-- 5. TWO-WAY CONVERSATION MIC LISTENER -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="TWO-WAY CONVERSATION"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.05" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnListenOtherPerson"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="8dp"
+            android:text="🎤 Listen to Other Person's Response"
+            android:textColor="@color/white"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            app:backgroundTint="@color/surface_dark"
+            app:cornerRadius="14dp"
+            app:strokeColor="@color/accent_blue"
+            app:strokeWidth="1.5dp" />
+
+        <TextView
+            android:id="@+id/tvOtherPersonResponse"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/card_background"
+            android:padding="14dp"
+            android:text="Tap above to capture what the other person replies."
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            android:fontFamily="sans-serif-medium" />
+
+    </LinearLayout>
+</ScrollView>
