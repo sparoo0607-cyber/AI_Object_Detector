@@ -18,7 +18,7 @@
         android:name="android.hardware.microphone"
         android:required="false" />
 
-    <!-- Queries for TextToSpeech and SpeechRecognizer engines -->
+    <!-- Full Queries for TextToSpeech and SpeechRecognizer engines across Android 11-14+ -->
     <queries>
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
@@ -26,6 +26,11 @@
         <intent>
             <action android:name="android.speech.RecognitionService" />
         </intent>
+        <intent>
+            <action android:name="android.speech.action.RECOGNIZE_SPEECH" />
+        </intent>
+        <package android:name="com.google.android.googlequicksearchbox" />
+        <package android:name="com.google.android.tts" />
     </queries>
 
     <application
