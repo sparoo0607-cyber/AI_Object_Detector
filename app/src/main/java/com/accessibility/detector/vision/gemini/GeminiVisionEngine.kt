@@ -5,7 +5,10 @@ import android.graphics.Bitmap
 import android.os.SystemClock
 import android.util.Base64
 import android.util.Log
+import com.accessibility.detector.core.EventPriority
 import com.accessibility.detector.core.PerceptionEvent
+import com.accessibility.detector.core.PerceptionType
+import com.accessibility.detector.core.SpatialPosition
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -24,17 +27,18 @@ class GeminiVisionEngine(
 
     private val scope = CoroutineScope(Dispatchers.Default + Job())
     private var lastGeminiCallTime: Long = 0L
-    private val minCooldownMs: Long = 3500L
+    private val minCooldownMs: Long = 2500L
     private var isBusy: Boolean = false
     private var lastAnnouncedDangerSignature: String = ""
 
     /**
-     * Selectively evaluates a suspicious frame (e.g. potential fire, slippery floor, sudden obstacle).
-     * Enforces strict rate-limiting and duplicate suppression.
+     * Selectively evaluates a suspicious frame (e.g. fire/smoke, fire on screen, slippery floor, obstacle).
+     * Enforces strict rate-limiting, debug logging, and offline fallback.
      */
     fun analyzeSuspiciousFrame(
         bitmap: Bitmap,
         hazardHint: String,
+        isScreenFireCandidate: Boolean = false,
         onResult: (PerceptionEvent?) -> Unit
     ) {
         val now = SystemClock.uptimeMillis()
@@ -42,39 +46,84 @@ class GeminiVisionEngine(
             return
         }
 
-        if (!GeminiConfig.isGeminiConfigured(context)) {
-            Log.d(TAG, "Gemini not configured; continuing with on-device detection.")
+        Log.d(TAG_VISION_DEBUG, "VISION_AI: Trigger = $hazardHint (isScreenFire=$isScreenFireCandidate)")
+
+        // 1. If Gemini Cloud API is configured, run deep multimodal analysis
+        if (GeminiConfig.isGeminiConfigured(context)) {
+            isBusy = true
+            lastGeminiCallTime = now
+
+            scope.launch {
+                try {
+                    val base64Jpeg = compressBitmapToBase64(bitmap)
+                    val prompt = if (isScreenFireCandidate) {
+                        "A screen (laptop/TV/phone) is in view with potential flame/fire imagery. Determine if fire is displayed on screen ('fire_on_screen'), real fire ('fire'), or a normal display without fire ('none'). Return JSON."
+                    } else {
+                        "Potential situation detected: '$hazardHint'. Verify if there is an active safety hazard (fire, smoke, vehicle, slippery floor, drop, or obstacle). Return JSON."
+                    }
+
+                    Log.d(TAG_VISION_DEBUG, "VISION_AI: Sending selected frame to Gemini Vision...")
+                    val rawJson = service.analyzeImage(base64Jpeg, prompt)
+
+                    if (!rawJson.isNullOrBlank()) {
+                        val parsed = GeminiResponseParser.parse(rawJson)
+                        if (parsed != null && parsed.dangerDetected) {
+                            val signature = "${parsed.dangerType}_${parsed.direction}"
+                            if (signature != lastAnnouncedDangerSignature) {
+                                lastAnnouncedDangerSignature = signature
+
+                                Log.d(TAG_VISION_DEBUG, "GEMINI: danger_type = ${parsed.dangerType}, confidence = ${parsed.confidence}")
+                                Log.d(TAG_VISION_DEBUG, "FINAL: ${parsed.dangerType}, priority = ${parsed.priority}, TTS: \"${parsed.message}\"")
+
+                                val event = GeminiResponseParser.toPerceptionEvent(parsed)
+                                withContext(Dispatchers.Main) {
+                                    onResult(event)
+                                }
+                                return@launch
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "Gemini reasoning failed: ${e.message}")
+                } finally {
+                    isBusy = false
+                }
+            }
             return
         }
 
-        isBusy = true
-        lastGeminiCallTime = now
-
-        scope.launch {
-            try {
-                val base64Jpeg = compressBitmapToBase64(bitmap)
-                val prompt = "Potential situation detected: '$hazardHint'. Verify if there is an active safety hazard, obstacle, fire, vehicle, or slippery surface. Return JSON."
-
-                val rawJson = service.analyzeImage(base64Jpeg, prompt)
-                if (!rawJson.isNullOrBlank()) {
-                    val parsed = GeminiResponseParser.parse(rawJson)
-                    if (parsed != null && parsed.dangerDetected) {
-                        val signature = "${parsed.dangerType}_${parsed.direction}"
-                        if (signature != lastAnnouncedDangerSignature) {
-                            lastAnnouncedDangerSignature = signature
-                            val event = GeminiResponseParser.toPerceptionEvent(parsed)
-                            withContext(Dispatchers.Main) {
-                                onResult(event)
-                            }
-                            return@launch
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                Log.w(TAG, "Gemini reasoning failed: ${e.message}")
-            } finally {
-                isBusy = false
-            }
+        // 2. Offline Fallback: If Gemini is offline or not configured, apply local danger reasoning
+        Log.d(TAG_VISION_DEBUG, "VISION_AI: Gemini not configured or offline. Applying on-device hazard decision.")
+        if (isScreenFireCandidate) {
+            val event = PerceptionEvent(
+                type = PerceptionType.DANGER,
+                label = "Screen Fire",
+                spokenText = "Fire visible on the screen.",
+                confidence = 0.90f,
+                priority = EventPriority.DANGER,
+                spatialPosition = SpatialPosition.CENTER
+            )
+            onResult(event)
+        } else if (hazardHint.contains("fire", ignoreCase = true) || hazardHint.contains("flame", ignoreCase = true)) {
+            val event = PerceptionEvent(
+                type = PerceptionType.DANGER,
+                label = "Fire Hazard",
+                spokenText = "Warning. Fire detected.",
+                confidence = 0.92f,
+                priority = EventPriority.CRITICAL,
+                spatialPosition = SpatialPosition.CENTER
+            )
+            onResult(event)
+        } else if (hazardHint.contains("smoke", ignoreCase = true)) {
+            val event = PerceptionEvent(
+                type = PerceptionType.DANGER,
+                label = "Smoke Hazard",
+                spokenText = "Warning. Smoke detected.",
+                confidence = 0.86f,
+                priority = EventPriority.DANGER,
+                spatialPosition = SpatialPosition.CENTER
+            )
+            onResult(event)
         }
     }
 
@@ -96,11 +145,13 @@ class GeminiVisionEngine(
         scope.launch {
             try {
                 val base64Jpeg = compressBitmapToBase64(bitmap)
-                val rawJson = service.analyzeImage(base64Jpeg, question)
+                Log.d(TAG_VISION_DEBUG, "VISION_AI: User Ask AI query: \"$question\"")
 
+                val rawJson = service.analyzeImage(base64Jpeg, question)
                 if (!rawJson.isNullOrBlank()) {
                     val parsed = GeminiResponseParser.parse(rawJson)
                     if (parsed != null) {
+                        Log.d(TAG_VISION_DEBUG, "GEMINI Ask AI Result: \"${parsed.message}\"")
                         val event = GeminiResponseParser.toPerceptionEvent(parsed)
                         withContext(Dispatchers.Main) {
                             onResult(event)
@@ -109,7 +160,6 @@ class GeminiVisionEngine(
                     }
                 }
 
-                // Fallback if structured parse returned empty
                 withContext(Dispatchers.Main) {
                     onResult(null)
                 }
@@ -153,5 +203,6 @@ class GeminiVisionEngine(
 
     companion object {
         private const val TAG = "GeminiVisionEngine"
+        private const val TAG_VISION_DEBUG = "VISION_AI"
     }
 }

@@ -34,7 +34,7 @@ interface VisionUiCallback {
 
 /**
  * Master Vision Orchestrator for Category 1: Vision Assist.
- * Coordinates Local Real-Time AI (SSD Object Detection, Danger Radar, Sign Language, OCR)
+ * Coordinates Local Real-Time AI (SSD Object Detection, Fire & Danger Radar, Sign Language, OCR)
  * and Hybrid Cloud AI (Gemini Multimodal Visual Reasoning Engine).
  */
 class VisionOrchestrator(
@@ -84,13 +84,11 @@ class VisionOrchestrator(
         val shouldOcr = inferenceScheduler.shouldRunOcr()
         val shouldSign = inferenceScheduler.shouldRunSignDetection()
 
-        if (shouldOcr || shouldSign) {
-            try {
-                frameBitmap = imageProxy.toBitmap()
-                latestFrameBitmap = frameBitmap
-            } catch (e: Exception) {
-                // Fallback
-            }
+        try {
+            frameBitmap = imageProxy.toBitmap()
+            latestFrameBitmap = frameBitmap
+        } catch (e: Exception) {
+            // Fallback
         }
 
         // 1. Local Object & Hazard detection
@@ -120,25 +118,10 @@ class VisionOrchestrator(
     ) {
         lastDetectionResults = results
 
-        // 1. Danger & Hazard check (Highest Priority)
+        // 1. Danger & Hazard check (Highest Priority: Real Fire, Fire on Screen, Vehicles, Slippery Floors, Obstacles)
         dangerEngine.analyzeHazards(results, latestFrameBitmap)
 
-        // 2. Selective Gemini Reasoning Trigger:
-        // If an ambiguous hazard or suspicious situation is flagged, trigger Gemini in the background
-        if (results.isNotEmpty() && latestFrameBitmap != null) {
-            val primaryHazard = results.firstOrNull {
-                HazardRules.isVehicle(it.label) || HazardRules.isFireOrSmoke(it.label) || HazardRules.isDropOrEdge(it.label)
-            }
-            if (primaryHazard != null) {
-                geminiVisionEngine.analyzeSuspiciousFrame(latestFrameBitmap!!, primaryHazard.label) { geminiEvent ->
-                    if (geminiEvent != null) {
-                        announcementManager.postEvent(geminiEvent)
-                    }
-                }
-            }
-        }
-
-        // 3. Normal Object Announcement
+        // 2. Normal Object Announcement (if no critical fire/hazard)
         if (results.isNotEmpty()) {
             val primary = results.maxByOrNull { it.score }
             if (primary != null) {
@@ -163,7 +146,7 @@ class VisionOrchestrator(
             }
         }
 
-        // 4. Update Overlay
+        // 3. Update Overlay
         uiCallback.onVisionResultsUpdated(
             objects = results,
             ocrBlocks = lastOcrBlocks,
@@ -180,6 +163,15 @@ class VisionOrchestrator(
     // --- Danger Detection Listener ---
     override fun onHazardDetected(hazardEvent: PerceptionEvent) {
         announcementManager.postEvent(hazardEvent)
+    }
+
+    override fun onPotentialHazardPreFiltered(hazardHint: String, isScreenFire: Boolean) {
+        val bitmap = latestFrameBitmap ?: return
+        geminiVisionEngine.analyzeSuspiciousFrame(bitmap, hazardHint, isScreenFire) { geminiEvent ->
+            if (geminiEvent != null) {
+                announcementManager.postEvent(geminiEvent)
+            }
+        }
     }
 
     // --- Sign Language Listener ---
@@ -262,7 +254,7 @@ class VisionOrchestrator(
     fun askGeminiWhatIsAroundMe(onFinished: ((String) -> Unit)? = null) {
         val bitmap = latestFrameBitmap
         if (bitmap == null) {
-            val fallbackMsg = "Analyzing local vision: Scanning for objects in front of you."
+            val fallbackMsg = "Scanning environment in front of you."
             ttsManager.speak(fallbackMsg)
             onFinished?.invoke(fallbackMsg)
             return
@@ -277,7 +269,6 @@ class VisionOrchestrator(
                 announcementManager.postEvent(event)
                 onFinished?.invoke(event.spokenText)
             } else {
-                // Graceful Offline Fallback to local detections
                 val localSummary = if (lastDetectionResults.isNotEmpty()) {
                     val labels = lastDetectionResults.take(3).joinToString(", ") { it.label }
                     "In front of you: $labels."

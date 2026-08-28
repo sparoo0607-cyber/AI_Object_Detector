@@ -25,7 +25,6 @@ object GeminiResponseParser {
 
     fun parse(rawResponse: String): GeminiReasoningResult? {
         try {
-            // Clean up any potential markdown code fence wrapping ```json ... ```
             var cleanJson = rawResponse.trim()
             if (cleanJson.startsWith("```json")) {
                 cleanJson = cleanJson.removePrefix("```json").trim()
@@ -50,12 +49,27 @@ object GeminiResponseParser {
             val priorityStr = root.optString("priority", "normal").lowercase()
             val directionStr = root.optString("direction", "unknown").lowercase()
             val confidence = root.optDouble("confidence", 0.85).toFloat()
-            val message = root.optString("message", "").trim()
+            var message = root.optString("message", "").trim()
 
-            val priority = when (priorityStr) {
-                "critical" -> EventPriority.CRITICAL
-                "high" -> EventPriority.DANGER
-                "hazard" -> EventPriority.NAVIGATION
+            // Special Handling & Refinement for Fire, Fire on Screen, and Smoke
+            if (dangerType == "fire_on_screen" || (dangerType.contains("screen") && dangerType.contains("fire"))) {
+                message = "Fire visible on the screen."
+            } else if (dangerType == "fire") {
+                if (message.isBlank() || message.equals("fire", ignoreCase = true)) {
+                    message = "Warning. Fire detected."
+                }
+            } else if (dangerType == "smoke") {
+                if (message.isBlank() || message.equals("smoke", ignoreCase = true)) {
+                    message = "Warning. Smoke detected."
+                }
+            }
+
+            val priority = when {
+                dangerType == "fire" -> EventPriority.CRITICAL
+                dangerType == "fire_on_screen" || dangerType == "smoke" -> EventPriority.DANGER
+                priorityStr == "critical" -> EventPriority.CRITICAL
+                priorityStr == "high" -> EventPriority.DANGER
+                priorityStr == "hazard" -> EventPriority.NAVIGATION
                 else -> if (dangerDetected) EventPriority.DANGER else EventPriority.OBJECT
             }
 
@@ -69,6 +83,8 @@ object GeminiResponseParser {
             if (message.isBlank()) {
                 return null
             }
+
+            Log.d(TAG, "Parsed Gemini result: dangerDetected=$dangerDetected, type=$dangerType, pri=$priority, msg=\"$message\"")
 
             return GeminiReasoningResult(
                 dangerDetected = dangerDetected,
@@ -87,7 +103,7 @@ object GeminiResponseParser {
     fun toPerceptionEvent(result: GeminiReasoningResult): PerceptionEvent {
         return PerceptionEvent(
             type = if (result.dangerDetected) PerceptionType.DANGER else PerceptionType.OBJECT,
-            label = "AI Reasoning: ${result.dangerType}",
+            label = "AI Danger: ${result.dangerType}",
             spokenText = result.message,
             confidence = result.confidence,
             priority = result.priority,
