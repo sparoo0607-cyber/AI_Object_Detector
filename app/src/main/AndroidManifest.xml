@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Permissions for 3-Category AI Multimodal Accessibility -->
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -15,10 +13,13 @@
         android:name="android.hardware.camera.autofocus"
         android:required="false" />
     <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="false" />
+    <uses-feature
         android:name="android.hardware.microphone"
         android:required="false" />
 
-    <!-- Full Queries for TextToSpeech and SpeechRecognizer engines across Android 11-14+ -->
+    <!-- Required on Android 11+ (API 30+) for TTS engine visibility across all device OEMs -->
     <queries>
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
@@ -26,26 +27,20 @@
         <intent>
             <action android:name="android.speech.RecognitionService" />
         </intent>
-        <intent>
-            <action android:name="android.speech.action.RECOGNIZE_SPEECH" />
-        </intent>
-        <package android:name="com.google.android.googlequicksearchbox" />
-        <package android:name="com.google.android.tts" />
     </queries>
 
     <application
-        android:name=".SaheyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AccessibilityDetector"
-        tools:targetApi="31">
+        android:hardwareAccelerated="true"
+        android:theme="@style/Theme.AccessibilityDetector">
 
-        <!-- Category 0: Home Screen (Launcher) -->
+        <!-- SAHAY home — SEE / LISTEN / Admin. This is the launcher now. -->
         <activity
-            android:name=".ui.HomeActivity"
+            android:name=".home.HomeActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -54,28 +49,22 @@
             </intent-filter>
         </activity>
 
-        <!-- Category 1: Vision Assist (Camera-based) -->
+        <!-- SEE: continuous object detection + on-demand signboard/currency capture -->
         <activity
-            android:name=".ui.VisionAssistActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-
-        <!-- Category 2: Sound & Language Assist (Mic-based, No Camera) -->
-        <activity
-            android:name=".ui.SoundAssistActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-
-        <!-- Category 3: Speak & Translate (Text/TTS/Translate, No Camera) -->
-        <activity
-            android:name=".ui.CommunicationActivity"
+            android:name=".MainActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize" />
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden" />
 
-        <!-- Settings Dashboard -->
+        <!-- LISTEN: live captions + sound alerts -->
         <activity
-            android:name=".ui.SettingsActivity"
+            android:name=".listen.ListenActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- SAHAY Admin — Control Center -->
+        <activity
+            android:name=".admin.AdminActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 
