@@ -37,6 +37,90 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
+        <!-- Gemini Cloud AI Configuration Card -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="🤖 Gemini Multimodal Cloud AI"
+            android:textColor="@color/accent_cyan"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/card_background"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Enter your Google Gemini API Key for deep visual reasoning and screen fire detection:"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilApiKey"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="Gemini API Key (AIzaSy...)"
+                android:textColorHint="@color/text_muted"
+                app:boxBackgroundColor="@color/surface_dark"
+                app:boxCornerRadiusBottomEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusTopStart="8dp"
+                app:boxStrokeColor="@color/accent_cyan"
+                app:passwordToggleEnabled="true"
+                app:passwordToggleTint="@color/text_muted">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etApiKey"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    android:textColor="@color/white"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSaveApiKey"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_weight="1"
+                    android:text="Save API Key"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/accent_cyan"
+                    app:cornerRadius="8dp" />
+
+                <Space
+                    android:layout_width="10dp"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/tvApiKeyStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Not configured"
+                    android:textColor="@color/text_muted"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
         <!-- Detection Modules Card -->
         <TextView
             android:layout_width="wrap_content"
@@ -102,7 +186,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Accessibility &amp; Feedback"
-            android:textColor="@color/accent_cyan"
+            android:textColor="@color/accent_yellow"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -129,40 +213,6 @@
                 android:checked="true"
                 android:text="Hazard Preempts Speech"
                 android:textColor="@color/white" />
-        </LinearLayout>
-
-        <!-- Translation Configuration -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Live Translation"
-            android:textColor="@color/accent_purple"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/card_background"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Default Target Language: Telugu / Hindi"
-                android:textColor="@color/text_secondary"
-                android:textSize="14sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Supported: English, Telugu, Hindi, Spanish"
-                android:textColor="@color/text_muted"
-                android:textSize="12sp" />
         </LinearLayout>
 
         <!-- App Info -->

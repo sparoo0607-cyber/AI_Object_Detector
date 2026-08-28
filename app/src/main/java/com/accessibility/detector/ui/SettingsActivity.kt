@@ -1,13 +1,20 @@
 package com.accessibility.detector.ui
 
 import android.os.Bundle
+import android.widget.EditText
 import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.accessibility.detector.R
+import com.accessibility.detector.vision.gemini.GeminiConfig
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.switchmaterial.SwitchMaterial
 
 /**
  * Settings and customization dashboard for SAHEY.
+ * Includes dynamic Gemini API Key management and AI module toggles.
  */
 class SettingsActivity : AppCompatActivity() {
 
@@ -21,6 +28,37 @@ class SettingsActivity : AppCompatActivity() {
 
         val prefs = getSharedPreferences("sahey_prefs", MODE_PRIVATE)
 
+        // Gemini API Key management
+        val etApiKey = findViewById<EditText>(R.id.etApiKey)
+        val btnSaveApiKey = findViewById<MaterialButton>(R.id.btnSaveApiKey)
+        val tvApiKeyStatus = findViewById<TextView>(R.id.tvApiKeyStatus)
+
+        val currentKey = GeminiConfig.getApiKey(this)
+        if (currentKey.isNotBlank()) {
+            etApiKey.setText(currentKey)
+            tvApiKeyStatus.text = "✓ Configured"
+            tvApiKeyStatus.setTextColor(ContextCompat.getColor(this, R.color.accent_green))
+        } else {
+            tvApiKeyStatus.text = "Not configured"
+            tvApiKeyStatus.setTextColor(ContextCompat.getColor(this, R.color.text_muted))
+        }
+
+        btnSaveApiKey.setOnClickListener {
+            val enteredKey = etApiKey.text.toString().trim()
+            if (enteredKey.isNotBlank()) {
+                GeminiConfig.setApiKey(this, enteredKey)
+                tvApiKeyStatus.text = "✓ Configured"
+                tvApiKeyStatus.setTextColor(ContextCompat.getColor(this, R.color.accent_green))
+                Toast.makeText(this, "Gemini API Key saved successfully!", Toast.LENGTH_SHORT).show()
+            } else {
+                GeminiConfig.setApiKey(this, "")
+                tvApiKeyStatus.text = "Not configured"
+                tvApiKeyStatus.setTextColor(ContextCompat.getColor(this, R.color.text_muted))
+                Toast.makeText(this, "Gemini API Key removed.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Toggles
         val switchObj = findViewById<SwitchMaterial>(R.id.switchObjectDetection)
         val switchDanger = findViewById<SwitchMaterial>(R.id.switchDangerDetection)
         val switchOcr = findViewById<SwitchMaterial>(R.id.switchOcr)
