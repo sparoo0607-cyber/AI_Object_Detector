@@ -105,4 +105,8 @@ dependencies {
 
     // Google ML Kit On-Device Text Recognition (OCR)
     implementation("com.google.mlkit:text-recognition:16.0.0")
+
+    // Google ML Kit On-Device Translation & Language ID
+    implementation("com.google.mlkit:translate:17.0.3")
+    implementation("com.google.mlkit:language-id:17.0.6")
 }

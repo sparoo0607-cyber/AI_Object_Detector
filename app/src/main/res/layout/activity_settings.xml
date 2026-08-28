@@ -37,7 +37,316 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Gemini Cloud AI Configuration Card -->
+        <!-- 1. OFFLINE LANGUAGES (GOOGLE ML KIT) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="🌐 Offline Languages (Google ML Kit)"
+            android:textColor="@color/accent_green"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/card_background"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Download language packs for 100% offline translation without internet:"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <!-- English Model -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="English (Base Model)"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvStatusEn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Checking..."
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDownloadEn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:text="↓ Download"
+                    android:textColor="@color/black"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/accent_green"
+                    app:cornerRadius="8dp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="10dp"
+                android:background="@color/surface_border" />
+
+            <!-- Telugu Model -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="English ↔ Telugu (తెలుగు)"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvStatusTe"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Checking..."
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDownloadTe"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:text="↓ Download"
+                    android:textColor="@color/black"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/accent_green"
+                    app:cornerRadius="8dp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="10dp"
+                android:background="@color/surface_border" />
+
+            <!-- Hindi Model -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="English ↔ Hindi (हिंदी)"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvStatusHi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Checking..."
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDownloadHi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:text="↓ Download"
+                    android:textColor="@color/black"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/accent_green"
+                    app:cornerRadius="8dp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="10dp"
+                android:background="@color/surface_border" />
+
+            <!-- Tamil Model -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="English ↔ Tamil (தமிழ்)"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvStatusTa"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Checking..."
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDownloadTa"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:text="↓ Download"
+                    android:textColor="@color/black"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/accent_green"
+                    app:cornerRadius="8dp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="10dp"
+                android:background="@color/surface_border" />
+
+            <!-- Kannada Model -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="English ↔ Kannada (ಕನ್ನಡ)"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvStatusKn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Checking..."
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDownloadKn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:text="↓ Download"
+                    android:textColor="@color/black"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/accent_green"
+                    app:cornerRadius="8dp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="10dp"
+                android:background="@color/surface_border" />
+
+            <!-- Malayalam Model -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="English ↔ Malayalam (മലയാളം)"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvStatusMl"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Checking..."
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDownloadMl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:text="↓ Download"
+                    android:textColor="@color/black"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/accent_green"
+                    app:cornerRadius="8dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 2. Gemini Cloud AI Configuration Card -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -121,7 +430,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Detection Modules Card -->
+        <!-- 3. Detection Modules Card -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -180,7 +489,7 @@
                 android:textColor="@color/white" />
         </LinearLayout>
 
-        <!-- Voice & Haptics Card -->
+        <!-- 4. Voice & Haptics Card -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

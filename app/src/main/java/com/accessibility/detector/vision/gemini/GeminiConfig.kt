@@ -35,6 +35,10 @@ object GeminiConfig {
         prefs.edit().putString(KEY_API_KEY, apiKey.trim()).apply()
     }
 
+    fun saveApiKey(context: Context, apiKey: String) {
+        setApiKey(context, apiKey)
+    }
+
     fun getModelName(context: Context): String {
         val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         return prefs.getString(KEY_MODEL, DEFAULT_MODEL) ?: DEFAULT_MODEL

@@ -1,9 +1,15 @@
 package com.accessibility.detector.ui
 
 import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import com.accessibility.detector.R
 import com.accessibility.detector.communication.CommunicationManager
+import com.accessibility.detector.communication.OfflineLanguageManager
 import com.accessibility.detector.communication.SupportedLanguage
 import com.accessibility.detector.communication.TtsManager
 import com.accessibility.detector.databinding.ActivityCommunicationBinding
@@ -12,8 +18,8 @@ import com.accessibility.detector.sound.SpeechRecognitionEngine
 
 /**
  * Category 3: Speak & Translate Assist Activity.
- * Designed for non-verbal users or communication assistance (NO CAMERA).
- * Provides Type-to-Speak, Quick Accessible Phrases, Multilingual Translation, and Two-Way Conversation.
+ * Provides on-device offline translation using Google ML Kit with automatic language detection,
+ * language swapping, quick accessibility phrases, and two-way speech translation (NO CAMERA).
  */
 class CommunicationActivity : AppCompatActivity(), LiveSpeechListener {
 
@@ -21,8 +27,19 @@ class CommunicationActivity : AppCompatActivity(), LiveSpeechListener {
     private lateinit var communicationManager: CommunicationManager
     private lateinit var ttsManager: TtsManager
     private lateinit var speechEngine: SpeechRecognitionEngine
+    private lateinit var offlineLanguageManager: OfflineLanguageManager
 
+    private var sourceLanguage = SupportedLanguage.ENGLISH
     private var targetLanguage = SupportedLanguage.TELUGU
+    private val languageList = listOf(
+        SupportedLanguage.ENGLISH,
+        SupportedLanguage.TELUGU,
+        SupportedLanguage.HINDI,
+        SupportedLanguage.TAMIL,
+        SupportedLanguage.KANNADA,
+        SupportedLanguage.MALAYALAM,
+        SupportedLanguage.SPANISH
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,13 +49,70 @@ class CommunicationActivity : AppCompatActivity(), LiveSpeechListener {
         ttsManager = TtsManager(this)
         communicationManager = CommunicationManager(this, ttsManager)
         speechEngine = SpeechRecognitionEngine(this, this)
+        offlineLanguageManager = OfflineLanguageManager(this)
 
+        setupSpinners()
         setupListeners()
+        updateLanguageModelStatus()
+    }
+
+    private fun setupSpinners() {
+        val sourceOptions = listOf(SupportedLanguage.AUTO) + languageList
+        val sourceAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            sourceOptions.map { it.displayName }
+        )
+        binding.spnSourceLanguage.adapter = sourceAdapter
+        binding.spnSourceLanguage.setSelection(1) // Default to English
+
+        val targetAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            languageList.map { it.displayName }
+        )
+        binding.spnTargetLanguage.adapter = targetAdapter
+        binding.spnTargetLanguage.setSelection(1) // Default to Telugu
+
+        binding.spnSourceLanguage.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                sourceLanguage = sourceOptions[position]
+                updateLanguageModelStatus()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        binding.spnTargetLanguage.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                targetLanguage = languageList[position]
+                updateLanguageModelStatus()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
     }
 
     private fun setupListeners() {
         binding.btnBack.setOnClickListener {
             finish()
+        }
+
+        // ⇄ Swap Languages
+        binding.btnSwapLanguages.setOnClickListener {
+            if (sourceLanguage != SupportedLanguage.AUTO) {
+                val temp = sourceLanguage
+                val newSourceIndex = (listOf(SupportedLanguage.AUTO) + languageList).indexOf(targetLanguage)
+                val newTargetIndex = languageList.indexOf(temp)
+
+                if (newSourceIndex >= 0) binding.spnSourceLanguage.setSelection(newSourceIndex)
+                if (newTargetIndex >= 0) binding.spnTargetLanguage.setSelection(newTargetIndex)
+            } else {
+                Toast.makeText(this, "Select a specific source language to swap", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Download missing language pack
+        binding.btnDownloadLanguagePack.setOnClickListener {
+            downloadRequiredLanguagePack()
         }
 
         // 1. Speak Typed Text
@@ -62,55 +136,60 @@ class CommunicationActivity : AppCompatActivity(), LiveSpeechListener {
             communicationManager.stopSpeaking()
         }
 
-        // 4. Translate & Speak
+        // 4. Translate & Speak (Async Offline ML Kit)
         binding.btnTranslateAndSpeak.setOnClickListener {
             val text = binding.etMessage.text.toString().trim()
-            if (text.isNotBlank()) {
-                val result = communicationManager.translateAndSpeak(text, targetLanguage)
-                binding.tvTranslatedOutput.text = "🌍 ${result.translatedText} (${result.targetLanguage.displayName})"
-            } else {
-                val sampleText = "Where is the bus station?"
-                val result = communicationManager.translateAndSpeak(sampleText, targetLanguage)
-                binding.etMessage.setText(sampleText)
-                binding.tvTranslatedOutput.text = "🌍 ${result.translatedText} (${result.targetLanguage.displayName})"
+            val textToTranslate = if (text.isNotBlank()) text else "Where is the bus station?"
+            if (text.isBlank()) binding.etMessage.setText(textToTranslate)
+
+            binding.tvTranslatedOutput.text = "Translating..."
+            communicationManager.translateAndSpeak(
+                text = textToTranslate,
+                sourceLanguage = sourceLanguage,
+                targetLanguage = targetLanguage
+            ) { result ->
+                runOnUiThread {
+                    if (result.isSuccessful) {
+                        val modeIcon = if (result.isOffline) "🟢 Offline" else "🌐 Online"
+                        binding.tvTranslatedOutput.text = "$modeIcon: \"${result.translatedText}\"\n(${result.targetLanguage.displayName})"
+                    } else {
+                        binding.tvTranslatedOutput.text = "⚠️ ${result.translatedText}"
+                    }
+                }
             }
         }
 
         // 5. One-Tap Quick Phrase Buttons
         binding.btnPhraseHelp.setOnClickListener {
             binding.etMessage.setText("I need help.")
-            communicationManager.speakText("I need help.")
+            handleQuickPhrase("I need help.")
         }
 
         binding.btnPhraseWater.setOnClickListener {
             binding.etMessage.setText("I need some water.")
-            communicationManager.speakText("I need some water.")
+            handleQuickPhrase("I need some water.")
         }
 
         binding.btnPhraseFood.setOnClickListener {
             binding.etMessage.setText("I need food.")
-            communicationManager.speakText("I need food.")
+            handleQuickPhrase("I need food.")
         }
 
         binding.btnPhraseHospital.setOnClickListener {
             binding.etMessage.setText("Please take me to the hospital.")
-            communicationManager.speakText("Please take me to the hospital.")
+            handleQuickPhrase("Please take me to the hospital.")
         }
 
         binding.btnPhraseThanks.setOnClickListener {
             binding.etMessage.setText("Thank you.")
-            communicationManager.speakText("Thank you.")
+            handleQuickPhrase("Thank you.")
         }
 
         binding.btnPhraseYesNo.setOnClickListener {
             val current = binding.etMessage.text.toString().trim()
-            if (current == "Yes.") {
-                binding.etMessage.setText("No.")
-                communicationManager.speakText("No.")
-            } else {
-                binding.etMessage.setText("Yes.")
-                communicationManager.speakText("Yes.")
-            }
+            val next = if (current == "Yes.") "No." else "Yes."
+            binding.etMessage.setText(next)
+            handleQuickPhrase(next)
         }
 
         // 6. Two-Way Conversation Microphone Input
@@ -126,16 +205,91 @@ class CommunicationActivity : AppCompatActivity(), LiveSpeechListener {
         }
     }
 
+    private fun handleQuickPhrase(phrase: String) {
+        if (targetLanguage != SupportedLanguage.ENGLISH) {
+            communicationManager.translateAndSpeak(
+                text = phrase,
+                sourceLanguage = SupportedLanguage.ENGLISH,
+                targetLanguage = targetLanguage
+            ) { result ->
+                runOnUiThread {
+                    binding.tvTranslatedOutput.text = "🌍 ${result.translatedText} (${result.targetLanguage.displayName})"
+                }
+            }
+        } else {
+            communicationManager.speakText(phrase)
+        }
+    }
+
+    private fun updateLanguageModelStatus() {
+        val checkSource = if (sourceLanguage == SupportedLanguage.AUTO) SupportedLanguage.ENGLISH else sourceLanguage
+
+        offlineLanguageManager.checkLanguagePairReady(checkSource, targetLanguage) { isReady ->
+            runOnUiThread {
+                if (isReady) {
+                    binding.tvTranslationStatusBadge.text = "🟢 OFFLINE TRANSLATION READY"
+                    binding.tvTranslationStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.accent_green))
+                    binding.bannerDownloadPack.visibility = View.GONE
+                } else {
+                    val isOnline = offlineLanguageManager.isInternetAvailable(this)
+                    if (isOnline) {
+                        binding.tvTranslationStatusBadge.text = "🌐 ONLINE TRANSLATION AVAILABLE"
+                        binding.tvTranslationStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.accent_cyan))
+                    } else {
+                        binding.tvTranslationStatusBadge.text = "⚠️ LANGUAGE PACK NEEDED"
+                        binding.tvTranslationStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.accent_yellow))
+                    }
+
+                    binding.bannerDownloadPack.visibility = View.VISIBLE
+                    binding.tvDownloadPrompt.text = "${targetLanguage.displayName} language pack required for offline use (~30MB)."
+                }
+            }
+        }
+    }
+
+    private fun downloadRequiredLanguagePack() {
+        binding.btnDownloadLanguagePack.isEnabled = false
+        binding.btnDownloadLanguagePack.text = "⏳ Downloading..."
+
+        offlineLanguageManager.downloadModel(
+            language = targetLanguage,
+            onProgress = { msg ->
+                runOnUiThread {
+                    binding.tvDownloadPrompt.text = msg
+                }
+            },
+            onSuccess = {
+                runOnUiThread {
+                    binding.btnDownloadLanguagePack.isEnabled = true
+                    binding.btnDownloadLanguagePack.text = "✓ Ready"
+                    Toast.makeText(this, "Offline translation is ready.", Toast.LENGTH_SHORT).show()
+                    updateLanguageModelStatus()
+                }
+            },
+            onError = { err ->
+                runOnUiThread {
+                    binding.btnDownloadLanguagePack.isEnabled = true
+                    binding.btnDownloadLanguagePack.text = "↓ Retry"
+                    Toast.makeText(this, err, Toast.LENGTH_LONG).show()
+                    updateLanguageModelStatus()
+                }
+            }
+        )
+    }
+
     // --- LiveSpeechListener ---
     override fun onSpeechRecognized(text: String) {
         runOnUiThread {
             binding.btnListenOtherPerson.text = "🎤 Listen to Other Person's Response"
-            val translation = communicationManager.translationEngine.translate(
+            communicationManager.translateAndSpeak(
                 text = text,
-                sourceLang = SupportedLanguage.ENGLISH,
-                targetLang = SupportedLanguage.TELUGU
-            )
-            binding.tvOtherPersonResponse.text = "Other Person Said: \"$text\"\nTranslated: ${translation.translatedText}"
+                sourceLanguage = SupportedLanguage.AUTO,
+                targetLanguage = targetLanguage
+            ) { result ->
+                runOnUiThread {
+                    binding.tvOtherPersonResponse.text = "Other Person: \"$text\"\nTranslated: ${result.translatedText}"
+                }
+            }
         }
     }
 
@@ -166,6 +320,7 @@ class CommunicationActivity : AppCompatActivity(), LiveSpeechListener {
         super.onDestroy()
         ttsManager.shutdown()
         speechEngine.shutdown()
+        communicationManager.translationEngine.close()
     }
 
     companion object {

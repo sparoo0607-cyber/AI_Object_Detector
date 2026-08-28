@@ -21,7 +21,7 @@ interface SoundOrchestratorCallback {
 /**
  * Sound & Language Orchestrator for Category 2: Sound & Language Assist.
  * Operates purely with Microphone / Audio input (NO CAMERA).
- * Handles continuous human voice recognition, live captions, translations, and acoustic volume alerts.
+ * Handles continuous human voice recognition, live captions, offline ML Kit translations, and acoustic volume alerts.
  */
 class SoundOrchestrator(
     private val context: Context,
@@ -29,7 +29,7 @@ class SoundOrchestrator(
 ) : LiveSpeechListener {
 
     val speechEngine = SpeechRecognitionEngine(context, this)
-    val translationEngine = TranslationEngine()
+    val translationEngine = TranslationEngine(context)
     val languageDetector = LanguageDetector()
     val hapticManager = HapticManager(context)
 
@@ -54,12 +54,13 @@ class SoundOrchestrator(
 
         if (isLiveTranslationEnabled) {
             val detected = languageDetector.detectLanguage(text)
-            val translation = translationEngine.translate(
+            translationEngine.translate(
                 text = text,
                 sourceLang = detected,
                 targetLang = targetLanguage
-            )
-            callback.onTranslation(translation)
+            ) { translation ->
+                callback.onTranslation(translation)
+            }
         }
     }
 
@@ -108,6 +109,7 @@ class SoundOrchestrator(
 
     fun shutdown() {
         speechEngine.shutdown()
+        translationEngine.close()
     }
 
     companion object {
