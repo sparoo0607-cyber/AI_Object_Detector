@@ -2,10 +2,7 @@ package com.accessibility.detector.vision
 
 import android.graphics.Bitmap
 import com.accessibility.detector.core.DetectionResult
-import com.accessibility.detector.core.EventPriority
 import com.accessibility.detector.core.PerceptionEvent
-import com.accessibility.detector.core.PerceptionType
-import com.accessibility.detector.core.SpatialPosition
 
 interface DangerDetectionListener {
     fun onHazardDetected(hazardEvent: PerceptionEvent)
@@ -40,55 +37,24 @@ class DangerDetectionEngine(
             }
         }
 
-        // 2. Fire, Flame, and Smoke Pre-Filter (Full frame + Screen ROI analysis)
+        // 2. Fire / Flame / Smoke PRE-FILTER only.
+        //    The on-device chromatic filter is not reliable enough to announce a hazard on
+        //    its own, so it never emits a spoken event here. It only nominates a suspicious
+        //    frame for verification by [GeminiVisionEngine], which is the single source of
+        //    the fire/smoke announcement (Gemini-confirmed = definitive & CRITICAL;
+        //    not configured = an advisory "please verify" phrase at reduced priority).
         if (bitmap != null) {
             val fireResult = fireSmokeDetector.analyzeFrame(bitmap, results)
 
             if (fireResult.hasFireVisualCues || fireResult.hasSmokeVisualCues) {
                 consecutiveFireFrames++
-
                 if (consecutiveFireFrames >= requiredFireFrames) {
                     val hint = when {
                         fireResult.isInsideScreen -> "fire_on_screen"
                         fireResult.hasFireVisualCues -> "fire"
                         else -> "smoke"
                     }
-
-                    // Trigger Gemini deep visual verification
                     listener.onPotentialHazardPreFiltered(hint, fireResult.isInsideScreen)
-
-                    val fireEvent = if (fireResult.isInsideScreen) {
-                        PerceptionEvent(
-                            type = PerceptionType.DANGER,
-                            label = "Screen Fire",
-                            spokenText = "Fire visible on the screen.",
-                            confidence = fireResult.fireConfidence,
-                            priority = EventPriority.DANGER,
-                            spatialPosition = SpatialPosition.CENTER
-                        )
-                    } else if (fireResult.hasFireVisualCues) {
-                        PerceptionEvent(
-                            type = PerceptionType.DANGER,
-                            label = "Fire Hazard",
-                            spokenText = "Warning. Fire detected.",
-                            confidence = fireResult.fireConfidence,
-                            priority = EventPriority.CRITICAL,
-                            spatialPosition = SpatialPosition.CENTER
-                        )
-                    } else {
-                        PerceptionEvent(
-                            type = PerceptionType.DANGER,
-                            label = "Smoke Hazard",
-                            spokenText = "Warning. Smoke detected.",
-                            confidence = 0.85f,
-                            priority = EventPriority.DANGER,
-                            spatialPosition = SpatialPosition.CENTER
-                        )
-                    }
-
-                    if (topHazardEvent == null || fireEvent.priority >= topHazardEvent.priority) {
-                        topHazardEvent = fireEvent
-                    }
                 }
             } else {
                 consecutiveFireFrames = 0

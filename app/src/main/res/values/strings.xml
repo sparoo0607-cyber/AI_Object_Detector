@@ -1,51 +1,42 @@
 <resources>
     <string name="app_name">SAHEY</string>
-    <string name="app_tagline">See it. Hear it. Understand it.</string>
-    
-    <!-- Permissions -->
-    <string name="permission_title">Permissions Required for SAHEY</string>
-    <string name="permission_message">SAHEY requires Camera access to detect objects, hazards, signs, and text, and Microphone access to listen for environmental sounds and voice commands.</string>
-    <string name="grant_permission">Grant Permissions</string>
-    <string name="permission_denied_message">Camera &amp; Microphone permissions are needed for SAHEY to assist you.</string>
-    
-    <!-- Modes & States -->
-    <string name="status_ready">SAHEY Ready</string>
-    <string name="status_scanning">🔍 Scanning environment…</string>
-    <string name="status_speaking">🔊 %1$s</string>
-    <string name="status_muted">🔇 Voice Output Muted</string>
-    <string name="status_safety_mode">⚠️ SAFETY MODE ACTIVE — Hazard Radar Prioritized</string>
-    
-    <!-- Controls -->
-    <string name="mute">Mute Voice</string>
-    <string name="unmute">Unmute Voice</string>
-    <string name="action_voice">Voice</string>
-    <string name="action_safety">Safety Mode</string>
-    <string name="action_read">Read Text</string>
-    <string name="action_sign">Sign Mode</string>
-    <string name="action_listen">Ask / Speak</string>
-    <string name="action_translate">Translate</string>
-    <string name="action_demo">Demo</string>
-    <string name="action_settings">Settings</string>
-    <string name="title_settings">SAHEY Settings</string>
-    
-    <!-- Perception Modules -->
-    <string name="mod_objects">Object Detector</string>
-    <string name="mod_danger">Danger Radar</string>
-    <string name="mod_ocr">Text Reader (OCR)</string>
-    <string name="mod_sign">Sign Language</string>
-    <string name="mod_sound">Sound Awareness</string>
-    <string name="mod_speech">Speech to Text</string>
-    <string name="mod_translate">Live Translation</string>
-    
-    <!-- Messages -->
-    <string name="tts_init_error">TTS engine not ready</string>
-    <string name="model_error">Failed to load AI model</string>
-    <string name="ocr_no_text">No readable text found</string>
-    <string name="speech_listening">Listening… Speak now</string>
-    <string name="speech_error">Speech recognition unavailable or silent</string>
-    
+
+    <!-- Live status (referenced from VisionAssistActivity) -->
+    <string name="status_scanning">Scanning</string>
+    <string name="status_muted">Muted</string>
+    <string name="status_safety_mode">Safety mode</string>
+
     <!-- Onboarding -->
-    <string name="welcome_title">Welcome to SAHEY</string>
-    <string name="welcome_message">Your AI Multimodal Accessibility Assistant. SAHEY automatically identifies objects, warns you of approaching hazards, reads printed text, understands sign language, detects environmental sounds, and translates speech in real time.</string>
-    <string name="get_started">Get Started</string>
+    <string name="onb_skip">Skip</string>
+    <string name="onb_next">Next</string>
+    <string name="onb_start">Get started</string>
+
+    <string name="onb_welcome_title">Welcome to\nSAHEY</string>
+    <string name="onb_welcome_body">On-device assistance for sight, sound, and speech — private, and works offline.</string>
+
+    <string name="onb_vision_title">See The World\nAround You</string>
+    <string name="onb_vision_body">Point the camera to hear objects, hazards, hand signs, and printed text read aloud.</string>
+
+    <string name="onb_sound_title">Never Miss\nA Sound</string>
+    <string name="onb_sound_body">Live captions, instant translation, and alerts for sirens, alarms, and doorbells.</string>
+
+    <string name="onb_speak_title">Speak\nAny Language</string>
+    <string name="onb_speak_body">Type or tap a phrase and SAHEY says it out loud, translated to the language you choose.</string>
+
+    <!-- Home -->
+    <string name="home_greeting">What do you need?</string>
+    <string name="home_vision">Vision Assist</string>
+    <string name="home_vision_sub">Camera · objects, hazards, text</string>
+    <string name="home_sound">Sound &amp; Language</string>
+    <string name="home_sound_sub">Mic · captions, translation, alerts</string>
+    <string name="home_speak">Speak &amp; Translate</string>
+    <string name="home_speak_sub">Text to speech · phrases</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_demo">Demo</string>
+
+    <!-- Common -->
+    <string name="back">Back</string>
+    <string name="grant_permission">Grant permission</string>
+    <string name="permission_camera_mic">Camera and microphone access is needed here.</string>
+    <string name="permission_mic">Microphone access is needed here.</string>
 </resources>

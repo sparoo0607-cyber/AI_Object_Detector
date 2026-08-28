@@ -1,0 +1,31 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp" android:height="120dp"
+    android:viewportWidth="120" android:viewportHeight="120">
+    <group>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M10,10 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M35,10 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M60,10 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M85,10 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M110,10 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M10,35 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M35,35 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M60,35 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M85,35 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M110,35 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M10,60 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M35,60 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M60,60 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M85,60 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M110,60 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M10,85 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M35,85 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M60,85 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M85,85 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M110,85 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M10,110 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M35,110 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M60,110 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M85,110 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+        <path android:fillColor="@color/onb_shape_dots" android:pathData="M110,110 m-5,0 a5,5 0,1 0,10 0 a5,5 0,1 0,-10 0"/>
+    </group>
+</vector>

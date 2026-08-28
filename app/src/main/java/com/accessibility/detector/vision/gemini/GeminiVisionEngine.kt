@@ -96,38 +96,44 @@ class GeminiVisionEngine(
             return
         }
 
-        // 2. Offline Fallback: If Gemini is offline or not configured, apply local danger reasoning
-        Log.d(TAG_VISION_DEBUG, "VISION_AI: Gemini not configured or offline. Applying on-device hazard decision.")
+        // 2. Offline fallback: Gemini not configured / offline.
+        //    Without a verification model the on-device colour filter can only ADVISE, not
+        //    assert. Wording is tentative and priority is reduced so it never masquerades
+        //    as a confirmed hazard. Configure a Gemini key in Settings for real verification.
+        Log.d(TAG_VISION_DEBUG, "VISION_AI: Gemini not configured/offline — emitting advisory only.")
         if (isScreenFireCandidate) {
-            val event = PerceptionEvent(
-                type = PerceptionType.DANGER,
-                label = "Screen Fire",
-                spokenText = "Fire visible on the screen.",
-                confidence = 0.90f,
-                priority = EventPriority.DANGER,
-                spatialPosition = SpatialPosition.CENTER
+            onResult(
+                PerceptionEvent(
+                    type = PerceptionType.DANGER,
+                    label = "Possible Screen Fire",
+                    spokenText = "There may be fire shown on a screen ahead.",
+                    confidence = 0.55f,
+                    priority = EventPriority.NAVIGATION,
+                    spatialPosition = SpatialPosition.CENTER
+                )
             )
-            onResult(event)
         } else if (hazardHint.contains("fire", ignoreCase = true) || hazardHint.contains("flame", ignoreCase = true)) {
-            val event = PerceptionEvent(
-                type = PerceptionType.DANGER,
-                label = "Fire Hazard",
-                spokenText = "Warning. Fire detected.",
-                confidence = 0.92f,
-                priority = EventPriority.CRITICAL,
-                spatialPosition = SpatialPosition.CENTER
+            onResult(
+                PerceptionEvent(
+                    type = PerceptionType.DANGER,
+                    label = "Possible Fire",
+                    spokenText = "Possible fire ahead. Please verify.",
+                    confidence = 0.6f,
+                    priority = EventPriority.DANGER,
+                    spatialPosition = SpatialPosition.CENTER
+                )
             )
-            onResult(event)
         } else if (hazardHint.contains("smoke", ignoreCase = true)) {
-            val event = PerceptionEvent(
-                type = PerceptionType.DANGER,
-                label = "Smoke Hazard",
-                spokenText = "Warning. Smoke detected.",
-                confidence = 0.86f,
-                priority = EventPriority.DANGER,
-                spatialPosition = SpatialPosition.CENTER
+            onResult(
+                PerceptionEvent(
+                    type = PerceptionType.DANGER,
+                    label = "Possible Smoke",
+                    spokenText = "Possible smoke ahead. Please verify.",
+                    confidence = 0.55f,
+                    priority = EventPriority.NAVIGATION,
+                    spatialPosition = SpatialPosition.CENTER
+                )
             )
-            onResult(event)
         }
     }
 

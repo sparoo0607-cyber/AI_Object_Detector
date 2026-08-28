@@ -27,16 +27,25 @@ interface SoundOrchestratorCallback {
 class SoundOrchestrator(
     private val context: Context,
     private val callback: SoundOrchestratorCallback
-) : LiveSpeechListener {
+) : LiveSpeechListener, SoundAwarenessListener {
 
     val speechEngine = SpeechRecognitionEngine(context, this)
     val translationEngine = TranslationEngine(context)
     val languageDetector = LanguageDetector()
     val hapticManager = HapticManager(context)
 
+    /** Real environmental-sound recognition (YAMNet, with heuristic fallback). */
+    val soundAwarenessEngine = SoundAwarenessEngine(context, this)
+
     var inputSpeechLanguage: SupportedLanguage = SupportedLanguage.TELUGU
     var targetLanguage: SupportedLanguage = SupportedLanguage.ENGLISH
     var isLiveTranslationEnabled: Boolean = true
+    /**
+     * Environmental-sound recognition shares the microphone with speech recognition.
+     * On some devices only one mic consumer can run at a time — disable this if live
+     * captions stop working while sound alerts are on.
+     */
+    var isEnvironmentalSoundEnabled: Boolean = true
     var speechRecognitionMode: SpeechRecognitionMode = SpeechRecognitionMode.PREFER_OFFLINE
 
     private var lastLoudSpikeTime = 0L
@@ -59,12 +68,16 @@ class SoundOrchestrator(
         }
 
         speechEngine.startContinuousListening(locale, mode)
+        if (isEnvironmentalSoundEnabled) {
+            soundAwarenessEngine.startListening()
+        }
         val modeText = if (mode == SpeechRecognitionMode.OFFLINE_ONLY) "Offline Mode" else "Listening"
         callback.onListeningStatus(true, "🎙️ $modeText (${speechLang.displayName})")
     }
 
     fun stopSoundAssist() {
         speechEngine.stopListening()
+        soundAwarenessEngine.stopListening()
         callback.onListeningStatus(false, "Sound assist paused")
     }
 
@@ -93,22 +106,27 @@ class SoundOrchestrator(
     override fun onRmsAudioLevel(rmsdB: Float) {
         callback.onAudioWaveLevel(rmsdB)
 
-        // Real-time acoustic threshold detection from live mic feed (e.g. horns, loud shouts, alarms)
-        val now = SystemClock.uptimeMillis()
-        if (rmsdB > 9.5f && (now - lastLoudSpikeTime > 3000L)) {
-            lastLoudSpikeTime = now
-            val soundEvent = SoundEvent(
-                label = "Loud Sound / Siren Spike",
-                icon = "🔊",
-                description = "High intensity acoustic spike detected (${rmsdB.toInt()} dB)",
-                confidence = 0.85f,
-                priority = EventPriority.DANGER
-            )
-            onSoundEvent(soundEvent)
+        // Generic loudness spike is only a coarse fallback cue. When the YAMNet model is
+        // active it does the real classification, so suppress the ambiguous spike alert.
+        if (!soundAwarenessEngine.activeModeLabel.startsWith("YAMNet")) {
+            val now = SystemClock.uptimeMillis()
+            if (rmsdB > 9.5f && (now - lastLoudSpikeTime > 3000L)) {
+                lastLoudSpikeTime = now
+                onSoundEvent(
+                    SoundEvent(
+                        label = "Loud Sound",
+                        icon = "🔊",
+                        description = "Loud acoustic spike (${rmsdB.toInt()} dB) — source unverified.",
+                        confidence = 0.55f,
+                        priority = EventPriority.NAVIGATION
+                    )
+                )
+            }
         }
     }
 
-    fun onSoundEvent(event: SoundEvent) {
+    // --- SoundAwarenessListener ---
+    override fun onSoundEvent(event: SoundEvent) {
         // 1. Distinct tactile vibration pattern
         when (event.priority) {
             EventPriority.CRITICAL -> hapticManager.playCriticalSosPattern()
@@ -118,6 +136,10 @@ class SoundOrchestrator(
 
         // 2. Pass to UI
         callback.onNewSoundEvent(event)
+    }
+
+    override fun onSoundEngineState(isActive: Boolean, message: String) {
+        android.util.Log.d(TAG, "Sound engine: active=$isActive — $message")
     }
 
     override fun onListeningStateChanged(isListening: Boolean) {
@@ -135,6 +157,7 @@ class SoundOrchestrator(
 
     fun shutdown() {
         speechEngine.shutdown()
+        soundAwarenessEngine.shutdown()
         translationEngine.close()
     }
 

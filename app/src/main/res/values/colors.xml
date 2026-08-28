@@ -1,29 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base Accessibility Palette -->
+
+    <!-- ============ Primitives ============ -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="surface_dark">#E6121212</color>
-    <color name="surface_card">#F21E1E1E</color>
-    <color name="surface_border">#40FFFFFF</color>
-    <color name="surface_danger">#4DFF1744</color>
-    
-    <!-- High-Contrast Perception Accents -->
-    <color name="accent_green">#FF00E676</color>     <!-- Objects -->
-    <color name="accent_red">#FFFF1744</color>       <!-- Critical Danger / Hazards -->
-    <color name="accent_orange">#FFFF9100</color>    <!-- Warning -->
-    <color name="accent_yellow">#FFFFD600</color>    <!-- OCR / Text Reader -->
-    <color name="accent_cyan">#FF00E5FF</color>      <!-- Sign Language -->
-    <color name="accent_purple">#FFD500F9</color>    <!-- Translation -->
-    <color name="accent_blue">#FF2979FF</color>      <!-- Sound Awareness -->
-    
-    <color name="text_primary">#FFFFFFFF</color>
-    <color name="text_secondary">#CCFFFFFF</color>
-    <color name="text_muted">#80FFFFFF</color>
-    
-    <!-- Bounding Box Colors -->
-    <color name="bbox_object">#FF00E676</color>
-    <color name="bbox_danger">#FFFF1744</color>
-    <color name="bbox_text">#FFFFD600</color>
-    <color name="bbox_sign">#FF00E5FF</color>
+
+    <!-- ============ Brand / perception accents (kept: referenced from code & OverlayView) ============ -->
+    <color name="accent_green">#FF32D74B</color>   <!-- objects / success -->
+    <color name="accent_red">#FFFF453A</color>     <!-- critical hazard -->
+    <color name="accent_orange">#FFFF9F0A</color>  <!-- warning -->
+    <color name="accent_yellow">#FFFFD60A</color>  <!-- OCR / text -->
+    <color name="accent_cyan">#FF64D2FF</color>    <!-- sign language -->
+    <color name="accent_purple">#FFBF5AF2</color>  <!-- translation -->
+    <color name="accent_blue">#FF0A84FF</color>    <!-- sound -->
+
+    <!-- ============ Surfaces (kept names: surface_dark / surface_card referenced from code) ============ -->
+    <color name="surface_dark">#FF0E1116</color>
+    <color name="surface_card">#FF171B22</color>
+    <color name="surface_border">#1FFFFFFF</color>
+
+    <!-- ============ Text (kept names referenced from code) ============ -->
+    <color name="text_primary">#FFF2F5F9</color>
+    <color name="text_secondary">#B0BAC6</color>
+    <color name="text_muted">#7A8494</color>
+
+    <!-- ============ Overlay bounding boxes ============ -->
+    <color name="bbox_object">#FF32D74B</color>
+    <color name="bbox_danger">#FFFF453A</color>
+    <color name="bbox_text">#FFFFD60A</color>
+    <color name="bbox_sign">#FF64D2FF</color>
     <color name="bbox_bg">#B3000000</color>
+
+    <!-- ============ Onboarding (fixed light palette, theme-independent) ============ -->
+    <color name="onb_bg">#FFFFFFFF</color>
+    <color name="onb_panel">#FFEAF0FF</color>
+    <color name="onb_accent">#FF4C6FFF</color>
+    <color name="onb_skip">#FF37B6E9</color>
+    <color name="onb_title">#FF26315E</color>
+    <color name="onb_body">#FF8B93A9</color>
+    <color name="onb_dot_inactive">#FFD5DBEC</color>
+    <color name="onb_shape_blue">#FF4C6FFF</color>
+    <color name="onb_shape_dots">#FFF3C7CE</color>
+
+    <!-- ============ Material 3 role tokens — LIGHT ============ -->
+    <color name="md_primary">#1E6FE0</color>
+    <color name="md_on_primary">#FFFFFFFF</color>
+    <color name="md_primary_container">#D8E6FF</color>
+    <color name="md_on_primary_container">#001B3C</color>
+    <color name="md_secondary">#4A6070</color>
+    <color name="md_on_secondary">#FFFFFFFF</color>
+    <color name="md_secondary_container">#D9E4EF</color>
+    <color name="md_on_secondary_container">#0A1E2A</color>
+    <color name="md_tertiary">#6C5677</color>
+    <color name="md_on_tertiary">#FFFFFFFF</color>
+    <color name="md_error">#BA1A1A</color>
+    <color name="md_on_error">#FFFFFFFF</color>
+    <color name="md_background">#FBFCFF</color>
+    <color name="md_on_background">#1A1C1E</color>
+    <color name="md_surface">#FBFCFF</color>
+    <color name="md_on_surface">#1A1C1E</color>
+    <color name="md_surface_variant">#E0E2EC</color>
+    <color name="md_on_surface_variant">#43474E</color>
+    <color name="md_surface_container">#EEF0F6</color>
+    <color name="md_surface_container_high">#E8EAF0</color>
+    <color name="md_outline">#73777F</color>
+    <color name="md_outline_variant">#C3C7CF</color>
+    <color name="md_scrim">#000000</color>
+
+    <!-- ============ Material 3 role tokens — DARK ============ -->
+    <color name="md_primary_dark">#AAC7FF</color>
+    <color name="md_on_primary_dark">#00315C</color>
+    <color name="md_primary_container_dark">#204876</color>
+    <color name="md_on_primary_container_dark">#D6E3FF</color>
+    <color name="md_secondary_dark">#BDC8D9</color>
+    <color name="md_on_secondary_dark">#27323F</color>
+    <color name="md_secondary_container_dark">#3D4856</color>
+    <color name="md_on_secondary_container_dark">#D9E4EF</color>
+    <color name="md_tertiary_dark">#D9BDE4</color>
+    <color name="md_on_tertiary_dark">#3B2947</color>
+    <color name="md_error_dark">#FFB4AB</color>
+    <color name="md_on_error_dark">#690005</color>
+    <color name="md_background_dark">#0E1116</color>
+    <color name="md_on_background_dark">#E3E2E6</color>
+    <color name="md_surface_dark">#0E1116</color>
+    <color name="md_on_surface_dark">#E3E2E6</color>
+    <color name="md_surface_variant_dark">#43474E</color>
+    <color name="md_on_surface_variant_dark">#C3C7CF</color>
+    <color name="md_surface_container_dark">#171B22</color>
+    <color name="md_surface_container_high_dark">#22262E</color>
+    <color name="md_outline_dark">#8D9199</color>
+    <color name="md_outline_variant_dark">#43474E</color>
+
 </resources>

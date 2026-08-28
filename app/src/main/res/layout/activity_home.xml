@@ -1,325 +1,255 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
-    android:fillViewport="true">
+    android:background="?attr/colorSurface"
+    android:fillViewport="true"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
-
-        <!-- Top Header & Branding -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="SAHEY"
-                    android:textColor="@color/accent_green"
-                    android:textSize="28sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="See it. Hear it. Understand it."
-                    android:textColor="@color/accent_cyan"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <!-- Settings Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSettings"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:insetLeft="0dp"
-                android:insetTop="0dp"
-                android:insetRight="0dp"
-                android:insetBottom="0dp"
-                app:cornerRadius="24dp"
-                app:backgroundTint="@color/surface_dark"
-                app:icon="@drawable/ic_settings"
-                app:iconTint="@color/white"
-                app:strokeColor="@color/surface_border"
-                app:strokeWidth="1dp"
-                android:contentDescription="@string/action_settings" />
-        </LinearLayout>
+        android:paddingHorizontal="20dp"
+        android:paddingTop="32dp"
+        android:paddingBottom="24dp">
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Select an accessibility mode:"
-            android:textColor="@color/text_secondary"
-            android:textSize="15sp" />
+            android:letterSpacing="0.15"
+            android:text="@string/app_name"
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+            android:textColor="?attr/colorPrimary" />
 
-        <!-- ============================================ -->
-        <!-- CATEGORY 1: VISION ASSIST (CAMERA-BASED) -->
-        <!-- ============================================ -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/home_greeting"
+            android:textAppearance="@style/TextAppearance.Sahey.Display"
+            android:textColor="?attr/colorOnSurface" />
+
+        <!-- Vision -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardVisionAssist"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
             android:clickable="true"
             android:focusable="true"
-            app:cardBackgroundColor="@color/surface_card"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:strokeColor="@color/accent_green"
-            app:strokeWidth="2dp"
-            android:contentDescription="Category 1: Vision Assist. For visually impaired users. Camera based AI assistance for objects, danger radar, sign language, and reading text. Double tap to open.">
+            android:contentDescription="@string/home_vision">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:background="@drawable/bg_icon_circle">
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_gravity="center"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_camera"
+                        app:tint="?attr/colorOnPrimaryContainer" />
+                </FrameLayout>
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="👁️"
-                        android:textSize="32sp" />
+                        android:text="@string/home_vision"
+                        android:textAppearance="@style/TextAppearance.Sahey.Title"
+                        android:textColor="?attr/colorOnSurface" />
 
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="14dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="VISION ASSIST"
-                            android:textColor="@color/accent_green"
-                            android:textSize="20sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="For visually impaired users"
-                            android:textColor="@color/white"
-                            android:textSize="13sp" />
-                    </LinearLayout>
+                        android:layout_marginTop="2dp"
+                        android:text="@string/home_vision_sub"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
                 </LinearLayout>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="• Real-Time Object Detection (80 Classes)\n• AI Danger &amp; Hazard Radar\n• Sign Language Interpreter\n• OCR Image Text Reader"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp"
-                    android:lineSpacingExtra="3dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="📷 Uses Camera • Instant Voice Output"
-                    android:textColor="@color/accent_green"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:importantForAccessibility="no"
+                    android:rotation="180"
+                    android:src="@drawable/ic_arrow_back"
+                    app:tint="?attr/colorOnSurfaceVariant" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ============================================ -->
-        <!-- CATEGORY 2: SOUND & LANGUAGE ASSIST (MIC ONLY) -->
-        <!-- ============================================ -->
+        <!-- Sound -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardSoundAssist"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="14dp"
             android:clickable="true"
             android:focusable="true"
-            app:cardBackgroundColor="@color/surface_card"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:strokeColor="@color/accent_blue"
-            app:strokeWidth="2dp"
-            android:contentDescription="Category 2: Sound and Language Assist. Primarily for deaf and hard of hearing users. Live sound alerts, speech transcription, and vibrations without camera. Double tap to open.">
+            android:contentDescription="@string/home_sound">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:background="@drawable/bg_icon_circle">
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_gravity="center"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_sound"
+                        app:tint="?attr/colorOnPrimaryContainer" />
+                </FrameLayout>
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🔊"
-                        android:textSize="32sp" />
+                        android:text="@string/home_sound"
+                        android:textAppearance="@style/TextAppearance.Sahey.Title"
+                        android:textColor="?attr/colorOnSurface" />
 
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="14dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="SOUND ASSIST"
-                            android:textColor="@color/accent_blue"
-                            android:textSize="20sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="For deaf &amp; hard-of-hearing users"
-                            android:textColor="@color/white"
-                            android:textSize="13sp" />
-                    </LinearLayout>
+                        android:layout_marginTop="2dp"
+                        android:text="@string/home_sound_sub"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
                 </LinearLayout>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="• Environmental Sound Awareness (Sirens, Horns, Alarms)\n• Sound → Multi-Pattern Haptic Vibration\n• Live Speech-to-Text Captions\n• Live Spoken Language Translation"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp"
-                    android:lineSpacingExtra="3dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="🎙️ Microphone Only • No Camera Required"
-                    android:textColor="@color/accent_blue"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:importantForAccessibility="no"
+                    android:rotation="180"
+                    android:src="@drawable/ic_arrow_back"
+                    app:tint="?attr/colorOnSurfaceVariant" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ============================================ -->
-        <!-- CATEGORY 3: SPEAK & TRANSLATE ASSIST -->
-        <!-- ============================================ -->
+        <!-- Speak -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardCommunication"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="14dp"
             android:clickable="true"
             android:focusable="true"
-            app:cardBackgroundColor="@color/surface_card"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:strokeColor="@color/accent_purple"
-            app:strokeWidth="2dp"
-            android:contentDescription="Category 3: Speak and Translate Assist. For people who cannot speak or need communication assistance. Type to speak, quick phrases, and two way translation. Double tap to open.">
+            android:contentDescription="@string/home_speak">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:background="@drawable/bg_icon_circle">
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_gravity="center"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_translate"
+                        app:tint="?attr/colorOnPrimaryContainer" />
+                </FrameLayout>
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🗣️"
-                        android:textSize="32sp" />
+                        android:text="@string/home_speak"
+                        android:textAppearance="@style/TextAppearance.Sahey.Title"
+                        android:textColor="?attr/colorOnSurface" />
 
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="14dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="SPEAK &amp; TRANSLATE"
-                            android:textColor="@color/accent_purple"
-                            android:textSize="20sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="For non-verbal communication"
-                            android:textColor="@color/white"
-                            android:textSize="13sp" />
-                    </LinearLayout>
+                        android:layout_marginTop="2dp"
+                        android:text="@string/home_speak_sub"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
                 </LinearLayout>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="• Type to Speak (TTS)\n• One-Tap Quick Emergency &amp; Everyday Phrases\n• Multilingual Text &amp; Speech Translation\n• Two-Way Accessible Conversation"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp"
-                    android:lineSpacingExtra="3dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="⌨️ Type → Translate → Speak Aloud"
-                    android:textColor="@color/accent_purple"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:importantForAccessibility="no"
+                    android:rotation="180"
+                    android:src="@drawable/ic_arrow_back"
+                    app:tint="?attr/colorOnSurfaceVariant" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Hackathon Demo Panel Trigger -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDemo"
+        <View
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="20dp"
-            android:text="🛠️ Hackathon Subsystem Health &amp; Demo Panel"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            android:textSize="13sp"
-            app:backgroundTint="@color/accent_cyan"
-            app:cornerRadius="12dp"
-            app:icon="@drawable/ic_demo"
-            app:iconTint="@color/black" />
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:minHeight="24dp" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDemo"
+                style="@style/Widget.Sahey.Button.Tonal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/action_demo"
+                app:icon="@drawable/ic_demo" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSettings"
+                style="@style/Widget.Sahey.Button.Icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:contentDescription="@string/action_settings"
+                app:icon="@drawable/ic_settings" />
+        </LinearLayout>
     </LinearLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

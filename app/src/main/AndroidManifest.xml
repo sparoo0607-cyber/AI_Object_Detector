@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permissions for 3-Category AI Multimodal Accessibility -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
@@ -18,7 +17,6 @@
         android:name="android.hardware.microphone"
         android:required="false" />
 
-    <!-- Full Queries for TextToSpeech and SpeechRecognizer engines across Android 11-14+ -->
     <queries>
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
@@ -43,9 +41,9 @@
         android:theme="@style/Theme.AccessibilityDetector"
         tools:targetApi="31">
 
-        <!-- Category 0: Home Screen (Launcher) -->
+        <!-- First-run onboarding (launcher) -->
         <activity
-            android:name=".ui.HomeActivity"
+            android:name=".ui.OnboardingActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -54,26 +52,32 @@
             </intent-filter>
         </activity>
 
-        <!-- Category 1: Vision Assist (Camera-based) -->
+        <!-- Home hub -->
         <activity
-            android:name=".ui.VisionAssistActivity"
+            android:name=".ui.HomeActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 
-        <!-- Category 2: Sound & Language Assist (Mic-based, No Camera) -->
+        <!-- Category 1: Vision Assist (camera) -->
+        <activity
+            android:name=".ui.VisionAssistActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AccessibilityDetector.Immersive" />
+
+        <!-- Category 2: Sound & Language Assist (mic) -->
         <activity
             android:name=".ui.SoundAssistActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 
-        <!-- Category 3: Speak & Translate (Text/TTS/Translate, No Camera) -->
+        <!-- Category 3: Speak & Translate -->
         <activity
             android:name=".ui.CommunicationActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
 
-        <!-- Settings Dashboard -->
         <activity
             android:name=".ui.SettingsActivity"
             android:exported="false"

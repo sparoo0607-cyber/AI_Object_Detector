@@ -22,14 +22,15 @@ class RiskAssessment {
         val pos = result.spatialPosition
         val prox = result.proximity
 
-        // 1. Fire / Flame / Smoke (CRITICAL DANGER)
+        // 1. Fire / Flame / Smoke label from the object detector (rare — COCO has no fire class).
+        //    Treated as an advisory; the verified fire path is DangerDetectionEngine -> Gemini.
         if (HazardRules.isFireOrSmoke(label)) {
             return PerceptionEvent(
                 type = PerceptionType.DANGER,
-                label = "Fire Hazard",
-                spokenText = "Warning. Fire detected.",
+                label = "Possible Fire",
+                spokenText = "Possible fire nearby. Please verify.",
                 confidence = result.score,
-                priority = EventPriority.CRITICAL,
+                priority = EventPriority.DANGER,
                 spatialPosition = pos,
                 proximity = prox
             )
@@ -148,14 +149,15 @@ class RiskAssessment {
             meanIntensity /= totalSampled
             val ratio = brightPixelCount.toFloat() / totalSampled
 
-            // High concentrated specular highlight patches on the ground plane indicate water/spills
+            // Specular-highlight ratio is a weak cue (also fires on glossy tile, sun glare,
+            // polished floors). Surface it as an advisory at navigation priority, not a warning.
             if (ratio in 0.14f..0.45f && meanIntensity in 140.0..220.0) {
                 return PerceptionEvent(
                     type = PerceptionType.DANGER,
-                    label = "Slippery Surface",
-                    spokenText = "Warning. Possible slippery floor ahead.",
-                    confidence = 0.84f,
-                    priority = EventPriority.DANGER,
+                    label = "Reflective Floor",
+                    spokenText = "The floor ahead looks reflective — it may be wet. Please check.",
+                    confidence = 0.5f,
+                    priority = EventPriority.NAVIGATION,
                     spatialPosition = SpatialPosition.CENTER,
                     proximity = ProximityLevel.NEARBY
                 )

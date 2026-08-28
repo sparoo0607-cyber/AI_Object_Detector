@@ -14,3 +14,15 @@ MP_Data*
 SignLanguageDetectionUsingML-main*
 *.zip
 *.apk
+
+# Signing secrets — do NOT publish the prototype signing key
+keystore.properties
+app/release.keystore
+
+# JVM crash logs
+hs_err_pid*.log
+replay_pid*.log
+
+# Large downloaded model assets (see app/src/main/assets/README.md)
+app/src/main/assets/hand_landmarker.task
+app/src/main/assets/yamnet.tflite

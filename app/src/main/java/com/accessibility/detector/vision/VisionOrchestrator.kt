@@ -104,7 +104,7 @@ class VisionOrchestrator(
         // In dedicated Sign Mode, give highest priority to Sign Language
         if (signSentenceBuilder.isSignModeActive) {
             if (frameBitmap != null) {
-                signEngine.analyzeHandGestures(frameBitmap, lastDetectionResults)
+                signEngine.analyzeHandGestures(frameBitmap, lastDetectionResults, rotationDegrees)
             }
             if (shouldObject) {
                 objectEngine.processFrame(imageProxy)
@@ -128,7 +128,7 @@ class VisionOrchestrator(
 
         // 3. Sign Language gesture detection
         if (frameBitmap != null && shouldSign) {
-            signEngine.analyzeHandGestures(frameBitmap, lastDetectionResults)
+            signEngine.analyzeHandGestures(frameBitmap, lastDetectionResults, rotationDegrees)
         }
     }
 

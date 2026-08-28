@@ -16,25 +16,35 @@ interface SoundAwarenessListener {
 }
 
 /**
- * Continuous environmental sound listener for Category 2: Sound & Language Assist.
+ * Continuous environmental-sound listener for Category 2: Sound & Language Assist.
+ *
+ * Prefers **YAMNet** ([EnvironmentalSoundClassifier]). Falls back to the legacy
+ * zero-crossing heuristic ([SoundClassifier]) only when `yamnet.tflite` is not bundled,
+ * and clearly reports which mode is active.
  */
 class SoundAwarenessEngine(
     private val context: Context,
     private val listener: SoundAwarenessListener,
-    private val soundClassifier: SoundClassifier = SoundClassifier()
+    private val heuristicClassifier: SoundClassifier = SoundClassifier()
 ) {
+
+    private val yamnet = EnvironmentalSoundClassifier(context)
 
     private var audioRecord: AudioRecord? = null
     private var recordingThread: Thread? = null
     private val isRecording = AtomicBoolean(false)
 
+    // Heuristic-mode capture format
     private val sampleRate = 16000
     private val channelConfig = AudioFormat.CHANNEL_IN_MONO
     private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
-    private val bufferSize = maxOf(
+    private val heuristicBufferSize = maxOf(
         AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat),
-        sampleRate / 2 // 500ms chunk
+        sampleRate / 2
     )
+
+    val activeModeLabel: String
+        get() = if (yamnet.isReady) "YAMNet AI sound model" else "Heuristic sound estimator"
 
     fun startListening() {
         if (isRecording.get()) return
@@ -46,48 +56,81 @@ class SoundAwarenessEngine(
             return
         }
 
-        try {
-            audioRecord = AudioRecord(
-                MediaRecorder.AudioSource.MIC,
-                sampleRate,
-                channelConfig,
-                audioFormat,
-                bufferSize
-            )
+        if (yamnet.isReady) startYamnet() else startHeuristic()
+    }
 
-            if (audioRecord?.state != AudioRecord.STATE_INITIALIZED) {
-                listener.onSoundEngineState(false, "AudioRecord init failed")
+    @Suppress("MissingPermission") // RECORD_AUDIO verified in startListening()
+    private fun startYamnet() {
+        try {
+            val record = yamnet.createAudioRecord()
+            if (record == null) {
+                Log.w(TAG, "YAMNet record creation failed; using heuristic mode")
+                startHeuristic()
                 return
             }
-
-            audioRecord?.startRecording()
+            audioRecord = record
+            record.startRecording()
             isRecording.set(true)
-            listener.onSoundEngineState(true, "Listening for environmental sounds")
+            listener.onSoundEngineState(true, "Listening (YAMNet AI model)")
 
             recordingThread = Thread({
-                val buffer = ShortArray(bufferSize)
+                // YAMNet needs ~0.975 s of audio; classify roughly twice a second.
                 while (isRecording.get()) {
-                    val read = audioRecord?.read(buffer, 0, buffer.size) ?: 0
-                    if (read > 0) {
-                        val soundEvent = soundClassifier.classifyAudioBuffer(buffer, read, sampleRate)
-                        if (soundEvent != null) {
-                            listener.onSoundEvent(soundEvent)
-                        }
+                    val event = yamnet.classify(record)
+                    if (event != null) listener.onSoundEvent(event)
+                    try {
+                        Thread.sleep(500)
+                    } catch (_: InterruptedException) {
+                        break
                     }
                 }
-            }, "Sahey-SoundAssistThread").apply {
+            }, "Sahey-YamnetThread").apply {
                 priority = Thread.MIN_PRIORITY + 1
                 start()
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to start sound recording: ${e.message}", e)
+            Log.e(TAG, "YAMNet start failed: ${e.message}", e)
+            startHeuristic()
+        }
+    }
+
+    private fun startHeuristic() {
+        try {
+            @Suppress("MissingPermission")
+            val record = AudioRecord(
+                MediaRecorder.AudioSource.MIC,
+                sampleRate, channelConfig, audioFormat, heuristicBufferSize
+            )
+            if (record.state != AudioRecord.STATE_INITIALIZED) {
+                listener.onSoundEngineState(false, "AudioRecord init failed")
+                return
+            }
+            audioRecord = record
+            record.startRecording()
+            isRecording.set(true)
+            listener.onSoundEngineState(true, "Listening (heuristic estimator — bundle yamnet.tflite for AI mode)")
+
+            recordingThread = Thread({
+                val buffer = ShortArray(heuristicBufferSize)
+                while (isRecording.get()) {
+                    val read = record.read(buffer, 0, buffer.size)
+                    if (read > 0) {
+                        heuristicClassifier.classifyAudioBuffer(buffer, read, sampleRate)
+                            ?.let { listener.onSoundEvent(it) }
+                    }
+                }
+            }, "Sahey-SoundHeuristicThread").apply {
+                priority = Thread.MIN_PRIORITY + 1
+                start()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Heuristic sound start failed: ${e.message}", e)
             listener.onSoundEngineState(false, "Sound error: ${e.localizedMessage}")
         }
     }
 
     fun stopListening() {
         if (!isRecording.getAndSet(false)) return
-
         try {
             audioRecord?.stop()
             audioRecord?.release()
@@ -98,6 +141,11 @@ class SoundAwarenessEngine(
         } catch (e: Exception) {
             Log.e(TAG, "Error stopping sound listener: ${e.message}")
         }
+    }
+
+    fun shutdown() {
+        stopListening()
+        yamnet.close()
     }
 
     companion object {
