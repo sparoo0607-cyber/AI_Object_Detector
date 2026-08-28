@@ -5,13 +5,15 @@ import android.content.SharedPreferences
 
 /**
  * Configuration & dynamic API key manager for Gemini Multimodal Vision.
- * Protects secrets by avoiding hardcoded credentials in source code.
  */
 object GeminiConfig {
 
     private const val PREFS_NAME = "sahey_gemini_prefs"
     private const val KEY_API_KEY = "gemini_api_key"
     private const val KEY_MODEL = "gemini_model_name"
+
+    // Default API Key provided for instant out-of-the-box operation
+    private const val DEFAULT_FALLBACK_KEY = ""
 
     // Default fast multimodal vision model
     const val DEFAULT_MODEL = "gemini-1.5-flash"
@@ -22,7 +24,10 @@ object GeminiConfig {
         val key = prefs.getString(KEY_API_KEY, "") ?: ""
         if (key.isNotBlank()) return key
 
-        return System.getProperty("GEMINI_API_KEY") ?: ""
+        val sysProp = System.getProperty("GEMINI_API_KEY") ?: ""
+        if (sysProp.isNotBlank()) return sysProp
+
+        return DEFAULT_FALLBACK_KEY
     }
 
     fun setApiKey(context: Context, apiKey: String) {
