@@ -1,21 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- High contrast colors for accessibility -->
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="surface_dark">#D9121212</color>
-    <color name="surface_card">#E61E1E1E</color>
-    <color name="surface_border">#40FFFFFF</color>
+    <!-- Cool Obsidian & Midnight Navy Dark Palette -->
+    <color name="black">#FF0A0D14</color>
+    <color name="white">#FFF8FAFC</color>
+    <color name="surface_dark">#FF111622</color>
+    <color name="surface_card">#FF161D2B</color>
+    <color name="surface_card_elevated">#FF1E273A</color>
+    <color name="surface_border">#FF26334D</color>
+    <color name="surface_border_subtle">#FF1A2335</color>
+    <color name="surface_glass">#E6111622</color>
     
-    <color name="accent_green">#FF00E676</color>
-    <color name="accent_cyan">#FF00E5FF</color>
-    <color name="accent_yellow">#FFFFD600</color>
-    <color name="accent_red">#FFFF5252</color>
+    <!-- Cool Accent Colors -->
+    <!-- Mint / Emerald for Vision -->
+    <color name="accent_green">#FF10B981</color>
+    <color name="accent_green_glow">#FF34D399</color>
+    <color name="accent_green_subtle">#FF132B25</color>
     
-    <color name="text_primary">#FFFFFFFF</color>
-    <color name="text_secondary">#CCFFFFFF</color>
-    <color name="text_muted">#80FFFFFF</color>
+    <!-- Electric Sky / Cyan for Audio & Captions -->
+    <color name="accent_cyan">#FF0EA5E9</color>
+    <color name="accent_cyan_glow">#FF38BDF8</color>
+    <color name="accent_cyan_subtle">#FF102938</color>
     
-    <!-- Bounding Box Colors -->
-    <color name="bbox_stroke">#FF00E676</color>
-    <color name="bbox_bg">#99000000</color>
+    <!-- Indigo / Violet for Intelligence & Gemini -->
+    <color name="accent_indigo">#FF6366F1</color>
+    <color name="accent_indigo_glow">#FF818CF8</color>
+    <color name="accent_indigo_subtle">#FF1E1B4B</color>
+    
+    <!-- Amber for Warnings & Badges -->
+    <color name="accent_yellow">#FFF59E0B</color>
+    <color name="accent_yellow_subtle">#FF2D2312</color>
+    
+    <!-- Coral Red for Muted / Alerts -->
+    <color name="accent_red">#FFF43F5E</color>
+    <color name="accent_red_subtle">#FF2D151C</color>
+    
+    <!-- Clean Typography -->
+    <color name="text_primary">#FFF8FAFC</color>
+    <color name="text_secondary">#FF94A3B8</color>
+    <color name="text_muted">#FF64748B</color>
+    
+    <!-- Overlay & Bounding Boxes -->
+    <color name="bbox_stroke">#FF10B981</color>
+    <color name="bbox_corner">#FF38BDF8</color>
+    <color name="bbox_bg">#D90A0D14</color>
 </resources>

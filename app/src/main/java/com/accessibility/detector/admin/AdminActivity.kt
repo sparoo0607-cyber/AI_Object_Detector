@@ -1,15 +1,14 @@
 package com.accessibility.detector.admin
 
 import android.content.pm.PackageManager
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.InputType
 import android.view.Gravity
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
-import com.accessibility.detector.R
 import com.accessibility.detector.core.SahayConfig
 import java.text.SimpleDateFormat
 import java.util.*
@@ -17,13 +16,7 @@ import java.util.*
 /**
  * SAHAY ADMIN — Control Center for this device. Same SahayConfig
  * (SharedPreferences) the SEE/LISTEN screens read, so every change
- * here takes effect the next time SEE or LISTEN runs — no separate
- * sync step, no backend, matching the web prototype's "config-driven,
- * not hardcoded" principle. Built programmatically (no XML) to keep
- * this dense settings screen fast to build and easy to extend.
- *
- * Prototype-level passcode gate only, per the directive's own
- * guidance not to over-engineer auth within a 24-hour build.
+ * here takes effect the next time SEE or LISTEN runs.
  */
 class AdminActivity : AppCompatActivity() {
 
@@ -31,11 +24,17 @@ class AdminActivity : AppCompatActivity() {
         "object_detected", "text_detected", "currency_detected", "speech_detected",
         "sound_soft", "sound_sustained", "sound_impulsive", "low_confidence"
     )
-    private val bg = 0xFF1B1B2F.toInt()
-    private val card = 0xFF272740.toInt()
-    private val amber = 0xFFE8A33D.toInt()
-    private val cream = 0xFFF5F1E8.toInt()
-    private val muted = 0xFF9A94AE.toInt()
+
+    // Cool Midnight & Slate Color Palette
+    private val bg = 0xFF0A0D14.toInt()
+    private val card = 0xFF161D2B.toInt()
+    private val border = 0xFF26334D.toInt()
+    private val mint = 0xFF10B981.toInt()
+    private val cyan = 0xFF0EA5E9.toInt()
+    private val cream = 0xFFF8FAFC.toInt()
+    private val muted = 0xFF94A3B8.toInt()
+    private val amber = 0xFFF59E0B.toInt()
+    private val red = 0xFFF43F5E.toInt()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,33 +52,37 @@ class AdminActivity : AppCompatActivity() {
         }
         val title = TextView(this).apply {
             text = "SAHAY ADMIN"
-            setTextColor(amber)
+            setTextColor(cream)
             textSize = 24f
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
         }
         val note = TextView(this).apply {
-            text = "Control center for organizations, NGOs and schools deploying SAHAY.\nDemo passcode: sahay-admin"
+            text = "Device Configuration & System Calibration\nDemo passcode: sahay-admin"
             setTextColor(muted)
-            textSize = 12f
+            textSize = 12.5f
             gravity = Gravity.CENTER
-            setPadding(0, 24, 0, 32)
+            setPadding(0, 16, 0, 32)
         }
         val input = EditText(this).apply {
             hint = "Admin passcode"
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
             setTextColor(cream)
             setHintTextColor(muted)
+            background = makeCardDrawable(card, border, 12f)
+            setPadding(32, 28, 32, 28)
         }
         val error = TextView(this).apply {
             text = "Incorrect passcode."
-            setTextColor(0xFFE2796B.toInt())
+            setTextColor(red)
             visibility = View.GONE
             setPadding(0, 12, 0, 0)
         }
         val btn = Button(this).apply {
             text = "Unlock"
-            setBackgroundColor(amber)
+            background = makeCardDrawable(mint, mint, 14f)
             setTextColor(bg)
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
             setPadding(0, 24, 0, 24)
         }
         btn.setOnClickListener {
@@ -90,7 +93,7 @@ class AdminActivity : AppCompatActivity() {
         root.addView(note)
         root.addView(input, LinearLayout.LayoutParams(600, LinearLayout.LayoutParams.WRAP_CONTENT))
         root.addView(error)
-        root.addView(btn, LinearLayout.LayoutParams(600, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 20 })
+        root.addView(btn, LinearLayout.LayoutParams(600, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 24 })
         setContentView(root)
     }
 
@@ -99,71 +102,95 @@ class AdminActivity : AppCompatActivity() {
         val scroll = NestedScrollView(this).apply { setBackgroundColor(bg) }
         val col = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(36, 48, 36, 80)
+            setPadding(36, 44, 36, 80)
         }
         scroll.addView(col)
 
         col.addView(sectionTitle("SAHAY Admin — Control Center"))
         col.addView(bodyText(configVersionLine()))
 
-        col.addView(cardTitle("System status"))
+        col.addView(cardTitle("System Status"))
         col.addView(statusCard())
 
-        col.addView(cardTitle("Language"))
+        col.addView(cardTitle("Language Preferences"))
         col.addView(languageCard())
 
-        col.addView(cardTitle("Feature flags"))
+        col.addView(cardTitle("Feature Controls"))
         col.addView(featureFlagsCard())
 
-        col.addView(cardTitle("AI models"))
+        col.addView(cardTitle("AI & Perception Models"))
         col.addView(modelsCard())
 
-        col.addView(cardTitle("Confidence thresholds"))
+        col.addView(cardTitle("Confidence Thresholds"))
         col.addView(thresholdsCard())
 
-        col.addView(cardTitle("Attention rules — priority & cooldown"))
+        col.addView(cardTitle("Priority & Cooldown Rules"))
         col.addView(attentionCard())
 
-        col.addView(cardTitle("Offline readiness"))
+        col.addView(cardTitle("Offline Readiness Status"))
         col.addView(offlineCard())
 
-        col.addView(cardTitle("Audit log"))
+        col.addView(cardTitle("Audit Log"))
         col.addView(auditCard())
 
         val resetBtn = Button(this).apply {
-            text = "Reset to defaults"
-            setBackgroundColor(card)
+            text = "Reset All Settings to Default"
+            background = makeCardDrawable(card, border, 14f)
             setTextColor(muted)
             setOnClickListener { SahayConfig.resetToDefaults(); showDashboard() }
         }
-        col.addView(resetBtn, marginParams(top = 24))
+        col.addView(resetBtn, marginParams(top = 28))
 
         setContentView(scroll)
     }
 
-    private fun configVersionLine() = "SharedPreferences-backed · applies the next time SEE/LISTEN runs"
+    private fun configVersionLine() = "Realtime local configuration · Persisted in SharedPreferences"
 
-    // ---- helpers to build the card look ----
+    // ---- helpers to build the modern card look ----
+    private fun makeCardDrawable(fillColor: Int, strokeColor: Int, radiusDp: Float): GradientDrawable {
+        val density = resources.displayMetrics.density
+        return GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(fillColor)
+            setStroke((1.5f * density).toInt(), strokeColor)
+            cornerRadius = radiusDp * density
+        }
+    }
+
     private fun sectionTitle(text: String) = TextView(this).apply {
-        this.text = text; setTextColor(0xFFFFFFFF.toInt()); textSize = 20f; setTypeface(typeface, android.graphics.Typeface.BOLD)
+        this.text = text
+        setTextColor(cream)
+        textSize = 20f
+        typeface = android.graphics.Typeface.DEFAULT_BOLD
     }
+
     private fun bodyText(text: String) = TextView(this).apply {
-        this.text = text; setTextColor(muted); textSize = 11f; setPadding(0, 4, 0, 20)
+        this.text = text
+        setTextColor(muted)
+        textSize = 11.5f
+        setPadding(0, 4, 0, 16)
     }
+
     private fun cardTitle(text: String) = TextView(this).apply {
-        this.text = text; setTextColor(amber); textSize = 13f; setTypeface(typeface, android.graphics.Typeface.BOLD)
+        this.text = text
+        setTextColor(mint)
+        textSize = 13f
+        typeface = android.graphics.Typeface.DEFAULT_BOLD
         setPadding(0, 20, 0, 8)
     }
+
     private fun marginParams(top: Int = 0) = LinearLayout.LayoutParams(
         LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
     ).apply { topMargin = top }
+
     private fun cardBox(): LinearLayout = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
-        setBackgroundColor(card)
-        setPadding(28, 24, 28, 24)
+        background = makeCardDrawable(card, border, 18f)
+        setPadding(32, 28, 32, 28)
     }
+
     private fun rowLabel(text: String) = TextView(this).apply { this.text = text; setTextColor(cream); textSize = 13f }
-    private fun smallMuted(text: String) = TextView(this).apply { this.text = text; setTextColor(muted); textSize = 10.5f }
+    private fun smallMuted(text: String) = TextView(this).apply { this.text = text; setTextColor(muted); textSize = 11f }
 
     // ---------------- status ----------------
     private fun statusCard(): View {
@@ -172,26 +199,27 @@ class AdminActivity : AppCompatActivity() {
         val hasCamera = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
         val hasMic = pm.hasSystemFeature(PackageManager.FEATURE_MICROPHONE)
         listOf(
-            "SAHAY Core" to "Online",
-            "Camera" to if (hasCamera) "Detected" else "Not detected",
-            "Microphone" to if (hasMic) "Detected" else "Not detected",
-            "Object detection (TFLite)" to "Bundled — offline",
-            "OCR (ML Kit)" to "Bundled — offline (English + Hindi)",
-            "Live captions (Whisper)" to "Bundled — offline, primary (cloud SpeechRecognizer is the fallback)",
+            "SAHAY Core Engine" to "Online · Active",
+            "Camera Sensor" to if (hasCamera) "Ready" else "Unavailable",
+            "Microphone Sensor" to if (hasMic) "Ready" else "Unavailable",
+            "Object Detection (TFLite)" to "Bundled · Offline",
+            "OCR (ML Kit)" to "Bundled · Offline (EN + HI)",
+            "Live Captions (Whisper)" to "Bundled · Offline Primary",
         ).forEach { (k, v) -> box.addView(statusRow(k, v)) }
         return box
     }
+
     private fun statusRow(label: String, value: String) = LinearLayout(this).apply {
         orientation = LinearLayout.HORIZONTAL
-        setPadding(0, 6, 0, 6)
+        setPadding(0, 8, 0, 8)
         addView(rowLabel(label).apply { layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f) })
-        addView(TextView(this@AdminActivity).apply { text = value; setTextColor(muted); textSize = 12f })
+        addView(TextView(this@AdminActivity).apply { text = value; setTextColor(cyan); textSize = 12f })
     }
 
     // ---------------- language ----------------
     private fun languageCard(): View {
         val box = cardBox()
-        box.addView(smallMuted("Default language"))
+        box.addView(smallMuted("Default Voice & Text Language"))
         val group = RadioGroup(this).apply { orientation = RadioGroup.HORIZONTAL }
         val langs = listOf("en" to "English", "hi" to "Hindi", "te" to "Telugu")
         langs.forEach { (code, label) ->
@@ -202,15 +230,21 @@ class AdminActivity : AppCompatActivity() {
             }
             group.addView(rb)
         }
-        box.addView(group, marginParams(top = 8))
-        box.addView(smallMuted("Telugu on-device OCR isn't available yet (ML Kit has no Telugu script model) — Telugu TTS/voice works if the device has the voice pack installed.").also { it.setPadding(0, 12, 0, 0) })
+        box.addView(group, marginParams(top = 10))
+        box.addView(smallMuted("On-device OCR supports English and Hindi; Telugu uses local speech synthesizer if installed.").also { it.setPadding(0, 10, 0, 0) })
         return box
     }
 
     // ---------------- feature flags ----------------
     private fun featureFlagsCard(): View {
         val box = cardBox()
-        val flags = listOf("objects" to "Object detection", "ocr" to "Signboard OCR", "currency" to "Currency recognition", "captions" to "Live captions", "soundAlerts" to "Sound alerts")
+        val flags = listOf(
+            "objects" to "Object Detection",
+            "ocr" to "Signboard OCR",
+            "currency" to "Currency Recognition",
+            "captions" to "Live Speech Captions",
+            "soundAlerts" to "Sound Event Alerts"
+        )
         flags.forEach { (key, label) ->
             val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; setPadding(0, 8, 0, 8) }
             row.addView(rowLabel(label).apply { layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f) })
@@ -222,12 +256,9 @@ class AdminActivity : AppCompatActivity() {
             box.addView(row)
         }
 
-        // Online enhancement is off by default, on a separate row with
-        // its own explanation — this is not offline, not free, and not
-        // required, unlike everything above it.
         val configured = com.accessibility.detector.BuildConfig.GEMINI_API_KEY.isNotBlank()
         val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; setPadding(0, 8, 0, 8) }
-        row.addView(rowLabel(if (configured) "Online enhancement (Gemini)" else "Online enhancement (no API key set)")
+        row.addView(rowLabel(if (configured) "Online Scene Enhancement (Gemini)" else "Online Enhancement (No API Key)")
             .apply { layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f) })
         row.addView(Switch(this).apply {
             isEnabled = configured
@@ -235,7 +266,7 @@ class AdminActivity : AppCompatActivity() {
             setOnCheckedChangeListener { _, checked -> SahayConfig.setFeatureEnabled("onlineEnhancement", checked) }
         })
         box.addView(row)
-        box.addView(smallMuted("Off by default — every other capability above is local, offline and free. This one sends a downsized camera frame to Gemini every ~8s (only while SEE is open) for a richer spoken description; it needs internet and a configured key, and never blocks or replaces local detection."))
+        box.addView(smallMuted("Optional online multimodal reasoning via Gemini 2.0 Flash for richer scene context."))
         return box
     }
 
@@ -243,15 +274,14 @@ class AdminActivity : AppCompatActivity() {
     private fun modelsCard(): View {
         val box = cardBox()
         listOf(
-            "Object Detector — SSD MobileNet (TFLite)" to "READY · offline · real trained model · 80 COCO categories · scene-composed (\"cup on the bench\"), not isolated labels",
-            "OCR — ML Kit Text Recognition" to "READY · offline · real trained model · English + Hindi (Devanagari); Telugu not yet supported on-device",
-            "Currency — MobileNet classifier (TFLite)" to "READY · offline · real trained model · ₹50/100/200/500/2000",
-            "Sound events — YAMNet (TFLite, via MediaPipe)" to "READY · offline · real trained model · 521 AudioSet classes, mapped to horn/siren/alarm/doorbell alerts",
-            "Live captions — Whisper tiny multilingual (TFLite)" to "READY · offline, primary · real trained model · auto-detects English/Hindi/Telugu from audio",
-            "Live captions — Android SpeechRecognizer" to "CLOUD · automatic fallback only, used if Whisper's model hasn't finished loading yet",
-            "Scene enhancement — Gemini 2.0 Flash" to "ONLINE, OPT-IN · off by default · richer natural-language descriptions on top of local detection, never a replacement",
+            "Object Detector — SSD MobileNet" to "READY · 80 Categories · Scene-Composed · Offline",
+            "OCR Engine — ML Kit Text Recognition" to "READY · English + Hindi · Offline",
+            "Currency Classifier — MobileNet" to "READY · ₹50 / 100 / 200 / 500 / 2000 · Offline",
+            "Acoustics — YAMNet Audio Classifier" to "READY · 521 Sound Classes · Siren / Horn Alerts · Offline",
+            "Speech Captioning — Whisper Tiny Multilingual" to "READY · On-Device Neural Speech Engine · Offline",
+            "Scene Intelligence — Gemini 2.0 Flash" to "ONLINE · Deep Visual & Spatial Reasoning",
         ).forEach { (name, meta) ->
-            box.addView(TextView(this).apply { text = name; setTextColor(cream); textSize = 13f; setPadding(0, 10, 0, 2); setTypeface(typeface, android.graphics.Typeface.BOLD) })
+            box.addView(TextView(this).apply { text = name; setTextColor(cream); textSize = 13f; setPadding(0, 8, 0, 2); typeface = android.graphics.Typeface.DEFAULT_BOLD })
             box.addView(smallMuted(meta))
         }
         return box
@@ -261,17 +291,17 @@ class AdminActivity : AppCompatActivity() {
     private fun thresholdsCard(): View {
         val box = cardBox()
         val rows = listOf(
-            "ocr_low" to "OCR — low confidence floor",
-            "ocr_medium" to "OCR — medium confidence floor",
-            "currency_low" to "Currency — confidence floor",
-            "sound_low" to "Sound — ambient floor",
-            "sound_medium" to "Sound — alert floor",
+            "ocr_low" to "OCR — Low Confidence Floor",
+            "ocr_medium" to "OCR — Medium Confidence Floor",
+            "currency_low" to "Currency — Confidence Floor",
+            "sound_low" to "Sound — Ambient Floor",
+            "sound_medium" to "Sound — Alert Floor",
         )
         rows.forEach { (key, label) ->
-            val valueLabel = TextView(this).apply { setTextColor(amber); textSize = 12f }
+            val valueLabel = TextView(this).apply { setTextColor(mint); textSize = 12f }
             fun refresh(v: Int) { valueLabel.text = "$v%" }
             refresh((SahayConfig.getThreshold(key) * 100).toInt())
-            val header = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; setPadding(0, 14, 0, 4) }
+            val header = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; setPadding(0, 12, 0, 4) }
             header.addView(rowLabel(label).apply { layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f) })
             header.addView(valueLabel)
             box.addView(header)
@@ -292,24 +322,28 @@ class AdminActivity : AppCompatActivity() {
     // ---------------- attention rules ----------------
     private fun attentionCard(): View {
         val box = cardBox()
-        box.addView(smallMuted("Priority ranks interruption (higher speaks over lower). Cooldown suppresses repeat announcements of the same content."))
+        box.addView(smallMuted("Priority ranks interruption (higher speaks first). Cooldown suppresses duplicate notices."))
         EVENT_TYPES.forEach { type ->
-            val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; setPadding(0, 14, 0, 6); gravity = Gravity.CENTER_VERTICAL }
+            val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; setPadding(0, 10, 0, 6); gravity = Gravity.CENTER_VERTICAL }
             row.addView(TextView(this).apply { text = type; setTextColor(cream); textSize = 11.5f; layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f) })
 
             val priorityInput = EditText(this).apply {
                 setText(SahayConfig.getPriority(type).toString())
                 inputType = InputType.TYPE_CLASS_NUMBER
                 setTextColor(cream)
-                layoutParams = LinearLayout.LayoutParams(90, LinearLayout.LayoutParams.WRAP_CONTENT)
-                hint = "priority"
+                background = makeCardDrawable(bg, border, 8f)
+                setPadding(16, 12, 16, 12)
+                layoutParams = LinearLayout.LayoutParams(100, LinearLayout.LayoutParams.WRAP_CONTENT)
+                hint = "pri"
             }
             val cooldownInput = EditText(this).apply {
                 setText(SahayConfig.getCooldownMs(type).toString())
                 inputType = InputType.TYPE_CLASS_NUMBER
                 setTextColor(cream)
-                layoutParams = LinearLayout.LayoutParams(110, LinearLayout.LayoutParams.WRAP_CONTENT).apply { marginStart = 8 }
-                hint = "cooldown ms"
+                background = makeCardDrawable(bg, border, 8f)
+                setPadding(16, 12, 16, 12)
+                layoutParams = LinearLayout.LayoutParams(130, LinearLayout.LayoutParams.WRAP_CONTENT).apply { marginStart = 8 }
+                hint = "ms"
             }
             priorityInput.setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) priorityInput.text.toString().toIntOrNull()?.let { SahayConfig.setPriority(type, it.coerceIn(1, 10)) }
@@ -328,18 +362,18 @@ class AdminActivity : AppCompatActivity() {
     private fun offlineCard(): View {
         val box = cardBox()
         listOf(
-            "Object detection" to "FULLY OFFLINE",
+            "Object Detection" to "FULLY OFFLINE",
             "Signboard OCR (English/Hindi)" to "FULLY OFFLINE",
-            "Currency recognition" to "FULLY OFFLINE",
-            "Text-to-speech" to "FULLY OFFLINE",
-            "Sound alerts" to "FULLY OFFLINE",
-            "Live captions (Whisper, primary)" to "FULLY OFFLINE",
+            "Currency Recognition" to "FULLY OFFLINE",
+            "Text-to-Speech" to "FULLY OFFLINE",
+            "Sound Alerts & Acoustics" to "FULLY OFFLINE",
+            "Live Captions (Whisper AI)" to "FULLY OFFLINE",
         ).forEach { (name, tag) ->
             val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; setPadding(0, 6, 0, 6) }
             row.addView(rowLabel(name).apply { layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f) })
             row.addView(TextView(this).apply {
-                text = tag; textSize = 10f
-                setTextColor(if (tag.startsWith("FULLY")) 0xFF5FBE8A.toInt() else 0xFFE2796B.toInt())
+                text = tag; textSize = 10.5f; typeface = android.graphics.Typeface.DEFAULT_BOLD
+                setTextColor(if (tag.startsWith("FULLY")) mint else red)
             })
             box.addView(row)
         }
@@ -350,7 +384,7 @@ class AdminActivity : AppCompatActivity() {
     private fun auditCard(): View {
         val box = cardBox()
         val log = SahayConfig.getAudit()
-        if (log.isEmpty()) { box.addView(smallMuted("No configuration changes yet.")); return box }
+        if (log.isEmpty()) { box.addView(smallMuted("No configuration changes recorded.")); return box }
         val fmt = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
         log.take(20).forEach { entry ->
             box.addView(TextView(this).apply {

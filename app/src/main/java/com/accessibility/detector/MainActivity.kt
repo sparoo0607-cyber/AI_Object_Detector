@@ -232,6 +232,10 @@ class MainActivity : AppCompatActivity(), ObjectDetectorHelper.DetectorListener 
     }
 
     private fun setupListeners() {
+        binding.btnBackMain.setOnClickListener {
+            finish()
+        }
+
         binding.btnMuteToggle.setOnClickListener {
             val newMuteState = !ttsManager.isMuted
             ttsManager.isMuted = newMuteState

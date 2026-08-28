@@ -14,12 +14,12 @@
     <string name="model_error">Failed to load object detection model</string>
 
     <!-- SAHAY -->
-    <string name="offline_ready_summary">✓ Object detection, currency &amp; voice work offline</string>
+    <string name="offline_ready_summary">On-Device AI Active &amp; Ready</string>
     <string name="listen_start">Start Listening</string>
     <string name="listen_stop">Stop Listening</string>
-    <string name="caption_placeholder">Captions will appear here — tap Start Listening.</string>
-    <string name="stt_net_note">Live captions use your phone\'s cloud speech engine — connect to data or WiFi.</string>
+    <string name="caption_placeholder">Listening for live speech and sounds…</string>
+    <string name="stt_net_note">Live captions use on-device Whisper (cloud fallback available if needed).</string>
     <string name="see_look">Look</string>
-    <string name="see_understanding">Understanding…</string>
-    <string name="not_confident">Not confident — move closer or improve lighting.</string>
+    <string name="see_understanding">Analyzing scene…</string>
+    <string name="not_confident">Not confident — adjust lighting or angle.</string>
 </resources>

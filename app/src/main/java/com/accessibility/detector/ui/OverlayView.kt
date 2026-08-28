@@ -14,7 +14,7 @@ import com.accessibility.detector.ml.DetectionResult
 import kotlin.math.max
 
 /**
- * Custom View to draw high-contrast bounding boxes and label badges over camera preview.
+ * Custom View to draw high-contrast, modern bounding boxes and label badges over camera preview.
  */
 class OverlayView @JvmOverloads constructor(
     context: Context,
@@ -30,7 +30,7 @@ class OverlayView @JvmOverloads constructor(
 
     private val boxPaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.accent_green)
-        strokeWidth = 8f
+        strokeWidth = 6f
         style = Paint.Style.STROKE
         isAntiAlias = true
         strokeCap = Paint.Cap.ROUND
@@ -38,36 +38,36 @@ class OverlayView @JvmOverloads constructor(
     }
 
     private val cornerPaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.accent_cyan)
-        strokeWidth = 12f
+        color = ContextCompat.getColor(context, R.color.accent_cyan_glow)
+        strokeWidth = 10f
         style = Paint.Style.STROKE
         isAntiAlias = true
         strokeCap = Paint.Cap.ROUND
     }
 
     private val textBackgroundPaint = Paint().apply {
-        color = Color.parseColor("#E6000000") // 90% opaque dark background
+        color = ContextCompat.getColor(context, R.color.bbox_bg)
         style = Paint.Style.FILL
         isAntiAlias = true
     }
 
     private val textBorderPaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.accent_green)
-        strokeWidth = 3f
+        strokeWidth = 2.5f
         style = Paint.Style.STROKE
         isAntiAlias = true
     }
 
     private val textPaint = Paint().apply {
-        color = Color.WHITE
-        textSize = 44f
+        color = ContextCompat.getColor(context, R.color.text_primary)
+        textSize = 42f
         isAntiAlias = true
         isFakeBoldText = true
     }
 
     private val scorePaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.accent_cyan)
-        textSize = 38f
+        color = ContextCompat.getColor(context, R.color.accent_cyan_glow)
+        textSize = 36f
         isAntiAlias = true
         isFakeBoldText = true
     }
@@ -118,11 +118,11 @@ class OverlayView @JvmOverloads constructor(
                 minOf(height.toFloat(), bottom)
             )
 
-            // Draw bounding box rectangle
-            canvas.drawRoundRect(clampedRect, 16f, 16f, boxPaint)
+            // Draw modern rounded bounding box
+            canvas.drawRoundRect(clampedRect, 18f, 18f, boxPaint)
 
-            // Draw stylish corner highlights
-            val cornerLen = minOf((clampedRect.width() * 0.2f), (clampedRect.height() * 0.2f), 40f)
+            // Draw sleek corner accents
+            val cornerLen = minOf((clampedRect.width() * 0.2f), (clampedRect.height() * 0.2f), 36f)
             // Top-left
             canvas.drawLine(clampedRect.left, clampedRect.top, clampedRect.left + cornerLen, clampedRect.top, cornerPaint)
             canvas.drawLine(clampedRect.left, clampedRect.top, clampedRect.left, clampedRect.top + cornerLen, cornerPaint)
@@ -137,7 +137,7 @@ class OverlayView @JvmOverloads constructor(
             canvas.drawLine(clampedRect.right, clampedRect.bottom, clampedRect.right, clampedRect.bottom - cornerLen, cornerPaint)
 
             // Prepare label text
-            val labelText = result.label
+            val labelText = result.label.capitalizeFirst()
             val confidencePct = (result.score * 100).toInt()
             val scoreText = " $confidencePct%"
 
@@ -147,8 +147,8 @@ class OverlayView @JvmOverloads constructor(
             val totalTextWidth = labelWidth + scoreWidth
             val textHeight = bounds.height()
 
-            val paddingH = 20f
-            val paddingV = 16f
+            val paddingH = 18f
+            val paddingV = 14f
 
             // Position badge above bounding box (or inside if too close to top)
             val badgeTop = if (clampedRect.top - textHeight - paddingV * 2 < 0) {
@@ -161,13 +161,16 @@ class OverlayView @JvmOverloads constructor(
             val badgeRight = badgeLeft + totalTextWidth + paddingH * 2
 
             val textBackgroundRect = RectF(badgeLeft, badgeTop, badgeRight, badgeBottom)
-            canvas.drawRoundRect(textBackgroundRect, 14f, 14f, textBackgroundPaint)
-            canvas.drawRoundRect(textBackgroundRect, 14f, 14f, textBorderPaint)
+            canvas.drawRoundRect(textBackgroundRect, 12f, 12f, textBackgroundPaint)
+            canvas.drawRoundRect(textBackgroundRect, 12f, 12f, textBorderPaint)
 
             // Draw label & score text
-            val textY = badgeTop + paddingV + textHeight - 4f
+            val textY = badgeTop + paddingV + textHeight - 3f
             canvas.drawText(labelText, badgeLeft + paddingH, textY, textPaint)
             canvas.drawText(scoreText, badgeLeft + paddingH + labelWidth, textY, scorePaint)
         }
     }
+
+    private fun String.capitalizeFirst(): String =
+        if (isNotEmpty()) substring(0, 1).uppercase() + substring(1) else this
 }
