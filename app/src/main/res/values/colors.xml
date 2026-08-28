@@ -1,21 +1,29 @@
 <resources>
-    <!-- High contrast colors for accessibility -->
+    <!-- Base Accessibility Palette -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="surface_dark">#D9121212</color>
-    <color name="surface_card">#E61E1E1E</color>
+    <color name="surface_dark">#E6121212</color>
+    <color name="surface_card">#F21E1E1E</color>
     <color name="surface_border">#40FFFFFF</color>
+    <color name="surface_danger">#4DFF1744</color>
     
-    <color name="accent_green">#FF00E676</color>
-    <color name="accent_cyan">#FF00E5FF</color>
-    <color name="accent_yellow">#FFFFD600</color>
-    <color name="accent_red">#FFFF5252</color>
+    <!-- High-Contrast Perception Accents -->
+    <color name="accent_green">#FF00E676</color>     <!-- Objects -->
+    <color name="accent_red">#FFFF1744</color>       <!-- Critical Danger / Hazards -->
+    <color name="accent_orange">#FFFF9100</color>    <!-- Warning -->
+    <color name="accent_yellow">#FFFFD600</color>    <!-- OCR / Text Reader -->
+    <color name="accent_cyan">#FF00E5FF</color>      <!-- Sign Language -->
+    <color name="accent_purple">#FFD500F9</color>    <!-- Translation -->
+    <color name="accent_blue">#FF2979FF</color>      <!-- Sound Awareness -->
     
     <color name="text_primary">#FFFFFFFF</color>
     <color name="text_secondary">#CCFFFFFF</color>
     <color name="text_muted">#80FFFFFF</color>
     
     <!-- Bounding Box Colors -->
-    <color name="bbox_stroke">#FF00E676</color>
-    <color name="bbox_bg">#99000000</color>
+    <color name="bbox_object">#FF00E676</color>
+    <color name="bbox_danger">#FFFF1744</color>
+    <color name="bbox_text">#FFFFD600</color>
+    <color name="bbox_sign">#FF00E5FF</color>
+    <color name="bbox_bg">#B3000000</color>
 </resources>

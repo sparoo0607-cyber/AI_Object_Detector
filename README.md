@@ -1,57 +1,127 @@
-# 👁️ AI Accessibility Voice Object Detector (Android)
+# 👁️ SAHEY — AI Multimodal Accessibility Assistant
 
-An on-device, real-time AI object detection app built for visually impaired users. When pointed at objects, the app instantly identifies them using an on-device computer vision model and announces their names through the phone speaker using Text-to-Speech (TTS).
+> **"See it. Hear it. Understand it."**
 
----
-
-## 🚀 Key Features
-
-* **⚡ Real-Time On-Device Object Detection**:
-  * Powered by **SSD MobileNet COCO** via TensorFlow Lite Task Vision.
-  * 100% offline — requires zero internet connection.
-  * Detects 80 common categories (*Person, Laptop, Cell Phone, Chair, Bottle, Backpack, Cup, Book, Mouse, Keyboard, etc.*).
-* **🔊 Intelligent Text-to-Speech (TTS) Voice Engine**:
-  * **Anti-Repetition Cooldown (2.5s)**: Eliminates stutter and speech spam when looking steadily at an object.
-  * **Fast Object Switching**: Announces new dominant objects immediately.
-  * **Tactile Haptic Feedback**: Gentle vibration pulse on each spoken announcement.
-  * **Mute / Unmute**: Dedicated accessible button with high-contrast visual and audio state indicators.
-* **♿ High-Contrast Accessibility UI**:
-  * Fullscreen rear-camera feed (`CameraX`).
-  * Neon green / cyan bounding boxes with corner accents and large label tags (`Laptop 89%`).
-  * Floating bottom status card.
+SAHEY is an on-device, real-time AI-powered multimodal accessibility assistant built for visually impaired and hearing-impaired users, providing environmental awareness, navigation safety, printed text reading, sign language recognition, acoustic hazard alerts, and multilingual speech translation.
 
 ---
 
-## 🛠️ Tech Stack & Architecture
+## 🌟 7 Unified AI Perception Engines
 
-* **Language**: Kotlin
-* **Camera API**: AndroidX CameraX (Core, Camera2, Lifecycle, View)
-* **Inference Engine**: TensorFlow Lite Task Vision (`org.tensorflow:tensorflow-lite-task-vision:0.4.4`)
-* **Audio**: Native Android `TextToSpeech` (`android.speech.tts.TextToSpeech`)
-* **Target SDK**: Android 14 (API 34), Min SDK 24 (Android 7.0+)
+1. **👁️ Real-Time On-Device Object Detection**:
+   - Powered by **SSD MobileNet COCO** via TensorFlow Lite Task Vision.
+   - Detects 80 common object categories (*Person, Chair, Laptop, Bottle, Backpack, Cell Phone, etc.*) offline with zero internet dependency.
+
+2. **⚠️ Intelligent Danger & Hazard Radar**:
+   - Analyzes mobility hazards: approaching vehicles (*Car, Bus, Truck, Motorcycle, Bicycle*), obstacles in walking line, pedestrian crosswalks.
+   - Spatial risk reasoning with natural direction and proximity announcements (*"Warning! Car approaching on your left, very close!"*, *"Obstacle directly ahead"*).
+   - Hazard announcements **preempt and interrupt** lower-priority speech.
+
+3. **📖 Instant Printed Text Reader (OCR)**:
+   - On-device OCR via Google ML Kit Text Recognition.
+   - Reads street signs, notices, product packaging, menus, and documents.
+   - Spatial prioritization of prominent/central text.
+
+4. **🤟 Real-Time Sign Language Interpretation**:
+   - Recognizes core sign gestures (*"Hello"*, *"Thank you"*, *"Yes"*, *"No"*, *"Help"*, *"Water"*, *"Food"*, *"Stop"*, *"I need help"*).
+   - Requires temporal smoothing (held steadily for 300ms+) to prevent false positives.
+
+5. **🔊 Environmental Sound Awareness**:
+   - Real-time acoustic spectrum and energy analyzer listening for safety-critical sounds.
+   - Detects emergency sirens (ambulances, police), car horns, smoke/fire alarms, glass breaking, knocks, and loud impacts.
+
+6. **🗣️ Multilingual Speech Recognition**:
+   - Converts spoken speech into text with support for English, Hindi, Telugu, and Spanish.
+
+7. **🌍 Live Text & Speech Translation**:
+   - Instant bi-directional translation for navigation and accessibility vocabulary across English, Telugu, Hindi, and Spanish.
+
+---
+
+## 🧠 Multimodal AI Orchestrator & Priority Hierarchy
+
+All 7 engines feed into **`SaheyAIOrchestrator`**, which coordinates context, spatial orientation, and speech timing:
+
+```
+                  ┌─────────────────────────────────────┐
+                  │          SAHEY PERCEPTION           │
+                  └──────────────────┬──────────────────┘
+                                     │
+           ┌─────────────────────────┴─────────────────────────┐
+           ▼                                                   ▼
+     VISION STREAM                                       AUDIO STREAM
+   ├── Object Detection (COCO)                        ├── Acoustic Classifier (Sirens, Horns, Alarms)
+   ├── Danger Radar (Vehicles, Hazards)               └── Speech Recognition (Voice Input)
+   ├── Sign Language (Gestures)
+   └── OCR (Printed Text Reader)
+           │                                                   │
+           └─────────────────────────┬─────────────────────────┘
+                                     │
+                                     ▼
+                      ┌──────────────────────────────┐
+                      │    SaheyAIOrchestrator       │
+                      │  • Context Fusion            │
+                      │  • Spatial Reasoning         │
+                      │  • Priority Manager (10-100) │
+                      └──────────────┬───────────────┘
+                                     │
+                                     ▼
+                      ┌──────────────────────────────┐
+                      │    AnnouncementManager       │
+                      │  • Speech Cooldown (2.5s)    │
+                      │  • Danger Interruption       │
+                      │  • Multi-Pattern Haptics     │
+                      └──────────────────────────────┘
+```
+
+### Priority Hierarchy:
+* **`CRITICAL` (100)**: Imminent vehicle collision, fire alarm.
+* **`DANGER` (80)**: Approaching vehicles, navigation obstacles.
+* **`NAVIGATION` (70)**: Stairs, crosswalks, doors, translation results.
+* **`TEXT` / `SIGN` / `SOUND` (50)**: Recognized text, sign language, ambient sounds.
+* **`OBJECT` (30)**: Normal objects (laptops, chairs, bottles).
+* **`BACKGROUND` (10)**: Low-confidence observations.
+
+---
+
+## 📳 Tactile Haptic Language
+
+* **Normal Object**: Single crisp pulse (40ms).
+* **Important Object / Sign Gesture**: Double pulse (50ms - 50ms).
+* **Text Captured**: Single click pulse (60ms).
+* **Danger Alert**: Pulsing alarm pattern.
+* **Critical Danger / Hazard**: Urgent SOS vibration pattern.
+
+---
+
+## 🛡️ One-Tap Safety Shield (Emergency Mode)
+
+Tapping the **Safety Shield** enters maximum-priority hazard radar mode:
+- Suppresses non-critical object chatter.
+- Heightens hazard sensitivity for approaching vehicles, obstacles, and sirens.
+
+---
+
+## 🛠️ Hackathon Demo Panel
+
+Tapping **Demo** opens the built-in demonstration sheet:
+- Real-time health indicators for all 7 AI subsystems.
+- 1-click test triggers for Danger warnings, Emergency sirens, Sign gestures, and Translations.
 
 ---
 
 ## 📦 APK Installation
 
-Directly installable APK builds are generated in:
-* `AI-Voice-Detector-Release.apk` (Signed Universal Release Build)
-* `app/build/outputs/apk/release/app-release.apk`
+* **🚀 Signed Universal Release APK**: [**`SAHEY-Release.apk`**](file:///d:/Hackathon/DETECTOR/SAHEY-Release.apk) (`95.1 MB`)
+* **Gradle Output**: `app/build/outputs/apk/release/app-release.apk`
 
-To install via ADB:
+### Install via ADB:
 ```bash
-adb install -r AI-Voice-Detector-Release.apk
+adb install -r "d:\Hackathon\DETECTOR\SAHEY-Release.apk"
 ```
 
----
-
-## 🏗️ Building from Source
-
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/sparoo0607-cyber/AI_Object_Detector.git
-   ```
-2. Open in **Android Studio** or compile using Gradle:
-   ```bash
-   ./gradlew assembleRelease
-   ```
+### Wi-Fi Direct Download:
+Open this URL in your mobile phone browser on the same Wi-Fi network:
+```
+http://10.10.84.90:8080/SAHEY-Release.apk
+```

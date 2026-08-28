@@ -10,11 +10,15 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.accessibility.detector.R
-import com.accessibility.detector.ml.DetectionResult
+import com.accessibility.detector.detection.DetectionResult
+import com.accessibility.detector.detection.PerceptionType
+import com.accessibility.detector.ocr.ExtractedTextBlock
+import com.accessibility.detector.sign.SignDetection
 import kotlin.math.max
 
 /**
- * Custom View to draw high-contrast bounding boxes and label badges over camera preview.
+ * Multi-layer custom canvas overlay for rendering Objects (Green), Hazards (Red),
+ * OCR Text (Yellow), and Sign Language (Cyan).
  */
 class OverlayView @JvmOverloads constructor(
     context: Context,
@@ -23,151 +27,191 @@ class OverlayView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     private var results: List<DetectionResult> = emptyList()
+    private var ocrBlocks: List<ExtractedTextBlock> = emptyList()
+    private var activeSign: SignDetection? = null
+
     private var imageWidth: Int = 1
     private var imageHeight: Int = 1
     private var scaleFactor: Float = 1f
-    private var bounds = Rect()
+    private val textBounds = Rect()
 
-    private val boxPaint = Paint().apply {
+    // Paints
+    private val objectBoxPaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.accent_green)
+        strokeWidth = 7f
+        style = Paint.Style.STROKE
+        isAntiAlias = true
+    }
+
+    private val dangerBoxPaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.accent_red)
+        strokeWidth = 10f
+        style = Paint.Style.STROKE
+        isAntiAlias = true
+    }
+
+    private val ocrBoxPaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.accent_yellow)
+        strokeWidth = 5f
+        style = Paint.Style.STROKE
+        isAntiAlias = true
+    }
+
+    private val signBoxPaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.accent_cyan)
         strokeWidth = 8f
         style = Paint.Style.STROKE
         isAntiAlias = true
-        strokeCap = Paint.Cap.ROUND
-        strokeJoin = Paint.Join.ROUND
-    }
-
-    private val cornerPaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.accent_cyan)
-        strokeWidth = 12f
-        style = Paint.Style.STROKE
-        isAntiAlias = true
-        strokeCap = Paint.Cap.ROUND
     }
 
     private val textBackgroundPaint = Paint().apply {
-        color = Color.parseColor("#E6000000") // 90% opaque dark background
+        color = Color.parseColor("#E6000000") // 90% opaque dark
         style = Paint.Style.FILL
-        isAntiAlias = true
-    }
-
-    private val textBorderPaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.accent_green)
-        strokeWidth = 3f
-        style = Paint.Style.STROKE
         isAntiAlias = true
     }
 
     private val textPaint = Paint().apply {
         color = Color.WHITE
-        textSize = 44f
+        textSize = 40f
         isAntiAlias = true
         isFakeBoldText = true
     }
 
-    private val scorePaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.accent_cyan)
-        textSize = 38f
+    private val badgeBorderPaint = Paint().apply {
+        strokeWidth = 3f
+        style = Paint.Style.STROKE
         isAntiAlias = true
-        isFakeBoldText = true
     }
 
-    fun setResults(
-        detectionResults: List<DetectionResult>,
-        imgHeight: Int,
-        imgWidth: Int
+    fun setPerceptionResults(
+        detectedObjects: List<DetectionResult>,
+        detectedOcr: List<ExtractedTextBlock>,
+        detectedSign: SignDetection?,
+        imgWidth: Int,
+        imgHeight: Int
     ) {
-        results = detectionResults
-        imageHeight = imgHeight
-        imageWidth = imgWidth
+        results = detectedObjects
+        ocrBlocks = detectedOcr
+        activeSign = detectedSign
+        imageWidth = maxOf(1, imgWidth)
+        imageHeight = maxOf(1, imgHeight)
 
-        // Scale factor maps image resolution to screen view coordinates
         scaleFactor = max(width * 1f / imageWidth, height * 1f / imageHeight)
         invalidate()
     }
 
     fun clear() {
         results = emptyList()
+        ocrBlocks = emptyList()
+        activeSign = null
         invalidate()
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        if (results.isEmpty()) return
-
-        // Compute offsets to center the image crop
         val scaledWidth = imageWidth * scaleFactor
         val scaledHeight = imageHeight * scaleFactor
         val offsetX = (width - scaledWidth) / 2f
         val offsetY = (height - scaledHeight) / 2f
 
+        // 1. Draw Object & Danger Bounding Boxes
         for (result in results) {
-            val boundingBox = result.boundingBox
+            val box = result.boundingBox
+            val left = box.left * scaleFactor + offsetX
+            val top = box.top * scaleFactor + offsetY
+            val right = box.right * scaleFactor + offsetX
+            val bottom = box.bottom * scaleFactor + offsetY
 
-            val left = boundingBox.left * scaleFactor + offsetX
-            val top = boundingBox.top * scaleFactor + offsetY
-            val right = boundingBox.right * scaleFactor + offsetX
-            val bottom = boundingBox.bottom * scaleFactor + offsetY
-
-            // Clamp coordinates to view dimensions
-            val clampedRect = RectF(
-                max(0f, left),
-                max(0f, top),
+            val rect = RectF(
+                maxOf(0f, left),
+                maxOf(0f, top),
                 minOf(width.toFloat(), right),
                 minOf(height.toFloat(), bottom)
             )
 
-            // Draw bounding box rectangle
-            canvas.drawRoundRect(clampedRect, 16f, 16f, boxPaint)
+            val isDanger = result.type == PerceptionType.DANGER ||
+                    result.label.lowercase().contains("car") ||
+                    result.label.lowercase().contains("truck") ||
+                    result.label.lowercase().contains("bus") ||
+                    result.label.lowercase().contains("motorcycle")
 
-            // Draw stylish corner highlights
-            val cornerLen = minOf((clampedRect.width() * 0.2f), (clampedRect.height() * 0.2f), 40f)
-            // Top-left
-            canvas.drawLine(clampedRect.left, clampedRect.top, clampedRect.left + cornerLen, clampedRect.top, cornerPaint)
-            canvas.drawLine(clampedRect.left, clampedRect.top, clampedRect.left, clampedRect.top + cornerLen, cornerPaint)
-            // Top-right
-            canvas.drawLine(clampedRect.right, clampedRect.top, clampedRect.right - cornerLen, clampedRect.top, cornerPaint)
-            canvas.drawLine(clampedRect.right, clampedRect.top, clampedRect.right, clampedRect.top + cornerLen, cornerPaint)
-            // Bottom-left
-            canvas.drawLine(clampedRect.left, clampedRect.bottom, clampedRect.left + cornerLen, clampedRect.bottom, cornerPaint)
-            canvas.drawLine(clampedRect.left, clampedRect.bottom, clampedRect.left, clampedRect.bottom - cornerLen, cornerPaint)
-            // Bottom-right
-            canvas.drawLine(clampedRect.right, clampedRect.bottom, clampedRect.right - cornerLen, clampedRect.bottom, cornerPaint)
-            canvas.drawLine(clampedRect.right, clampedRect.bottom, clampedRect.right, clampedRect.bottom - cornerLen, cornerPaint)
-
-            // Prepare label text
-            val labelText = result.label
-            val confidencePct = (result.score * 100).toInt()
-            val scoreText = " $confidencePct%"
-
-            textPaint.getTextBounds(labelText, 0, labelText.length, bounds)
-            val labelWidth = textPaint.measureText(labelText)
-            val scoreWidth = scorePaint.measureText(scoreText)
-            val totalTextWidth = labelWidth + scoreWidth
-            val textHeight = bounds.height()
-
-            val paddingH = 20f
-            val paddingV = 16f
-
-            // Position badge above bounding box (or inside if too close to top)
-            val badgeTop = if (clampedRect.top - textHeight - paddingV * 2 < 0) {
-                clampedRect.top + 10f
+            val currentPaint = if (isDanger) dangerBoxPaint else objectBoxPaint
+            val accentColor = if (isDanger) {
+                ContextCompat.getColor(context, R.color.accent_red)
             } else {
-                clampedRect.top - textHeight - paddingV * 2 - 8f
+                ContextCompat.getColor(context, R.color.accent_green)
             }
-            val badgeBottom = badgeTop + textHeight + paddingV * 2
-            val badgeLeft = clampedRect.left
-            val badgeRight = badgeLeft + totalTextWidth + paddingH * 2
 
-            val textBackgroundRect = RectF(badgeLeft, badgeTop, badgeRight, badgeBottom)
-            canvas.drawRoundRect(textBackgroundRect, 14f, 14f, textBackgroundPaint)
-            canvas.drawRoundRect(textBackgroundRect, 14f, 14f, textBorderPaint)
+            canvas.drawRoundRect(rect, 14f, 14f, currentPaint)
 
-            // Draw label & score text
-            val textY = badgeTop + paddingV + textHeight - 4f
-            canvas.drawText(labelText, badgeLeft + paddingH, textY, textPaint)
-            canvas.drawText(scoreText, badgeLeft + paddingH + labelWidth, textY, scorePaint)
+            // Draw label pill
+            val labelText = if (isDanger) "⚠️ ${result.label}" else "${result.label} ${(result.score * 100).toInt()}%"
+            drawBadge(canvas, rect, labelText, accentColor)
         }
+
+        // 2. Draw OCR Text Highlights
+        for (ocrBlock in ocrBlocks) {
+            val box = ocrBlock.boundingBox
+            val left = box.left * scaleFactor + offsetX
+            val top = box.top * scaleFactor + offsetY
+            val right = box.right * scaleFactor + offsetX
+            val bottom = box.bottom * scaleFactor + offsetY
+
+            val rect = RectF(
+                maxOf(0f, left),
+                maxOf(0f, top),
+                minOf(width.toFloat(), right),
+                minOf(height.toFloat(), bottom)
+            )
+
+            canvas.drawRoundRect(rect, 8f, 8f, ocrBoxPaint)
+            drawBadge(canvas, rect, "📖 ${ocrBlock.text}", ContextCompat.getColor(context, R.color.accent_yellow))
+        }
+
+        // 3. Draw Sign Language Gesture Highlights
+        activeSign?.let { sign ->
+            val box = sign.boundingBox
+            val left = box.left * scaleFactor + offsetX
+            val top = box.top * scaleFactor + offsetY
+            val right = box.right * scaleFactor + offsetX
+            val bottom = box.bottom * scaleFactor + offsetY
+
+            val rect = RectF(
+                maxOf(0f, left),
+                maxOf(0f, top),
+                minOf(width.toFloat(), right),
+                minOf(height.toFloat(), bottom)
+            )
+
+            canvas.drawRoundRect(rect, 16f, 16f, signBoxPaint)
+            drawBadge(canvas, rect, "🤟 Sign: ${sign.gestureName}", ContextCompat.getColor(context, R.color.accent_cyan))
+        }
+    }
+
+    private fun drawBadge(canvas: Canvas, targetRect: RectF, text: String, borderColor: Int) {
+        textPaint.getTextBounds(text, 0, text.length, textBounds)
+        val textWidth = textPaint.measureText(text)
+        val textHeight = textBounds.height()
+
+        val paddingH = 16f
+        val paddingV = 12f
+
+        val badgeTop = if (targetRect.top - textHeight - paddingV * 2 < 0) {
+            targetRect.top + 8f
+        } else {
+            targetRect.top - textHeight - paddingV * 2 - 6f
+        }
+        val badgeBottom = badgeTop + textHeight + paddingV * 2
+        val badgeLeft = targetRect.left
+        val badgeRight = badgeLeft + textWidth + paddingH * 2
+
+        val bgRect = RectF(badgeLeft, badgeTop, badgeRight, badgeBottom)
+        badgeBorderPaint.color = borderColor
+
+        canvas.drawRoundRect(bgRect, 12f, 12f, textBackgroundPaint)
+        canvas.drawRoundRect(bgRect, 12f, 12f, badgeBorderPaint)
+
+        canvas.drawText(text, badgeLeft + paddingH, badgeTop + paddingV + textHeight - 2f, textPaint)
     }
 }
