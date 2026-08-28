@@ -1,6 +1,7 @@
 package com.accessibility.detector.core
 
 import android.content.Context
+import android.graphics.Bitmap
 import androidx.camera.core.ImageProxy
 import com.accessibility.detector.audio.SoundAwarenessEngine
 import com.accessibility.detector.audio.SoundAwarenessListener
@@ -12,7 +13,6 @@ import com.accessibility.detector.detection.ObjectDetectionEngine
 import com.accessibility.detector.detection.ObjectDetectionListener
 import com.accessibility.detector.detection.PerceptionEvent
 import com.accessibility.detector.detection.PerceptionType
-import com.accessibility.detector.detection.ProximityLevel
 import com.accessibility.detector.detection.SpatialPosition
 import com.accessibility.detector.ocr.ExtractedTextBlock
 import com.accessibility.detector.ocr.TextReaderEngine
@@ -93,6 +93,7 @@ class SaheyAIOrchestrator(
     // State cache
     private var lastOcrBlocks: List<ExtractedTextBlock> = emptyList()
     private var lastActiveSign: SignDetection? = null
+    private var lastDetectionResults: List<DetectionResult> = emptyList()
 
     init {
         modelManager.updateStatus(ModelManager.MOD_OBJECTS, SubsystemStatus.ACTIVE)
@@ -116,25 +117,45 @@ class SaheyAIOrchestrator(
 
     /**
      * Master Camera Frame Pipeline.
-     * Routes camera frames to appropriate AI vision engines based on scheduler.
+     * Routes camera frames to vision, OCR, and sign language engines simultaneously.
      */
     fun processCameraFrame(imageProxy: ImageProxy) {
+        val rotationDegrees = imageProxy.imageInfo.rotationDegrees
+
+        // Convert imageProxy to Bitmap for OCR and Sign Language processing before closing
+        var frameBitmap: Bitmap? = null
+        val shouldOcr = isOcrEnabled && inferenceScheduler.shouldRunOcr()
+        val shouldSign = isSignDetectionEnabled && inferenceScheduler.shouldRunSignDetection()
+
+        if (shouldOcr || shouldSign) {
+            try {
+                frameBitmap = imageProxy.toBitmap()
+            } catch (e: Exception) {
+                // Fallback if toBitmap fails
+            }
+        }
+
+        // 1. Process Object & Danger Detection (handles imageProxy closure)
         if (isObjectDetectionEnabled && inferenceScheduler.shouldRunObjectDetection()) {
             objectEngine.processFrame(imageProxy)
         } else {
             imageProxy.close()
         }
+
+        // 2. Process OCR (Text Reading)
+        if (frameBitmap != null && shouldOcr) {
+            textEngine.processBitmap(frameBitmap, rotationDegrees)
+        }
+
+        // 3. Process Sign Language Gestures
+        if (frameBitmap != null && shouldSign) {
+            signEngine.analyzeHandGestures(frameBitmap, lastDetectionResults)
+        }
     }
 
-    /**
-     * Triggers OCR analysis explicitly on-demand or on scheduler.
-     */
-    fun triggerOcr(imageProxy: ImageProxy) {
-        if (isOcrEnabled) {
-            textEngine.processFrame(imageProxy)
-        } else {
-            imageProxy.close()
-        }
+    fun triggerOcrNow() {
+        inferenceScheduler.forceRunOcr()
+        hapticManager.playTextCapturePulse()
     }
 
     // --- Object Detection Listener ---
@@ -144,17 +165,14 @@ class SaheyAIOrchestrator(
         imageHeight: Int,
         imageWidth: Int
     ) {
+        lastDetectionResults = results
+
         // 1. Analyze for Danger / Hazards
         if (isDangerDetectionEnabled) {
             dangerEngine.analyzeHazards(results)
         }
 
-        // 2. Analyze for Sign Language
-        if (isSignDetectionEnabled) {
-            signEngine.analyzeSignLanguage(results)
-        }
-
-        // 3. Normal Object Announcement (if no hazard preempted)
+        // 2. Normal Object Announcement (if no hazard preempted)
         if (results.isNotEmpty()) {
             val primary = results.maxByOrNull { it.score }
             if (primary != null) {
@@ -179,7 +197,7 @@ class SaheyAIOrchestrator(
             }
         }
 
-        // 4. Update UI Overlay
+        // 3. Update UI Overlay
         uiCallback.onVisionResultsUpdated(
             objects = results,
             ocrBlocks = lastOcrBlocks,
@@ -231,7 +249,6 @@ class SaheyAIOrchestrator(
     override fun onSpeechResult(text: String) {
         uiCallback.onSpeechStatus(false, text)
 
-        // Translate or process speech
         val translation = translationEngine.translate(
             text = text,
             sourceLang = SupportedLanguage.ENGLISH,
@@ -239,7 +256,6 @@ class SaheyAIOrchestrator(
         )
         uiCallback.onTranslationResult(translation)
 
-        // Speak translated output
         val event = PerceptionEvent(
             type = PerceptionType.TRANSLATION,
             label = "Translation: ${translation.translatedText}",
@@ -270,7 +286,7 @@ class SaheyAIOrchestrator(
         val newState = !announcementManager.isSafetyShieldMode
         announcementManager.isSafetyShieldMode = newState
         if (newState) {
-            hapticManager.playImportantPulse()
+            hapticManager.playDangerPattern()
             ttsManager.speak("Safety mode activated. Monitoring hazards.")
         } else {
             hapticManager.playNormalPulse()

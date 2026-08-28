@@ -1,5 +1,6 @@
 package com.accessibility.detector.sign
 
+import android.graphics.Bitmap
 import com.accessibility.detector.detection.DetectionResult
 import com.accessibility.detector.detection.EventPriority
 import com.accessibility.detector.detection.PerceptionEvent
@@ -17,8 +18,8 @@ class SignLanguageEngine(
     private val signClassifier: SignClassifier = SignClassifier()
 ) {
 
-    fun analyzeSignLanguage(results: List<DetectionResult>) {
-        val detection = signClassifier.classifySignGesture(results)
+    fun analyzeHandGestures(bitmap: Bitmap, detectionResults: List<DetectionResult>) {
+        val detection = signClassifier.analyzeFrame(bitmap, detectionResults)
         if (detection != null) {
             val event = PerceptionEvent(
                 type = PerceptionType.SIGN,

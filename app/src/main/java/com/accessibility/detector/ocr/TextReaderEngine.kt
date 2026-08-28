@@ -1,10 +1,7 @@
 package com.accessibility.detector.ocr
 
+import android.graphics.Bitmap
 import android.util.Log
-import androidx.annotation.OptIn
-import androidx.camera.core.ExperimentalGetImage
-import androidx.camera.core.ImageProxy
-import com.accessibility.detector.detection.DetectionResult
 import com.accessibility.detector.detection.EventPriority
 import com.accessibility.detector.detection.PerceptionEvent
 import com.accessibility.detector.detection.PerceptionType
@@ -31,24 +28,18 @@ class TextReaderEngine(
     private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     private var isBusy = false
 
-    @OptIn(ExperimentalGetImage::class)
-    fun processFrame(imageProxy: ImageProxy) {
-        val mediaImage = imageProxy.image
-        if (mediaImage == null || isBusy) {
-            imageProxy.close()
-            return
-        }
-
+    fun processBitmap(bitmap: Bitmap, rotationDegrees: Int) {
+        if (isBusy) return
         isBusy = true
-        val rotationDegrees = imageProxy.imageInfo.rotationDegrees
-        val image = InputImage.fromMediaImage(mediaImage, rotationDegrees)
+
+        val image = InputImage.fromBitmap(bitmap, rotationDegrees)
 
         recognizer.process(image)
             .addOnSuccessListener { visionText ->
                 val blocks = textProcessor.processMlKitText(
                     visionText,
-                    imageProxy.width,
-                    imageProxy.height
+                    bitmap.width,
+                    bitmap.height
                 )
 
                 val prominentBlock = blocks.firstOrNull()
@@ -56,8 +47,8 @@ class TextReaderEngine(
                     PerceptionEvent(
                         type = PerceptionType.TEXT,
                         label = it.text,
-                        spokenText = "Text detected: ${it.text}",
-                        confidence = 0.90f,
+                        spokenText = "Text: ${it.text}",
+                        confidence = 0.92f,
                         priority = EventPriority.TEXT
                     )
                 }
@@ -70,7 +61,6 @@ class TextReaderEngine(
             }
             .addOnCompleteListener {
                 isBusy = false
-                imageProxy.close()
             }
     }
 

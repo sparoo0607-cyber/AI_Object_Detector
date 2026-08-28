@@ -89,8 +89,7 @@ class MainActivity : AppCompatActivity(), OrchestratorUiCallback {
 
         // Read Text Now (OCR)
         binding.btnReadText.setOnClickListener {
-            orchestrator.inferenceScheduler.forceRunOcr()
-            orchestrator.hapticManager.playTextCapturePulse()
+            orchestrator.triggerOcrNow()
             binding.tvLiveLabel.text = "📖 Scanning for printed text…"
             binding.tvLiveLabel.setTextColor(ContextCompat.getColor(this, R.color.accent_yellow))
             Toast.makeText(this, "Scanning for visible text…", Toast.LENGTH_SHORT).show()

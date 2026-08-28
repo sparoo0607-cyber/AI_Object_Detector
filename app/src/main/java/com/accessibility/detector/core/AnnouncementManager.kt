@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Intelligent Announcement System for SAHEY.
- * Enforces priority queuing, cooldown debouncing, speech preemption, and tactile haptic pairing.
+ * Enforces priority queuing, cooldown debouncing, speech preemption, and specialized tactile haptic pairing.
  */
 class AnnouncementManager(
     private val ttsManager: TtsManager,
@@ -36,7 +36,7 @@ class AnnouncementManager(
     // Configurable cooldowns
     private val sameObjectCooldownMs = 2500L
     private val dangerCooldownMs = 1800L
-    private val textCooldownMs = 4000L
+    private val textCooldownMs = 3000L
     private val signCooldownMs = 2200L
     private val soundCooldownMs = 2500L
     private val differentEventMinGapMs = 500L
@@ -93,7 +93,7 @@ class AnnouncementManager(
     }
 
     private fun dispatchAnnouncement(event: PerceptionEvent, interruptCurrent: Boolean) {
-        // 1. Play tactile vibration
+        // 1. Play specialized distinct tactile vibration pattern
         when (event.type) {
             PerceptionType.DANGER -> {
                 if (event.priority >= EventPriority.CRITICAL) {
@@ -102,9 +102,10 @@ class AnnouncementManager(
                     hapticManager.playDangerPattern()
                 }
             }
-            PerceptionType.SIGN -> hapticManager.playSignConfirmation()
+            PerceptionType.SOUND -> hapticManager.playSoundAlertPattern()
             PerceptionType.TEXT -> hapticManager.playTextCapturePulse()
-            PerceptionType.SOUND -> hapticManager.playImportantPulse()
+            PerceptionType.SIGN -> hapticManager.playSignConfirmation()
+            PerceptionType.TRANSLATION, PerceptionType.SPEECH -> hapticManager.playTranslationPulse()
             else -> hapticManager.playNormalPulse()
         }
 
