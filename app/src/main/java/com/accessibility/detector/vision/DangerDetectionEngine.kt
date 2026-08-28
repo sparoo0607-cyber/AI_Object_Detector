@@ -10,16 +10,17 @@ interface DangerDetectionListener {
 
 /**
  * Intelligent Danger & Hazard Detection Engine for Category 1: Vision Assist.
+ * Pre-filters hazards locally and alerts user immediately.
  */
 class DangerDetectionEngine(
     private val listener: DangerDetectionListener,
-    private val riskAssessment: RiskAssessment = RiskAssessment()
+    val riskAssessment: RiskAssessment = RiskAssessment()
 ) {
 
     fun analyzeHazards(results: List<DetectionResult>, bitmap: Bitmap? = null) {
-        // 1. Analyze Object-based Hazards
+        // 1. Analyze Object-based Hazards (Vehicles, Fire, Stairs, Drop edges, Obstacles)
         for (result in results) {
-            val hazardEvent = riskAssessment.evaluateRisk(result)
+            val hazardEvent = riskAssessment.evaluateObjectRisk(result)
             if (hazardEvent != null) {
                 listener.onHazardDetected(hazardEvent)
                 return
@@ -28,7 +29,7 @@ class DangerDetectionEngine(
 
         // 2. Analyze Surface-based Slippery/Wet Floor cues
         if (bitmap != null) {
-            val surfaceEvent = riskAssessment.evaluateSlipperyFloor(bitmap)
+            val surfaceEvent = riskAssessment.evaluateFloorHazards(bitmap)
             if (surfaceEvent != null) {
                 listener.onHazardDetected(surfaceEvent)
             }

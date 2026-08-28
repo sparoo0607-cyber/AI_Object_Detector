@@ -122,6 +122,39 @@
             android:contentDescription="Mute or Unmute Voice Output" />
     </LinearLayout>
 
+    <!-- Gemini Cloud Reasoning Activity Banner -->
+    <LinearLayout
+        android:id="@+id/geminiStatusBanner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="14dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/pill_background"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="8dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ProgressBar
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:indeterminateTint="@color/accent_cyan" />
+
+        <TextView
+            android:id="@+id/tvGeminiStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="Gemini AI is analyzing the scene..."
+            android:textColor="@color/accent_cyan"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
     <!-- Voice Confirmation Overlay Prompt Card -->
     <LinearLayout
         android:id="@+id/voiceConfirmPromptCard"
@@ -132,7 +165,7 @@
         android:orientation="vertical"
         android:padding="16dp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/topBar"
+        app:layout_constraintTop_toBottomOf="@id/geminiStatusBanner"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -203,7 +236,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/card_background"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="14dp">
 
             <TextView
                 android:id="@+id/tvLiveLabel"
@@ -211,7 +244,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/status_scanning"
                 android:textColor="@color/accent_green"
-                android:textSize="20sp"
+                android:textSize="19sp"
                 android:textStyle="bold"
                 android:maxLines="2"
                 android:ellipsize="end" />
@@ -220,26 +253,51 @@
                 android:id="@+id/tvDetailText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Scanning for Objects, Danger Hazards, Sign Language, and Text."
+                android:layout_marginTop="3dp"
+                android:text="Objects • Danger Radar • Sign Language • Image OCR"
                 android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                android:textSize="12sp" />
         </LinearLayout>
 
-        <!-- Quick Action: Read Text Now button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnForceReadText"
+        <!-- Vision Assist Dual Action Controls -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="📖 Scan &amp; Read Visible Text Now"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            android:textSize="14sp"
-            app:backgroundTint="@color/accent_yellow"
-            app:cornerRadius="25dp"
-            app:icon="@drawable/ic_book"
-            app:iconTint="@color/black" />
+            android:orientation="horizontal">
+
+            <!-- 1. Ask Gemini AI Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAskGemini"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1.2"
+                android:text="🤖 Ask AI (Scene)"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textSize="13sp"
+                app:backgroundTint="@color/accent_cyan"
+                app:cornerRadius="24dp"
+                android:contentDescription="Ask Gemini Visual AI to describe everything around you" />
+
+            <Space
+                android:layout_width="8dp"
+                android:layout_height="wrap_content" />
+
+            <!-- 2. Scan & Read Text Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnForceReadText"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="📖 Read Text"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textSize="13sp"
+                app:backgroundTint="@color/accent_yellow"
+                app:cornerRadius="24dp"
+                android:contentDescription="Read detected text out loud" />
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Permission Container -->

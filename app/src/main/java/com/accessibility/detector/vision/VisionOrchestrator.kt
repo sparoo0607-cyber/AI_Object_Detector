@@ -17,6 +17,7 @@ import com.accessibility.detector.core.PerceptionType
 import com.accessibility.detector.core.SpatialPosition
 import com.accessibility.detector.sound.LiveSpeechListener
 import com.accessibility.detector.sound.SpeechRecognitionEngine
+import com.accessibility.detector.vision.gemini.GeminiVisionEngine
 
 interface VisionUiCallback {
     fun onVisionResultsUpdated(
@@ -28,11 +29,13 @@ interface VisionUiCallback {
     )
     fun onLiveAnnouncement(event: PerceptionEvent)
     fun onVoiceConfirmationState(isWaitingForConfirmation: Boolean, prompt: String)
+    fun onGeminiReasoningStatus(isAnalyzing: Boolean, statusMessage: String)
 }
 
 /**
  * Master Vision Orchestrator for Category 1: Vision Assist.
- * Coordinates Object Detection, Danger Radar, Sign Language, and OCR with Voice Confirmation.
+ * Coordinates Local Real-Time AI (SSD Object Detection, Danger Radar, Sign Language, OCR)
+ * and Hybrid Cloud AI (Gemini Multimodal Visual Reasoning Engine).
  */
 class VisionOrchestrator(
     private val context: Context,
@@ -59,6 +62,7 @@ class VisionOrchestrator(
     private val signEngine = SignLanguageEngine(this)
     val textEngine = TextReaderEngine(this)
     val voiceConfirmSpeechEngine = SpeechRecognitionEngine(context, this)
+    val geminiVisionEngine = GeminiVisionEngine(context)
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private var isWaitingForVoiceConfirmation = false
@@ -68,6 +72,7 @@ class VisionOrchestrator(
     private var lastOcrBlocks: List<ExtractedTextBlock> = emptyList()
     private var lastActiveSign: SignDetection? = null
     private var lastDetectionResults: List<DetectionResult> = emptyList()
+    private var latestFrameBitmap: Bitmap? = null
 
     /**
      * Camera frame processing pipeline.
@@ -82,12 +87,13 @@ class VisionOrchestrator(
         if (shouldOcr || shouldSign) {
             try {
                 frameBitmap = imageProxy.toBitmap()
+                latestFrameBitmap = frameBitmap
             } catch (e: Exception) {
                 // Fallback
             }
         }
 
-        // 1. Object & Hazard detection
+        // 1. Local Object & Hazard detection
         if (inferenceScheduler.shouldRunObjectDetection()) {
             objectEngine.processFrame(imageProxy)
         } else {
@@ -115,9 +121,24 @@ class VisionOrchestrator(
         lastDetectionResults = results
 
         // 1. Danger & Hazard check (Highest Priority)
-        dangerEngine.analyzeHazards(results)
+        dangerEngine.analyzeHazards(results, latestFrameBitmap)
 
-        // 2. Normal Object Announcement
+        // 2. Selective Gemini Reasoning Trigger:
+        // If an ambiguous hazard or suspicious situation is flagged, trigger Gemini in the background
+        if (results.isNotEmpty() && latestFrameBitmap != null) {
+            val primaryHazard = results.firstOrNull {
+                HazardRules.isVehicle(it.label) || HazardRules.isFireOrSmoke(it.label) || HazardRules.isDropOrEdge(it.label)
+            }
+            if (primaryHazard != null) {
+                geminiVisionEngine.analyzeSuspiciousFrame(latestFrameBitmap!!, primaryHazard.label) { geminiEvent ->
+                    if (geminiEvent != null) {
+                        announcementManager.postEvent(geminiEvent)
+                    }
+                }
+            }
+        }
+
+        // 3. Normal Object Announcement
         if (results.isNotEmpty()) {
             val primary = results.maxByOrNull { it.score }
             if (primary != null) {
@@ -142,7 +163,7 @@ class VisionOrchestrator(
             }
         }
 
-        // 3. Update Overlay
+        // 4. Update Overlay
         uiCallback.onVisionResultsUpdated(
             objects = results,
             ocrBlocks = lastOcrBlocks,
@@ -235,18 +256,63 @@ class VisionOrchestrator(
         uiCallback.onVoiceConfirmationState(false, "")
     }
 
-    // --- Live Speech Listener for Voice Confirmation ---
+    /**
+     * User-initiated "Ask AI" triggered via button or voice query ("What is around me?").
+     */
+    fun askGeminiWhatIsAroundMe(onFinished: ((String) -> Unit)? = null) {
+        val bitmap = latestFrameBitmap
+        if (bitmap == null) {
+            val fallbackMsg = "Analyzing local vision: Scanning for objects in front of you."
+            ttsManager.speak(fallbackMsg)
+            onFinished?.invoke(fallbackMsg)
+            return
+        }
+
+        uiCallback.onGeminiReasoningStatus(true, "Gemini AI is analyzing the scene...")
+        ttsManager.speak("Analyzing what is around you...")
+
+        geminiVisionEngine.askAi(bitmap, "Describe the scene concisely for a visually impaired user in 1-2 sentences.") { event ->
+            uiCallback.onGeminiReasoningStatus(false, "")
+            if (event != null) {
+                announcementManager.postEvent(event)
+                onFinished?.invoke(event.spokenText)
+            } else {
+                // Graceful Offline Fallback to local detections
+                val localSummary = if (lastDetectionResults.isNotEmpty()) {
+                    val labels = lastDetectionResults.take(3).joinToString(", ") { it.label }
+                    "In front of you: $labels."
+                } else {
+                    "Scene is clear ahead."
+                }
+                ttsManager.speak(localSummary)
+                onFinished?.invoke(localSummary)
+            }
+        }
+    }
+
+    // --- Live Speech Listener for Voice Confirmation & Voice Commands ---
     override fun onSpeechRecognized(text: String) {
         val normalized = text.lowercase().trim()
+
         if (isWaitingForVoiceConfirmation) {
             if (normalized.contains("yes") || normalized.contains("read") ||
                 normalized.contains("yeah") || normalized.contains("sure") ||
                 normalized.contains("ok") || normalized.contains("చదువు")
             ) {
                 readTextImmediately()
+                return
             } else if (normalized.contains("no") || normalized.contains("stop") || normalized.contains("వద్దు")) {
                 cancelVoiceConfirmation()
+                return
             }
+        }
+
+        // Voice Command: "What is around me?" or "Is there any danger?"
+        if (normalized.contains("what is around") || normalized.contains("what's around") ||
+            normalized.contains("describe") || normalized.contains("danger") ||
+            normalized.contains("చుట్టూ ఏమి ఉంది")
+        ) {
+            askGeminiWhatIsAroundMe()
         }
     }
 

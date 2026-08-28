@@ -10,28 +10,23 @@ import com.accessibility.detector.core.ProximityLevel
 import com.accessibility.detector.core.SpatialPosition
 
 /**
- * Assesses spatial risk, proximity, fire cues, surface reflectiveness, and approach dynamics.
+ * Evaluates contextual spatial risks, obstacle pathways, and floor hazards.
  */
 class RiskAssessment {
 
     /**
-     * Evaluates a detected object to see if it qualifies as an active hazard or navigation risk.
+     * Assesses a detected object to determine if it represents an active safety hazard.
      */
-    fun evaluateRisk(result: DetectionResult): PerceptionEvent? {
+    fun evaluateObjectRisk(result: DetectionResult): PerceptionEvent? {
         val label = result.label.lowercase()
         val pos = result.spatialPosition
         val prox = result.proximity
 
-        val isVehicle = HazardRules.isVehicle(label)
-        val isObstacle = HazardRules.isObstacle(label)
-        val isPedestrian = HazardRules.isPedestrian(label)
-        val isFire = HazardRules.isFireOrSmoke(label)
-
-        // 1. Fire / Smoke Alert
-        if (isFire) {
+        // 1. Fire / Flame / Smoke (CRITICAL DANGER)
+        if (HazardRules.isFireOrSmoke(label)) {
             return PerceptionEvent(
                 type = PerceptionType.DANGER,
-                label = "Fire / Smoke",
+                label = "Fire Hazard",
                 spokenText = "Warning. Fire detected.",
                 confidence = result.score,
                 priority = EventPriority.CRITICAL,
@@ -40,28 +35,27 @@ class RiskAssessment {
             )
         }
 
-        // 2. Vehicle Hazards with directional awareness
-        if (isVehicle) {
+        // 2. Approaching Vehicle (CRITICAL / HIGH DANGER)
+        if (HazardRules.isVehicle(label)) {
             val directionPhrase = when (pos) {
-                SpatialPosition.LEFT -> "on your left"
-                SpatialPosition.RIGHT -> "on your right"
-                SpatialPosition.CENTER -> "directly ahead"
-                SpatialPosition.UNKNOWN -> "ahead"
+                SpatialPosition.LEFT -> "from your left"
+                SpatialPosition.RIGHT -> "from your right"
+                SpatialPosition.CENTER -> "ahead"
+                SpatialPosition.UNKNOWN -> ""
             }
 
-            val isImminent = prox == ProximityLevel.VERY_CLOSE || (pos == SpatialPosition.CENTER && prox == ProximityLevel.NEARBY)
-            val priority = if (isImminent) EventPriority.CRITICAL else EventPriority.DANGER
-
-            val spokenText = if (isImminent) {
-                "Warning! Vehicle $directionPhrase, very close!"
+            val spoken = if (prox == ProximityLevel.VERY_CLOSE || prox == ProximityLevel.NEARBY) {
+                if (directionPhrase.isNotBlank()) "Warning! Vehicle approaching $directionPhrase." else "Warning. Vehicle approaching."
             } else {
-                "${result.label} $directionPhrase."
+                if (directionPhrase.isNotBlank()) "Vehicle $directionPhrase." else "Vehicle detected."
             }
+
+            val priority = if (prox == ProximityLevel.VERY_CLOSE) EventPriority.CRITICAL else EventPriority.DANGER
 
             return PerceptionEvent(
                 type = PerceptionType.DANGER,
-                label = "${result.label} ($directionPhrase)",
-                spokenText = spokenText,
+                label = "Vehicle: ${result.label}",
+                spokenText = spoken,
                 confidence = result.score,
                 priority = priority,
                 spatialPosition = pos,
@@ -69,19 +63,12 @@ class RiskAssessment {
             )
         }
 
-        // 3. Direct Obstacle Hazards (Center path obstruction)
-        if (isObstacle && (pos == SpatialPosition.CENTER || prox == ProximityLevel.VERY_CLOSE)) {
-            val proxPhrase = when (prox) {
-                ProximityLevel.VERY_CLOSE -> "very close"
-                ProximityLevel.NEARBY -> "nearby"
-                else -> "ahead"
-            }
-
-            val spokenText = "Obstacle ahead: ${result.label} $proxPhrase."
+        // 3. Stairs (NAVIGATION HAZARD)
+        if (HazardRules.isStairs(label)) {
             return PerceptionEvent(
                 type = PerceptionType.DANGER,
-                label = "Obstacle: ${result.label}",
-                spokenText = spokenText,
+                label = "Stairs",
+                spokenText = "Stairs ahead.",
                 confidence = result.score,
                 priority = EventPriority.NAVIGATION,
                 spatialPosition = pos,
@@ -89,17 +76,33 @@ class RiskAssessment {
             )
         }
 
-        // 4. Pedestrian Crossing / Path entry
-        if (isPedestrian && prox == ProximityLevel.VERY_CLOSE) {
-            val directionPhrase = when (pos) {
-                SpatialPosition.LEFT -> "on your left"
-                SpatialPosition.RIGHT -> "on your right"
-                else -> "directly ahead"
-            }
+        // 4. Drop / Edge (HIGH DANGER)
+        if (HazardRules.isDropOrEdge(label)) {
             return PerceptionEvent(
                 type = PerceptionType.DANGER,
-                label = "Person ($directionPhrase)",
-                spokenText = "Person $directionPhrase.",
+                label = "Drop Hazard",
+                spokenText = "Warning. Possible drop ahead.",
+                confidence = result.score,
+                priority = EventPriority.DANGER,
+                spatialPosition = pos,
+                proximity = prox
+            )
+        }
+
+        // 5. Pathway Obstacles (NAVIGATION HAZARD)
+        if (HazardRules.isObstacle(label) && (prox == ProximityLevel.VERY_CLOSE || prox == ProximityLevel.NEARBY)) {
+            val dir = when (pos) {
+                SpatialPosition.LEFT -> "on your left"
+                SpatialPosition.RIGHT -> "on your right"
+                SpatialPosition.CENTER -> "ahead"
+                SpatialPosition.UNKNOWN -> ""
+            }
+            val text = if (dir.isNotBlank()) "Obstacle $dir: ${result.label}." else "Obstacle ahead."
+
+            return PerceptionEvent(
+                type = PerceptionType.DANGER,
+                label = "Obstacle: ${result.label}",
+                spokenText = text,
                 confidence = result.score,
                 priority = EventPriority.NAVIGATION,
                 spatialPosition = pos,
@@ -111,44 +114,52 @@ class RiskAssessment {
     }
 
     /**
-     * Analyzes lower third of camera bitmap for high specular reflection / spilled liquid on floor.
+     * Optical floor specular reflection analysis for wet / slippery surface estimation.
      */
-    fun evaluateSlipperyFloor(bitmap: Bitmap): PerceptionEvent? {
+    fun evaluateFloorHazards(bitmap: Bitmap): PerceptionEvent? {
         val width = bitmap.width
         val height = bitmap.height
-        val startY = (height * 0.70f).toInt()
 
-        var brightReflectivePixels = 0
-        var sampledCount = 0
-        val step = maxOf(4, width / 40)
+        val startY = (height * 0.65f).toInt()
+        val endY = (height * 0.95f).toInt()
+        val startX = (width * 0.20f).toInt()
+        val endX = (width * 0.80f).toInt()
 
-        var y = startY
-        while (y < height) {
-            var x = 0
-            while (x < width) {
+        var brightPixelCount = 0
+        var totalSampled = 0
+        var meanIntensity = 0.0
+
+        val step = 8
+        for (y in startY until endY step step) {
+            for (x in startX until endX step step) {
                 val pixel = bitmap.getPixel(x, y)
                 val r = Color.red(pixel)
                 val g = Color.green(pixel)
                 val b = Color.blue(pixel)
-                val lum = 0.299 * r + 0.587 * g + 0.114 * b
+                val luminance = (0.299 * r + 0.587 * g + 0.114 * b)
 
-                if (lum > 225 && (r > 200 && g > 200 && b > 200)) {
-                    brightReflectivePixels++
-                }
-                sampledCount++
-                x += step
+                meanIntensity += luminance
+                if (luminance > 225) brightPixelCount++
+                totalSampled++
             }
-            y += step
         }
 
-        if (sampledCount > 0 && (brightReflectivePixels.toFloat() / sampledCount) > 0.45f) {
-            return PerceptionEvent(
-                type = PerceptionType.DANGER,
-                label = "Slippery Floor",
-                spokenText = "Warning. Possible slippery floor ahead.",
-                confidence = 0.80f,
-                priority = EventPriority.NAVIGATION
-            )
+        if (totalSampled > 0) {
+            meanIntensity /= totalSampled
+            val ratio = brightPixelCount.toFloat() / totalSampled
+
+            // High concentrated specular highlight patches on the ground plane indicate water/spills
+            if (ratio in 0.14f..0.45f && meanIntensity in 140.0..220.0) {
+                return PerceptionEvent(
+                    type = PerceptionType.DANGER,
+                    label = "Slippery Surface",
+                    spokenText = "Warning. Possible slippery floor ahead.",
+                    confidence = 0.84f,
+                    priority = EventPriority.DANGER,
+                    spatialPosition = SpatialPosition.CENTER,
+                    proximity = ProximityLevel.NEARBY
+                )
+            }
         }
 
         return null

@@ -27,7 +27,8 @@ import java.util.concurrent.Executors
 
 /**
  * Category 1: Vision Assist Activity.
- * Rear camera stream with real-time Object detection, Danger radar, Sign language, and OCR with Voice Confirmation.
+ * Rear camera stream with Hybrid Local AI (SSD Object Detection, Danger Radar, Sign Language, OCR)
+ * + Gemini Multimodal Visual Reasoning Engine.
  */
 class VisionAssistActivity : AppCompatActivity(), VisionUiCallback {
 
@@ -37,7 +38,7 @@ class VisionAssistActivity : AppCompatActivity(), VisionUiCallback {
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
+    ) { _ ->
         if (PermissionManager.hasVisionPermissions(this)) {
             hidePermissionPrompt()
             startCamera()
@@ -75,6 +76,13 @@ class VisionAssistActivity : AppCompatActivity(), VisionUiCallback {
             updateSafetyShieldUi(isActive)
         }
 
+        // Ask Gemini AI Button
+        binding.btnAskGemini.setOnClickListener {
+            orchestrator.hapticManager.playNormalPulse()
+            orchestrator.askGeminiWhatIsAroundMe()
+        }
+
+        // Scan & Read Text Button
         binding.btnForceReadText.setOnClickListener {
             orchestrator.readTextImmediately()
         }
@@ -241,6 +249,17 @@ class VisionAssistActivity : AppCompatActivity(), VisionUiCallback {
                 binding.tvVoiceConfirmPrompt.text = prompt
             } else {
                 binding.voiceConfirmPromptCard.visibility = View.GONE
+            }
+        }
+    }
+
+    override fun onGeminiReasoningStatus(isAnalyzing: Boolean, statusMessage: String) {
+        runOnUiThread {
+            if (isAnalyzing) {
+                binding.geminiStatusBanner.visibility = View.VISIBLE
+                binding.tvGeminiStatus.text = statusMessage
+            } else {
+                binding.geminiStatusBanner.visibility = View.GONE
             }
         }
     }

@@ -65,6 +65,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     androidResources {
@@ -87,6 +88,9 @@ dependencies {
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    // HTTP client for Gemini Multimodal REST API
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // CameraX
     val cameraxVersion = "1.3.4"
