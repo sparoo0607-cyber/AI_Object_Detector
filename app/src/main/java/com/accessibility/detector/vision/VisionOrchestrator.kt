@@ -30,12 +30,15 @@ interface VisionUiCallback {
     fun onLiveAnnouncement(event: PerceptionEvent)
     fun onVoiceConfirmationState(isWaitingForConfirmation: Boolean, prompt: String)
     fun onGeminiReasoningStatus(isAnalyzing: Boolean, statusMessage: String)
+    fun onSignModeStateChanged(isActive: Boolean)
+    fun onSignSentenceUpdated(sentence: String, latestWord: String)
 }
 
 /**
  * Master Vision Orchestrator for Category 1: Vision Assist.
  * Coordinates Local Real-Time AI (SSD Object Detection, Fire & Danger Radar, Sign Language, OCR)
  * and Hybrid Cloud AI (Gemini Multimodal Visual Reasoning Engine).
+ * Supports Dedicated "Sign Mode" for continuous gesture-to-sentence translation.
  */
 class VisionOrchestrator(
     private val context: Context,
@@ -44,7 +47,8 @@ class VisionOrchestrator(
     DangerDetectionListener,
     SignLanguageListener,
     TextReaderListener,
-    LiveSpeechListener {
+    LiveSpeechListener,
+    SignSentenceListener {
 
     val hapticManager = HapticManager(context)
     val inferenceScheduler = InferenceScheduler()
@@ -63,6 +67,7 @@ class VisionOrchestrator(
     val textEngine = TextReaderEngine(this)
     val voiceConfirmSpeechEngine = SpeechRecognitionEngine(context, this)
     val geminiVisionEngine = GeminiVisionEngine(context)
+    val signSentenceBuilder = SignSentenceBuilder(this)
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private var isWaitingForVoiceConfirmation = false
@@ -75,25 +80,42 @@ class VisionOrchestrator(
     private var lastDetectionResults: List<DetectionResult> = emptyList()
     private var latestFrameBitmap: Bitmap? = null
 
+    init {
+        // Start listening for voice commands ("turn on sign mode", etc.)
+        try {
+            voiceConfirmSpeechEngine.startContinuousListening()
+        } catch (e: Exception) {
+            Log.w(TAG, "Voice command recognizer init: ${e.message}")
+        }
+    }
+
     /**
      * Camera frame processing pipeline.
      */
     fun processCameraFrame(imageProxy: ImageProxy) {
+        val frameBitmap = imageProxy.toBitmap()
+        latestFrameBitmap = frameBitmap
         val rotationDegrees = imageProxy.imageInfo.rotationDegrees
 
-        var frameBitmap: Bitmap? = null
+        val shouldObject = inferenceScheduler.shouldRunObjectDetection()
         val shouldOcr = inferenceScheduler.shouldRunOcr()
         val shouldSign = inferenceScheduler.shouldRunSignDetection()
 
-        try {
-            frameBitmap = imageProxy.toBitmap()
-            latestFrameBitmap = frameBitmap
-        } catch (e: Exception) {
-            // Fallback
+        // In dedicated Sign Mode, give highest priority to Sign Language
+        if (signSentenceBuilder.isSignModeActive) {
+            if (frameBitmap != null) {
+                signEngine.analyzeHandGestures(frameBitmap, lastDetectionResults)
+            }
+            if (shouldObject) {
+                objectEngine.processFrame(imageProxy)
+            } else {
+                imageProxy.close()
+            }
+            return
         }
 
-        // 1. Local Object & Hazard detection
-        if (inferenceScheduler.shouldRunObjectDetection()) {
+        // Standard Vision Assist Multi-Perception Pipeline
+        if (shouldObject) {
             objectEngine.processFrame(imageProxy)
         } else {
             imageProxy.close()
@@ -119,31 +141,33 @@ class VisionOrchestrator(
     ) {
         lastDetectionResults = results
 
-        // 1. Danger & Hazard check (Highest Priority: Real Fire, Fire on Screen, Vehicles, Slippery Floors, Obstacles)
+        // 1. Danger & Hazard check (Highest Priority: Fire, Vehicles, Obstacles)
         dangerEngine.analyzeHazards(results, latestFrameBitmap)
 
-        // 2. Normal Object Announcement (if not actively reading text and no critical hazard)
-        if (results.isNotEmpty() && !isCurrentlyReadingText && !isWaitingForVoiceConfirmation) {
-            val primary = results.maxByOrNull { it.score }
-            if (primary != null) {
-                val dirPhrase = when (primary.spatialPosition) {
-                    SpatialPosition.LEFT -> "on your left"
-                    SpatialPosition.RIGHT -> "on your right"
-                    SpatialPosition.CENTER -> "ahead"
-                    SpatialPosition.UNKNOWN -> ""
-                }
-                val spoken = if (dirPhrase.isNotBlank()) "${primary.label} $dirPhrase." else primary.label
+        // In Sign Mode, suppress regular object announcements (chairs, tables, etc.)
+        if (!signSentenceBuilder.isSignModeActive) {
+            if (results.isNotEmpty() && !isCurrentlyReadingText && !isWaitingForVoiceConfirmation) {
+                val primary = results.maxByOrNull { it.score }
+                if (primary != null) {
+                    val dirPhrase = when (primary.spatialPosition) {
+                        SpatialPosition.LEFT -> "on your left"
+                        SpatialPosition.RIGHT -> "on your right"
+                        SpatialPosition.CENTER -> "ahead"
+                        SpatialPosition.UNKNOWN -> ""
+                    }
+                    val spoken = if (dirPhrase.isNotBlank()) "${primary.label} $dirPhrase." else primary.label
 
-                val event = PerceptionEvent(
-                    type = PerceptionType.OBJECT,
-                    label = primary.label,
-                    spokenText = spoken,
-                    confidence = primary.score,
-                    priority = EventPriority.OBJECT,
-                    spatialPosition = primary.spatialPosition,
-                    proximity = primary.proximity
-                )
-                announcementManager.postEvent(event)
+                    val event = PerceptionEvent(
+                        type = PerceptionType.OBJECT,
+                        label = primary.label,
+                        spokenText = spoken,
+                        confidence = primary.score,
+                        priority = EventPriority.OBJECT,
+                        spatialPosition = primary.spatialPosition,
+                        proximity = primary.proximity
+                    )
+                    announcementManager.postEvent(event)
+                }
             }
         }
 
@@ -161,7 +185,7 @@ class VisionOrchestrator(
         Log.w(TAG, "Object detection error: $error")
     }
 
-    // --- Danger Detection Listener ---
+    // --- Danger & Hazard Listener ---
     override fun onHazardDetected(hazardEvent: PerceptionEvent) {
         announcementManager.postEvent(hazardEvent)
     }
@@ -178,9 +202,64 @@ class VisionOrchestrator(
     // --- Sign Language Listener ---
     override fun onSignDetected(event: PerceptionEvent, signDetection: SignDetection) {
         lastActiveSign = signDetection
-        if (!isCurrentlyReadingText) {
-            announcementManager.postEvent(event)
+
+        if (signSentenceBuilder.isSignModeActive) {
+            // Feed to Sentence Builder
+            signSentenceBuilder.processSignDetection(signDetection)
+        } else {
+            if (!isCurrentlyReadingText) {
+                announcementManager.postEvent(event)
+            }
         }
+    }
+
+    // --- SignSentenceListener Callbacks ---
+    override fun onSentenceUpdated(sentence: String, latestWord: String) {
+        if (latestWord.isNotBlank()) {
+            hapticManager.playNormalPulse()
+        }
+        uiCallback.onSignSentenceUpdated(sentence, latestWord)
+    }
+
+    override fun onSentenceSpoken(sentence: String) {
+        val event = PerceptionEvent(
+            type = PerceptionType.SIGN,
+            label = "Sign Sentence",
+            spokenText = sentence,
+            confidence = 0.96f,
+            priority = EventPriority.SIGN
+        )
+        uiCallback.onLiveAnnouncement(event)
+        ttsManager.speak(sentence, interrupt = true)
+    }
+
+    /**
+     * Toggles Sign Mode (via UI button, volume double-click, or voice command).
+     */
+    fun toggleSignMode(): Boolean {
+        val newState = signSentenceBuilder.toggleSignMode()
+        if (newState) {
+            hapticManager.playDangerPattern()
+            ttsManager.speak("Sign mode activated. Translating gestures into sentences.", interrupt = true)
+        } else {
+            hapticManager.playNormalPulse()
+            ttsManager.speak("Standard vision assist mode.", interrupt = true)
+        }
+        uiCallback.onSignModeStateChanged(newState)
+        return newState
+    }
+
+    fun setSignMode(active: Boolean): Boolean {
+        val newState = signSentenceBuilder.setSignMode(active)
+        if (newState) {
+            hapticManager.playDangerPattern()
+            ttsManager.speak("Sign mode activated. Translating gestures into sentences.", interrupt = true)
+        } else {
+            hapticManager.playNormalPulse()
+            ttsManager.speak("Standard vision assist mode.", interrupt = true)
+        }
+        uiCallback.onSignModeStateChanged(newState)
+        return newState
     }
 
     // --- OCR Text Listener ---
@@ -190,6 +269,8 @@ class VisionOrchestrator(
         isNewContent: Boolean
     ) {
         lastOcrBlocks = blocks
+        if (signSentenceBuilder.isSignModeActive) return
+
         if (isNewContent && !isWaitingForVoiceConfirmation && !isCurrentlyReadingText) {
             pendingOcrTextToRead = fullText
             promptVoiceConfirmation()
@@ -204,7 +285,7 @@ class VisionOrchestrator(
      * Starts the interactive Voice Confirmation Flow for reading text.
      */
     private fun promptVoiceConfirmation() {
-        if (isCurrentlyReadingText) return
+        if (isCurrentlyReadingText || signSentenceBuilder.isSignModeActive) return
 
         isWaitingForVoiceConfirmation = true
         hapticManager.playTextCapturePulse()
@@ -214,14 +295,12 @@ class VisionOrchestrator(
 
         ttsManager.speak(prompt, interrupt = true)
 
-        // After speech prompt finishes, listen for "Yes" / "Read"
         mainHandler.postDelayed({
             if (isWaitingForVoiceConfirmation && !isCurrentlyReadingText) {
                 voiceConfirmSpeechEngine.startContinuousListening()
             }
         }, 2200)
 
-        // Timeout fallback after 6 seconds
         mainHandler.postDelayed({
             if (isWaitingForVoiceConfirmation && !isCurrentlyReadingText) {
                 cancelVoiceConfirmation()
@@ -229,27 +308,17 @@ class VisionOrchestrator(
         }, 6500)
     }
 
-    /**
-     * Reads the detected text out loud immediately without being interrupted by re-prompts.
-     */
     fun readTextImmediately() {
         val text = if (pendingOcrTextToRead.isNotBlank()) pendingOcrTextToRead else textEngine.cachedFullText
         if (text.isNotBlank()) {
             isWaitingForVoiceConfirmation = false
             isCurrentlyReadingText = true
-            voiceConfirmSpeechEngine.stopListening()
             uiCallback.onVoiceConfirmationState(false, "")
 
-            // Mark this text signature in the engine so it does not immediately re-prompt
             textEngine.textProcessor.markTextAsRead(text)
-
-            // Play tactile feedback
             hapticManager.playTextCapturePulse()
-
-            // Announce via TTS directly with interrupt to override prompt
             ttsManager.speak(text, interrupt = true)
 
-            // Update UI card
             val event = PerceptionEvent(
                 type = PerceptionType.TEXT,
                 label = "OCR Text",
@@ -259,7 +328,6 @@ class VisionOrchestrator(
             )
             uiCallback.onLiveAnnouncement(event)
 
-            // Calculate reading duration estimate (approx 120 words per minute + 3 sec buffer)
             val wordCount = text.split(Regex("\\s+")).size
             val readingDurationMs = maxOf(4000L, (wordCount * 450L) + 2000L)
 
@@ -272,7 +340,6 @@ class VisionOrchestrator(
 
     fun cancelVoiceConfirmation() {
         isWaitingForVoiceConfirmation = false
-        voiceConfirmSpeechEngine.stopListening()
         uiCallback.onVoiceConfirmationState(false, "")
         if (pendingOcrTextToRead.isNotBlank()) {
             textEngine.textProcessor.markTextAsRead(pendingOcrTextToRead)
@@ -317,45 +384,50 @@ class VisionOrchestrator(
     override fun onSpeechRecognized(text: String) {
         val normalized = text.lowercase().trim()
 
-        if (isWaitingForVoiceConfirmation && !isCurrentlyReadingText) {
-            if (normalized.contains("yes") || normalized.contains("read") ||
-                normalized.contains("yeah") || normalized.contains("sure") ||
-                normalized.contains("ok") || normalized.contains("చదువు")
-            ) {
-                readTextImmediately()
-                return
-            } else if (normalized.contains("no") || normalized.contains("stop") || normalized.contains("వద్దు")) {
-                cancelVoiceConfirmation()
-                return
-            }
+        // 1. Voice Command: "turn on sign mode" / "turn off sign mode"
+        if (normalized.contains("turn on sign mode") || normalized.contains("turn on the sign mode") ||
+            normalized.contains("start sign mode") || normalized.contains("sign mode") ||
+            normalized.contains("open sign language") || normalized.contains("enable sign mode")) {
+            setSignMode(true)
+            return
         }
 
-        // Voice Command: "What is around me?" or "Is there any danger?"
-        if (!isCurrentlyReadingText && (
-            normalized.contains("what is around") || normalized.contains("what's around") ||
-            normalized.contains("describe") || normalized.contains("danger") ||
-            normalized.contains("చుట్టూ ఏమి ఉంది")
-        )) {
+        if (normalized.contains("turn off sign mode") || normalized.contains("turn off the sign mode") ||
+            normalized.contains("stop sign mode") || normalized.contains("exit sign mode") ||
+            normalized.contains("disable sign mode")) {
+            setSignMode(false)
+            return
+        }
+
+        // 2. OCR Confirmation
+        if (isWaitingForVoiceConfirmation && !isCurrentlyReadingText) {
+            if (normalized.contains("yes") || normalized.contains("read") || normalized.contains("sure") ||
+                normalized.contains("please") || normalized.contains("okay") || normalized.contains("ok")) {
+                readTextImmediately()
+            } else if (normalized.contains("no") || normalized.contains("cancel") || normalized.contains("stop")) {
+                cancelVoiceConfirmation()
+            }
+            return
+        }
+
+        // 3. General Voice Queries
+        if (normalized.contains("what is around me") || normalized.contains("describe scene") || normalized.contains("what do you see")) {
             askGeminiWhatIsAroundMe()
         }
     }
 
     override fun onSpeechPartial(partialText: String) {
         val normalized = partialText.lowercase().trim()
-        if (isWaitingForVoiceConfirmation && !isCurrentlyReadingText && (normalized.contains("yes") || normalized.contains("read"))) {
-            readTextImmediately()
+        if (normalized.contains("turn on sign mode") || normalized.contains("start sign mode")) {
+            setSignMode(true)
+        } else if (normalized.contains("turn off sign mode") || normalized.contains("stop sign mode")) {
+            setSignMode(false)
         }
     }
 
     override fun onRmsAudioLevel(rmsdB: Float) {}
-
     override fun onListeningStateChanged(isListening: Boolean) {}
-
-    override fun onSpeechError(errorMessage: String) {
-        if (isWaitingForVoiceConfirmation) {
-            // Keep waiting until timeout
-        }
-    }
+    override fun onSpeechError(errorMessage: String) {}
 
     fun setMute(muted: Boolean) {
         announcementManager.isMuted = muted
@@ -380,6 +452,7 @@ class VisionOrchestrator(
         textEngine.close()
         voiceConfirmSpeechEngine.shutdown()
         ttsManager.shutdown()
+        signSentenceBuilder.reset()
     }
 
     companion object {

@@ -2,7 +2,9 @@ package com.accessibility.detector.ui
 
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -29,12 +31,15 @@ import java.util.concurrent.Executors
  * Category 1: Vision Assist Activity.
  * Rear camera stream with Hybrid Local AI (SSD Object Detection, Danger Radar, Sign Language, OCR)
  * + Gemini Multimodal Visual Reasoning Engine.
+ * Supports Dedicated "Sign Mode" triggered by Voice Command, Double Volume Click, or UI Button.
  */
 class VisionAssistActivity : AppCompatActivity(), VisionUiCallback {
 
     private lateinit var binding: ActivityVisionAssistBinding
     private lateinit var orchestrator: VisionOrchestrator
     private lateinit var cameraExecutor: ExecutorService
+
+    private var lastVolumePressTimestamp: Long = 0L
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -76,6 +81,24 @@ class VisionAssistActivity : AppCompatActivity(), VisionUiCallback {
             updateSafetyShieldUi(isActive)
         }
 
+        // Dedicated Sign Mode Toggle
+        binding.btnSignModeToggle.setOnClickListener {
+            orchestrator.toggleSignMode()
+        }
+
+        // Sign Mode Action Buttons
+        binding.btnSpeakSentence.setOnClickListener {
+            orchestrator.signSentenceBuilder.forceSpeakSentence()
+        }
+
+        binding.btnClearSentence.setOnClickListener {
+            orchestrator.signSentenceBuilder.clearSentence()
+        }
+
+        binding.btnExitSignMode.setOnClickListener {
+            orchestrator.setSignMode(false)
+        }
+
         // Ask Gemini AI Button
         binding.btnAskGemini.setOnClickListener {
             orchestrator.hapticManager.playNormalPulse()
@@ -98,6 +121,25 @@ class VisionAssistActivity : AppCompatActivity(), VisionUiCallback {
         binding.btnGrantPermission.setOnClickListener {
             checkPermissionsAndStartCamera()
         }
+    }
+
+    /**
+     * Volume Key Double-Click Listener:
+     * Pressing Volume Up or Volume Down 2 times within 500ms toggles Sign Language Mode!
+     */
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            val now = SystemClock.uptimeMillis()
+            if (now - lastVolumePressTimestamp < 500L) {
+                // Double click confirmed -> Toggle Sign Mode!
+                orchestrator.toggleSignMode()
+                lastVolumePressTimestamp = 0L
+                return true
+            } else {
+                lastVolumePressTimestamp = now
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     private fun checkPermissionsAndStartCamera() {
@@ -242,9 +284,48 @@ class VisionAssistActivity : AppCompatActivity(), VisionUiCallback {
         }
     }
 
+    override fun onSignModeStateChanged(isActive: Boolean) {
+        runOnUiThread {
+            if (isActive) {
+                binding.signSentenceCard.visibility = View.VISIBLE
+                binding.tvModeTitle.text = "🤟 SIGN LANGUAGE MODE"
+                binding.tvModeTitle.setTextColor(ContextCompat.getColor(this, R.color.accent_cyan))
+                binding.btnSignModeToggle.backgroundTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(this, R.color.accent_cyan)
+                )
+                binding.btnSignModeToggle.iconTint = ColorStateList.valueOf(
+                    ContextCompat.getColor(this, R.color.black)
+                )
+                binding.tvLiveLabel.text = "🤟 Sign Mode: Detecting gestures & assembling sentences..."
+                binding.tvLiveLabel.setTextColor(ContextCompat.getColor(this, R.color.accent_cyan))
+                binding.tvDetailText.text = "Detecting Sign Language Only • Volume x2 or 'Turn off sign mode' to exit"
+            } else {
+                binding.signSentenceCard.visibility = View.GONE
+                binding.tvModeTitle.text = "👁️ VISION ASSIST"
+                binding.tvModeTitle.setTextColor(ContextCompat.getColor(this, R.color.accent_green))
+                binding.btnSignModeToggle.backgroundTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(this, R.color.surface_card)
+                )
+                binding.btnSignModeToggle.iconTint = ColorStateList.valueOf(
+                    ContextCompat.getColor(this, R.color.accent_cyan)
+                )
+                binding.tvLiveLabel.text = getString(R.string.status_scanning)
+                binding.tvLiveLabel.setTextColor(ContextCompat.getColor(this, R.color.accent_green))
+                binding.tvDetailText.text = "Objects • Danger Radar • Sign Language • Image OCR"
+            }
+        }
+    }
+
+    override fun onSignSentenceUpdated(sentence: String, latestWord: String) {
+        runOnUiThread {
+            binding.tvCurrentSignBadge.text = if (latestWord.isNotBlank()) "Gesture: $latestWord" else "Ready"
+            binding.tvAccumulatedSentence.text = if (sentence.isNotBlank()) "\"$sentence\"" else "Show sign gestures to the camera — words will assemble into sentences here..."
+        }
+    }
+
     override fun onVoiceConfirmationState(isWaitingForConfirmation: Boolean, prompt: String) {
         runOnUiThread {
-            if (isWaitingForConfirmation) {
+            if (isWaitingForConfirmation && !orchestrator.signSentenceBuilder.isSignModeActive) {
                 binding.voiceConfirmPromptCard.visibility = View.VISIBLE
                 binding.tvVoiceConfirmPrompt.text = prompt
             } else {
