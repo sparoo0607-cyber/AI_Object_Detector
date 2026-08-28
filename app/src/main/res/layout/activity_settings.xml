@@ -13,7 +13,7 @@
         android:orientation="vertical"
         android:paddingHorizontal="18dp"
         android:paddingTop="24dp"
-        android:paddingBottom="24dp">
+        android:paddingBottom="28dp">
 
         <!-- Top Header & Navigation -->
         <LinearLayout
@@ -60,7 +60,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="1dp"
                     android:text="AI Engines &amp; Language Model Manager"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp"
@@ -72,12 +72,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
+            android:layout_marginTop="24dp"
             android:text="OFFLINE LANGUAGE PACKS (ML KIT)"
             android:textColor="@color/accent_green"
             android:textSize="11sp"
             android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.05" />
+            android:letterSpacing="0.06" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -90,7 +90,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Download on-device language models for offline translation:"
+                android:text="Download on-device language models for 100% offline translation:"
                 android:textColor="@color/text_secondary"
                 android:textSize="12.5sp" />
 
@@ -394,12 +394,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="24dp"
             android:text="GEMINI MULTIMODAL REASONING"
             android:textColor="@color/accent_cyan"
             android:textSize="11sp"
             android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.05" />
+            android:letterSpacing="0.06" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -481,12 +481,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="24dp"
             android:text="AI PERCEPTION MODULES"
             android:textColor="@color/accent_green"
             android:textSize="11sp"
             android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.05" />
+            android:letterSpacing="0.06" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -541,12 +541,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="24dp"
             android:text="ACCESSIBILITY &amp; FEEDBACK"
             android:textColor="@color/accent_yellow"
             android:textSize="11sp"
             android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.05" />
+            android:letterSpacing="0.06" />
 
         <LinearLayout
             android:layout_width="match_parent"

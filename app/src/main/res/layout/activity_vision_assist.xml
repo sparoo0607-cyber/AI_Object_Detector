@@ -33,7 +33,7 @@
         android:id="@+id/topBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="14dp"
+        android:layout_marginHorizontal="16dp"
         android:layout_marginTop="20dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
@@ -74,11 +74,11 @@
             android:backgroundTint="@color/surface_glass"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="12dp">
+            android:paddingHorizontal="14dp">
 
             <View
-                android:layout_width="8dp"
-                android:layout_height="8dp"
+                android:layout_width="7dp"
+                android:layout_height="7dp"
                 android:background="@drawable/pill_background"
                 android:backgroundTint="@color/accent_green"
                 android:layout_marginEnd="8dp" />
@@ -89,8 +89,9 @@
                 android:layout_height="wrap_content"
                 android:text="Vision Assist"
                 android:textColor="@color/text_primary"
-                android:textSize="13sp"
-                android:fontFamily="sans-serif-medium" />
+                android:textSize="13.5sp"
+                android:fontFamily="sans-serif-bold"
+                android:letterSpacing="0.02" />
         </LinearLayout>
 
         <Space
@@ -113,7 +114,7 @@
             app:iconTint="@color/accent_cyan"
             app:iconSize="20dp"
             app:iconGravity="textStart"
-            app:strokeColor="@color/surface_border"
+            app:strokeColor="@color/accent_cyan_border"
             app:strokeWidth="1dp"
             android:contentDescription="Toggle Sign Language Mode" />
 
@@ -137,7 +138,7 @@
             app:iconTint="@color/accent_red"
             app:iconSize="20dp"
             app:iconGravity="textStart"
-            app:strokeColor="@color/surface_border"
+            app:strokeColor="@color/accent_red_border"
             app:strokeWidth="1dp"
             android:contentDescription="Toggle Emergency Hazard Safety Shield" />
 
@@ -169,13 +170,13 @@
         android:id="@+id/geminiStatusBanner"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="14dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/pill_accent_cyan"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingHorizontal="14dp"
-        android:paddingVertical="8dp"
+        android:paddingVertical="9dp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/topBar"
         app:layout_constraintStart_toStartOf="parent"
@@ -202,10 +203,10 @@
         android:id="@+id/signSentenceCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="14dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="10dp"
         app:cardBackgroundColor="@color/surface_glass"
-        app:cardCornerRadius="20dp"
+        app:cardCornerRadius="22dp"
         app:cardElevation="0dp"
         app:strokeColor="@color/accent_cyan"
         app:strokeWidth="1.5dp"
@@ -230,7 +231,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="🤟 SIGN LANGUAGE BUILDER"
+                    android:text="🤟 SIGN SENTENCE BUILDER"
                     android:textColor="@color/accent_cyan"
                     android:textSize="12sp"
                     android:fontFamily="sans-serif-black"
@@ -272,13 +273,13 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSpeakSentence"
                     android:layout_width="0dp"
-                    android:layout_height="42dp"
+                    android:layout_height="44dp"
                     android:layout_weight="1.3"
                     android:text="🔊 Speak Sentence"
                     android:textColor="@color/black"
                     android:fontFamily="sans-serif-medium"
                     android:textStyle="bold"
-                    android:textSize="11.5sp"
+                    android:textSize="12sp"
                     app:backgroundTint="@color/accent_cyan"
                     app:cornerRadius="12dp" />
 
@@ -289,11 +290,11 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnClearSentence"
                     android:layout_width="0dp"
-                    android:layout_height="42dp"
+                    android:layout_height="44dp"
                     android:layout_weight="1"
                     android:text="Clear"
                     android:textColor="@color/white"
-                    android:textSize="11.5sp"
+                    android:textSize="12sp"
                     app:backgroundTint="@color/surface_dark"
                     app:strokeColor="@color/surface_border"
                     app:strokeWidth="1dp"
@@ -306,11 +307,11 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnExitSignMode"
                     android:layout_width="0dp"
-                    android:layout_height="42dp"
+                    android:layout_height="44dp"
                     android:layout_weight="1"
                     android:text="Exit"
                     android:textColor="@color/accent_red"
-                    android:textSize="11.5sp"
+                    android:textSize="12sp"
                     app:backgroundTint="@color/surface_dark"
                     app:strokeColor="@color/surface_border"
                     app:strokeWidth="1dp"
@@ -324,8 +325,8 @@
         android:id="@+id/voiceConfirmPromptCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="14dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/card_background"
         android:backgroundTint="@color/surface_glass"
         android:orientation="vertical"
@@ -396,8 +397,8 @@
         android:id="@+id/bottomSection"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="14dp"
-        android:layout_marginBottom="18dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="20dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -418,7 +419,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/status_scanning"
                 android:textColor="@color/accent_green"
-                android:textSize="19sp"
+                android:textSize="20sp"
                 android:fontFamily="sans-serif-black"
                 android:maxLines="2"
                 android:ellipsize="end" />
@@ -430,7 +431,7 @@
                 android:layout_marginTop="3dp"
                 android:text="Objects • Danger Radar • Sign Language • Image OCR"
                 android:textColor="@color/text_secondary"
-                android:textSize="12sp"
+                android:textSize="12.5sp"
                 android:fontFamily="sans-serif-medium" />
         </LinearLayout>
 
@@ -445,15 +446,15 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAskGemini"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="50dp"
                 android:layout_weight="1.2"
                 android:text="🤖 Ask AI (Scene)"
                 android:textColor="@color/black"
                 android:fontFamily="sans-serif-medium"
                 android:textStyle="bold"
-                android:textSize="13sp"
+                android:textSize="13.5sp"
                 app:backgroundTint="@color/accent_cyan"
-                app:cornerRadius="24dp"
+                app:cornerRadius="25dp"
                 android:contentDescription="Ask Gemini Visual AI to describe everything around you" />
 
             <Space
@@ -464,15 +465,15 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnForceReadText"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="50dp"
                 android:layout_weight="1"
                 android:text="📖 Read Text"
                 android:textColor="@color/black"
                 android:fontFamily="sans-serif-medium"
                 android:textStyle="bold"
-                android:textSize="13sp"
+                android:textSize="13.5sp"
                 app:backgroundTint="@color/accent_yellow"
-                app:cornerRadius="24dp"
+                app:cornerRadius="25dp"
                 android:contentDescription="Read detected text out loud" />
         </LinearLayout>
     </LinearLayout>

@@ -13,7 +13,7 @@
         android:orientation="vertical"
         android:paddingHorizontal="18dp"
         android:paddingTop="24dp"
-        android:paddingBottom="24dp">
+        android:paddingBottom="28dp">
 
         <!-- Top Header & Navigation -->
         <LinearLayout
@@ -62,7 +62,7 @@
                     android:id="@+id/tvTranslationStatusBadge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="1dp"
                     android:text="🟢 Offline ML Kit Translation Ready"
                     android:textColor="@color/accent_green"
                     android:textSize="11.5sp"
@@ -76,10 +76,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             app:cardBackgroundColor="@color/surface_card"
-            app:cardCornerRadius="18dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="0dp"
             app:strokeColor="@color/surface_border"
-            app:strokeWidth="1dp">
+            app:strokeWidth="1.5dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -107,12 +107,12 @@
                             android:textColor="@color/text_muted"
                             android:textSize="10sp"
                             android:fontFamily="sans-serif-black"
-                            android:letterSpacing="0.05" />
+                            android:letterSpacing="0.06" />
 
                         <Spinner
                             android:id="@+id/spnSourceLanguage"
                             android:layout_width="match_parent"
-                            android:layout_height="40dp"
+                            android:layout_height="42dp"
                             android:layout_marginTop="4dp"
                             android:background="@drawable/card_background"
                             android:theme="@style/ThemeOverlay.AppCompat.Dark" />
@@ -152,12 +152,12 @@
                             android:textColor="@color/text_muted"
                             android:textSize="10sp"
                             android:fontFamily="sans-serif-black"
-                            android:letterSpacing="0.05" />
+                            android:letterSpacing="0.06" />
 
                         <Spinner
                             android:id="@+id/spnTargetLanguage"
                             android:layout_width="match_parent"
-                            android:layout_height="40dp"
+                            android:layout_height="42dp"
                             android:layout_marginTop="4dp"
                             android:background="@drawable/card_background"
                             android:theme="@style/ThemeOverlay.AppCompat.Dark" />
@@ -170,7 +170,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:background="@drawable/pill_accent_green"
+                    android:background="@drawable/pill_status_active"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="12dp"
@@ -189,14 +189,14 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnDownloadLanguagePack"
                         android:layout_width="wrap_content"
-                        android:layout_height="36dp"
+                        android:layout_height="34dp"
                         android:layout_marginStart="8dp"
                         android:text="Download"
                         android:textColor="@color/black"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
+                        android:textSize="10.5sp"
+                        android:fontFamily="sans-serif-bold"
                         app:backgroundTint="@color/accent_yellow"
-                        app:cornerRadius="8dp" />
+                        app:cornerRadius="10dp" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -207,9 +207,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             app:cardBackgroundColor="@color/surface_card"
-            app:cardCornerRadius="18dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="0dp"
-            app:strokeColor="#4D8B5CF6"
+            app:strokeColor="@color/accent_purple_border"
             app:strokeWidth="1.5dp">
 
             <LinearLayout
@@ -222,7 +222,7 @@
                     android:id="@+id/etMessage"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="80dp"
+                    android:minHeight="85dp"
                     android:gravity="top|start"
                     android:hint="Type what you want to say..."
                     android:textColorHint="@color/text_muted"
@@ -316,7 +316,7 @@
                     android:textColor="@color/accent_cyan"
                     android:textSize="11sp"
                     android:fontFamily="sans-serif-black"
-                    android:letterSpacing="0.05" />
+                    android:letterSpacing="0.06" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnTranslateAndSpeak"
@@ -351,7 +351,7 @@
             android:textColor="@color/accent_green"
             android:textSize="11sp"
             android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.05" />
+            android:letterSpacing="0.06" />
 
         <GridLayout
             android:layout_width="match_parent"
@@ -364,7 +364,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPhraseHelp"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+                android:layout_height="52dp"
                 android:layout_columnWeight="1"
                 android:text="🆘 I NEED HELP"
                 android:textColor="@color/white"
@@ -377,7 +377,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPhraseWater"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+                android:layout_height="52dp"
                 android:layout_columnWeight="1"
                 android:text="💧 NEED WATER"
                 android:textColor="@color/white"
@@ -390,7 +390,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPhraseFood"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+                android:layout_height="52dp"
                 android:layout_columnWeight="1"
                 android:text="🍲 NEED FOOD"
                 android:textColor="@color/black"
@@ -403,7 +403,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPhraseHospital"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+                android:layout_height="52dp"
                 android:layout_columnWeight="1"
                 android:text="🏥 HOSPITAL"
                 android:textColor="@color/white"
@@ -416,7 +416,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPhraseThanks"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+                android:layout_height="52dp"
                 android:layout_columnWeight="1"
                 android:text="🙏 THANK YOU"
                 android:textColor="@color/black"
@@ -429,7 +429,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPhraseYesNo"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+                android:layout_height="52dp"
                 android:layout_columnWeight="1"
                 android:text="✅ YES / ❌ NO"
                 android:textColor="@color/white"
@@ -446,26 +446,26 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="18dp"
             android:text="TWO-WAY CONVERSATION"
             android:textColor="@color/text_secondary"
             android:textSize="11sp"
             android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.05" />
+            android:letterSpacing="0.06" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnListenOtherPerson"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="52dp"
             android:layout_marginTop="8dp"
             android:text="🎤 Listen to Other Person's Response"
             android:textColor="@color/white"
             android:fontFamily="sans-serif-medium"
             android:textStyle="bold"
-            android:textSize="13sp"
+            android:textSize="13.5sp"
             app:backgroundTint="@color/surface_dark"
-            app:cornerRadius="14dp"
-            app:strokeColor="@color/accent_blue"
+            app:cornerRadius="15dp"
+            app:strokeColor="@color/accent_cyan"
             app:strokeWidth="1.5dp" />
 
         <TextView

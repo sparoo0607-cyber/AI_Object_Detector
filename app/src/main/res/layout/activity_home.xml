@@ -11,11 +11,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="20dp"
-        android:paddingTop="28dp"
-        android:paddingBottom="24dp">
+        android:paddingHorizontal="18dp"
+        android:paddingTop="26dp"
+        android:paddingBottom="28dp">
 
-        <!-- Top Header & Branding -->
+        <!-- Top Header & Branding Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -28,36 +28,70 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="SAHEY"
-                    android:textColor="@color/accent_green"
-                    android:textSize="28sp"
-                    android:fontFamily="sans-serif-black"
-                    android:letterSpacing="0.04" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="SAHEY"
+                        android:textColor="@color/accent_green"
+                        android:textSize="30sp"
+                        android:fontFamily="sans-serif-black"
+                        android:letterSpacing="0.05" />
+
+                    <Space android:layout_width="10dp" android:layout_height="wrap_content" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/pill_status_active"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="3dp"
+                        android:gravity="center_vertical">
+
+                        <View
+                            android:layout_width="6dp"
+                            android:layout_height="6dp"
+                            android:background="@drawable/pill_background"
+                            android:backgroundTint="@color/accent_green"
+                            android:layout_marginEnd="5dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="AI ACTIVE"
+                            android:textColor="@color/accent_green"
+                            android:textSize="9.5sp"
+                            android:fontFamily="sans-serif-black"
+                            android:letterSpacing="0.08" />
+                    </LinearLayout>
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="Assistive AI Intelligence Platform"
+                    android:text="Multimodal Accessibility &amp; Intelligence"
                     android:textColor="@color/text_secondary"
-                    android:textSize="13sp"
+                    android:textSize="12.5sp"
                     android:fontFamily="sans-serif-medium" />
             </LinearLayout>
 
-            <!-- Settings Button -->
+            <!-- Settings Quick Action Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSettings"
                 style="@style/Widget.MaterialComponents.Button.Icon"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="46dp"
+                android:layout_height="46dp"
                 android:insetLeft="0dp"
                 android:insetTop="0dp"
                 android:insetRight="0dp"
                 android:insetBottom="0dp"
-                app:cornerRadius="14dp"
+                app:cornerRadius="15dp"
                 app:backgroundTint="@color/surface_card"
                 app:icon="@drawable/ic_settings"
                 app:iconTint="@color/white"
@@ -68,15 +102,31 @@
                 android:contentDescription="@string/action_settings" />
         </LinearLayout>
 
-        <TextView
+        <!-- Section Title Header -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="4dp"
-            android:text="Select an accessibility mode:"
-            android:textColor="@color/text_secondary"
-            android:textSize="13.5sp"
-            android:fontFamily="sans-serif-medium" />
+            android:layout_marginTop="22dp"
+            android:layout_marginBottom="6dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ACCESSIBILITY SUITE"
+                android:textColor="@color/text_muted"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.08" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:background="@color/surface_border_subtle" />
+        </LinearLayout>
 
         <!-- ============================================ -->
         <!-- CATEGORY 1: VISION ASSIST (CAMERA-BASED) -->
@@ -85,28 +135,30 @@
             android:id="@+id/cardVisionAssist"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="8dp"
             android:clickable="true"
             android:focusable="true"
-            app:cardBackgroundColor="@color/surface_card"
-            app:cardCornerRadius="20dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="22dp"
             app:cardElevation="0dp"
-            app:strokeColor="#4D10B981"
-            app:strokeWidth="1.5dp"
+            app:strokeWidth="0dp"
             android:contentDescription="Category 1: Vision Assist. For visually impaired users. Camera based AI assistance for objects, danger radar, sign language, and reading text. Double tap to open.">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/card_vision_cyber"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="18dp">
 
+                <!-- Header Row -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
 
+                    <!-- Glowing Icon Container -->
                     <LinearLayout
                         android:layout_width="48dp"
                         android:layout_height="48dp"
@@ -128,22 +180,43 @@
                         android:layout_marginStart="14dp"
                         android:orientation="vertical">
 
-                        <TextView
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="VISION ASSIST"
-                            android:textColor="@color/accent_green"
-                            android:textSize="19sp"
-                            android:fontFamily="sans-serif-black"
-                            android:letterSpacing="0.04" />
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="VISION ASSIST"
+                                android:textColor="@color/accent_green"
+                                android:textSize="18sp"
+                                android:fontFamily="sans-serif-black"
+                                android:letterSpacing="0.04" />
+
+                            <Space android:layout_width="8dp" android:layout_height="wrap_content" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/badge_chip_bg"
+                                android:paddingHorizontal="7dp"
+                                android:paddingVertical="2dp"
+                                android:text="CAMERA"
+                                android:textColor="@color/accent_green"
+                                android:textSize="9sp"
+                                android:fontFamily="sans-serif-black"
+                                android:letterSpacing="0.06" />
+                        </LinearLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="1dp"
-                            android:text="For visually impaired users"
+                            android:layout_marginTop="2dp"
+                            android:text="Visual perception &amp; hazard navigation"
                             android:textColor="@color/text_secondary"
-                            android:textSize="12.5sp"
+                            android:textSize="12sp"
                             android:fontFamily="sans-serif-medium" />
                     </LinearLayout>
 
@@ -151,11 +224,11 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_arrow_right"
-                        app:tint="@color/text_muted"
+                        app:tint="@color/accent_green"
                         android:contentDescription="Open" />
                 </LinearLayout>
 
-                <!-- Clean Feature Chips -->
+                <!-- Modern Feature Chips -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -165,58 +238,78 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/badge_chip_bg"
                         android:paddingHorizontal="9dp"
-                        android:paddingVertical="4dp"
-                        android:background="@drawable/pill_background"
+                        android:paddingVertical="5dp"
                         android:text="80 Objects"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium" />
 
                     <Space android:layout_width="6dp" android:layout_height="wrap_content" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/badge_chip_bg"
                         android:paddingHorizontal="9dp"
-                        android:paddingVertical="4dp"
-                        android:background="@drawable/pill_background"
+                        android:paddingVertical="5dp"
                         android:text="Hazard Radar"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium" />
 
                     <Space android:layout_width="6dp" android:layout_height="wrap_content" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/badge_chip_bg"
                         android:paddingHorizontal="9dp"
-                        android:paddingVertical="4dp"
-                        android:background="@drawable/pill_background"
+                        android:paddingVertical="5dp"
                         android:text="Sign ASL"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium" />
 
                     <Space android:layout_width="6dp" android:layout_height="wrap_content" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/badge_chip_bg"
                         android:paddingHorizontal="9dp"
-                        android:paddingVertical="4dp"
-                        android:background="@drawable/pill_background"
-                        android:text="OCR"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
+                        android:paddingVertical="5dp"
+                        android:text="OCR Reader"
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium" />
                 </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <!-- Sub-info line -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="📷 Camera &amp; Gemini Visual Reasoning • Instant Voice"
-                    android:textColor="@color/accent_green_glow"
-                    android:textSize="11.5sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_sparkle"
+                        app:tint="@color/accent_green_glow"
+                        android:contentDescription="AI" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="On-Device Camera AI • Gemini 2.0 Reasoning • Voice Output"
+                        android:textColor="@color/accent_green_glow"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium" />
+                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -230,36 +323,38 @@
             android:layout_marginTop="14dp"
             android:clickable="true"
             android:focusable="true"
-            app:cardBackgroundColor="@color/surface_card"
-            app:cardCornerRadius="20dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="22dp"
             app:cardElevation="0dp"
-            app:strokeColor="#4D3B82F6"
-            app:strokeWidth="1.5dp"
+            app:strokeWidth="0dp"
             android:contentDescription="Category 2: Sound and Language Assist. Primarily for deaf and hard of hearing users. Live sound alerts, speech transcription, and vibrations without camera. Double tap to open.">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/card_sound_cyber"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="18dp">
 
+                <!-- Header Row -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
 
+                    <!-- Glowing Icon Container -->
                     <LinearLayout
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:background="@drawable/pill_accent_blue"
+                        android:background="@drawable/pill_accent_cyan"
                         android:gravity="center">
 
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_sound"
-                            app:tint="@color/accent_blue"
+                            app:tint="@color/accent_cyan"
                             android:contentDescription="Sound Icon" />
                     </LinearLayout>
 
@@ -270,22 +365,43 @@
                         android:layout_marginStart="14dp"
                         android:orientation="vertical">
 
-                        <TextView
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="SOUND ASSIST"
-                            android:textColor="@color/accent_blue"
-                            android:textSize="19sp"
-                            android:fontFamily="sans-serif-black"
-                            android:letterSpacing="0.04" />
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="SOUND ASSIST"
+                                android:textColor="@color/accent_cyan"
+                                android:textSize="18sp"
+                                android:fontFamily="sans-serif-black"
+                                android:letterSpacing="0.04" />
+
+                            <Space android:layout_width="8dp" android:layout_height="wrap_content" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/badge_chip_bg"
+                                android:paddingHorizontal="7dp"
+                                android:paddingVertical="2dp"
+                                android:text="ACOUSTICS"
+                                android:textColor="@color/accent_cyan"
+                                android:textSize="9sp"
+                                android:fontFamily="sans-serif-black"
+                                android:letterSpacing="0.06" />
+                        </LinearLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="1dp"
-                            android:text="For deaf &amp; hard-of-hearing users"
+                            android:layout_marginTop="2dp"
+                            android:text="Acoustic alerts &amp; live speech captions"
                             android:textColor="@color/text_secondary"
-                            android:textSize="12.5sp"
+                            android:textSize="12sp"
                             android:fontFamily="sans-serif-medium" />
                     </LinearLayout>
 
@@ -293,11 +409,11 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_arrow_right"
-                        app:tint="@color/text_muted"
+                        app:tint="@color/accent_cyan"
                         android:contentDescription="Open" />
                 </LinearLayout>
 
-                <!-- Clean Feature Chips -->
+                <!-- Modern Feature Chips -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -307,46 +423,65 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/badge_chip_bg"
                         android:paddingHorizontal="9dp"
-                        android:paddingVertical="4dp"
-                        android:background="@drawable/pill_background"
+                        android:paddingVertical="5dp"
                         android:text="Siren / Horn Alerts"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium" />
 
                     <Space android:layout_width="6dp" android:layout_height="wrap_content" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/badge_chip_bg"
                         android:paddingHorizontal="9dp"
-                        android:paddingVertical="4dp"
-                        android:background="@drawable/pill_background"
-                        android:text="Live Voice Captions"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
+                        android:paddingVertical="5dp"
+                        android:text="Live Speech"
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium" />
 
                     <Space android:layout_width="6dp" android:layout_height="wrap_content" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/badge_chip_bg"
                         android:paddingHorizontal="9dp"
-                        android:paddingVertical="4dp"
-                        android:background="@drawable/pill_background"
+                        android:paddingVertical="5dp"
                         android:text="Haptics"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium" />
                 </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <!-- Sub-info line -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="🎙️ Microphone Only • Offline Telugu &amp; Multi-Language"
-                    android:textColor="@color/accent_blue_glow"
-                    android:textSize="11.5sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_sparkle"
+                        app:tint="@color/accent_cyan_glow"
+                        android:contentDescription="AI" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="Microphone Only • Telugu &amp; Multi-Language • No Camera"
+                        android:textColor="@color/accent_cyan_glow"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium" />
+                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -360,25 +495,27 @@
             android:layout_marginTop="14dp"
             android:clickable="true"
             android:focusable="true"
-            app:cardBackgroundColor="@color/surface_card"
-            app:cardCornerRadius="20dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="22dp"
             app:cardElevation="0dp"
-            app:strokeColor="#4D8B5CF6"
-            app:strokeWidth="1.5dp"
+            app:strokeWidth="0dp"
             android:contentDescription="Category 3: Speak and Translate Assist. For people who cannot speak or need communication assistance. Type to speak, quick phrases, and two way translation. Double tap to open.">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/card_speak_cyber"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="18dp">
 
+                <!-- Header Row -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
 
+                    <!-- Glowing Icon Container -->
                     <LinearLayout
                         android:layout_width="48dp"
                         android:layout_height="48dp"
@@ -400,22 +537,43 @@
                         android:layout_marginStart="14dp"
                         android:orientation="vertical">
 
-                        <TextView
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="SPEAK &amp; TRANSLATE"
-                            android:textColor="@color/accent_purple"
-                            android:textSize="19sp"
-                            android:fontFamily="sans-serif-black"
-                            android:letterSpacing="0.04" />
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="SPEAK &amp; TRANSLATE"
+                                android:textColor="@color/accent_purple"
+                                android:textSize="18sp"
+                                android:fontFamily="sans-serif-black"
+                                android:letterSpacing="0.04" />
+
+                            <Space android:layout_width="8dp" android:layout_height="wrap_content" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/badge_chip_bg"
+                                android:paddingHorizontal="7dp"
+                                android:paddingVertical="2dp"
+                                android:text="VOICE &amp; TTS"
+                                android:textColor="@color/accent_purple"
+                                android:textSize="9sp"
+                                android:fontFamily="sans-serif-black"
+                                android:letterSpacing="0.06" />
+                        </LinearLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="1dp"
-                            android:text="For non-verbal communication"
+                            android:layout_marginTop="2dp"
+                            android:text="Non-verbal speech &amp; multilingual bridge"
                             android:textColor="@color/text_secondary"
-                            android:textSize="12.5sp"
+                            android:textSize="12sp"
                             android:fontFamily="sans-serif-medium" />
                     </LinearLayout>
 
@@ -423,11 +581,11 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_arrow_right"
-                        app:tint="@color/text_muted"
+                        app:tint="@color/accent_purple"
                         android:contentDescription="Open" />
                 </LinearLayout>
 
-                <!-- Clean Feature Chips -->
+                <!-- Modern Feature Chips -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -437,46 +595,65 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/badge_chip_bg"
                         android:paddingHorizontal="9dp"
-                        android:paddingVertical="4dp"
-                        android:background="@drawable/pill_background"
+                        android:paddingVertical="5dp"
                         android:text="Type to Speak"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium" />
 
                     <Space android:layout_width="6dp" android:layout_height="wrap_content" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/badge_chip_bg"
                         android:paddingHorizontal="9dp"
-                        android:paddingVertical="4dp"
-                        android:background="@drawable/pill_background"
+                        android:paddingVertical="5dp"
                         android:text="Quick Phrases"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium" />
 
                     <Space android:layout_width="6dp" android:layout_height="wrap_content" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/badge_chip_bg"
                         android:paddingHorizontal="9dp"
-                        android:paddingVertical="4dp"
-                        android:background="@drawable/pill_background"
+                        android:paddingVertical="5dp"
                         android:text="Offline ML Kit"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium" />
                 </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <!-- Sub-info line -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="⌨️ 6 Indian Languages • 2-Way Translation"
-                    android:textColor="@color/accent_purple_glow"
-                    android:textSize="11.5sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_sparkle"
+                        app:tint="@color/accent_purple_glow"
+                        android:contentDescription="AI" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="6 Indian Languages • Offline On-Device • 2-Way Speech"
+                        android:textColor="@color/accent_purple_glow"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium" />
+                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -484,15 +661,15 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDemo"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="20dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="22dp"
             android:text="🛠️ System Health &amp; Interactive Demo"
             android:textColor="@color/black"
             android:fontFamily="sans-serif-medium"
             android:textStyle="bold"
-            android:textSize="13sp"
+            android:textSize="13.5sp"
             app:backgroundTint="@color/accent_cyan"
-            app:cornerRadius="14dp"
+            app:cornerRadius="16dp"
             app:icon="@drawable/ic_demo"
             app:iconTint="@color/black"
             app:iconSize="18dp" />

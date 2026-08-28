@@ -13,7 +13,7 @@
         android:orientation="vertical"
         android:paddingHorizontal="18dp"
         android:paddingTop="24dp"
-        android:paddingBottom="24dp">
+        android:paddingBottom="28dp">
 
         <!-- Top Header & Navigation -->
         <LinearLayout
@@ -52,7 +52,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="SOUND ASSIST"
-                    android:textColor="@color/accent_blue"
+                    android:textColor="@color/accent_cyan"
                     android:textSize="18sp"
                     android:fontFamily="sans-serif-black"
                     android:letterSpacing="0.04" />
@@ -62,7 +62,8 @@
                     android:id="@+id/tvSoundStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🎙️ Active • Telugu Speech &amp; Sounds"
+                    android:layout_marginTop="1dp"
+                    android:text="🎙️ Active • Telugu Speech &amp; Sound Radar"
                     android:textColor="@color/accent_green"
                     android:textSize="11.5sp"
                     android:fontFamily="sans-serif-medium" />
@@ -93,10 +94,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             app:cardBackgroundColor="@color/surface_card"
-            app:cardCornerRadius="18dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="0dp"
             app:strokeColor="@color/surface_border"
-            app:strokeWidth="1dp">
+            app:strokeWidth="1.5dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -124,12 +125,12 @@
                             android:textColor="@color/text_muted"
                             android:textSize="10sp"
                             android:fontFamily="sans-serif-black"
-                            android:letterSpacing="0.05" />
+                            android:letterSpacing="0.06" />
 
                         <Spinner
                             android:id="@+id/spnSpeechLanguage"
                             android:layout_width="match_parent"
-                            android:layout_height="40dp"
+                            android:layout_height="42dp"
                             android:layout_marginTop="4dp"
                             android:background="@drawable/card_background"
                             android:theme="@style/ThemeOverlay.AppCompat.Dark" />
@@ -153,12 +154,12 @@
                             android:textColor="@color/text_muted"
                             android:textSize="10sp"
                             android:fontFamily="sans-serif-black"
-                            android:letterSpacing="0.05" />
+                            android:letterSpacing="0.06" />
 
                         <Spinner
                             android:id="@+id/spnRecognitionMode"
                             android:layout_width="match_parent"
-                            android:layout_height="40dp"
+                            android:layout_height="42dp"
                             android:layout_marginTop="4dp"
                             android:background="@drawable/card_background"
                             android:theme="@style/ThemeOverlay.AppCompat.Dark" />
@@ -171,7 +172,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:background="@drawable/pill_accent_green"
+                    android:background="@drawable/pill_status_active"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="12dp"
@@ -191,12 +192,12 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnDownloadVoiceModel"
                         android:layout_width="wrap_content"
-                        android:layout_height="36dp"
+                        android:layout_height="34dp"
                         android:layout_marginStart="8dp"
                         android:text="Download"
                         android:textColor="@color/black"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
+                        android:textSize="10.5sp"
+                        android:fontFamily="sans-serif-bold"
                         app:backgroundTint="@color/accent_yellow"
                         app:cornerRadius="10dp"
                         android:visibility="gone" />
@@ -240,21 +241,21 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="18dp"
             android:text="LIVE SPEECH CAPTIONS (TRANSCRIPTION)"
             android:textColor="@color/accent_cyan"
             android:textSize="11sp"
             android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.05" />
+            android:letterSpacing="0.06" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             app:cardBackgroundColor="@color/surface_card"
-            app:cardCornerRadius="18dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="0dp"
-            app:strokeColor="@color/accent_cyan"
+            app:strokeColor="@color/accent_cyan_border"
             app:strokeWidth="1.5dp">
 
             <LinearLayout
@@ -287,7 +288,7 @@
                     android:textColor="@color/accent_purple"
                     android:textSize="10.5sp"
                     android:fontFamily="sans-serif-black"
-                    android:letterSpacing="0.05" />
+                    android:letterSpacing="0.06" />
 
                 <TextView
                     android:id="@+id/tvLiveTranslation"
@@ -305,12 +306,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="18dp"
             android:text="SURROUNDING SOUND ALERTS"
             android:textColor="@color/accent_yellow"
             android:textSize="11sp"
             android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.05" />
+            android:letterSpacing="0.06" />
 
         <!-- Most Recent Sound Alert Banner -->
         <com.google.android.material.card.MaterialCardView
@@ -319,7 +320,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             app:cardBackgroundColor="@color/surface_dark"
-            app:cardCornerRadius="18dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="0dp"
             app:strokeColor="@color/accent_yellow"
             app:strokeWidth="1dp">
@@ -385,12 +386,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="18dp"
             android:text="TEST SOUND &amp; HAPTIC PATTERNS"
             android:textColor="@color/text_muted"
             android:textSize="11sp"
             android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.05" />
+            android:letterSpacing="0.06" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -401,7 +402,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSimulateSiren"
                 android:layout_width="0dp"
-                android:layout_height="44dp"
+                android:layout_height="46dp"
                 android:layout_weight="1"
                 android:text="🚑 Siren"
                 android:textColor="@color/white"
@@ -417,7 +418,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSimulateHorn"
                 android:layout_width="0dp"
-                android:layout_height="44dp"
+                android:layout_height="46dp"
                 android:layout_weight="1"
                 android:text="🚗 Horn"
                 android:textColor="@color/white"
@@ -433,7 +434,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSimulateDoorbell"
                 android:layout_width="0dp"
-                android:layout_height="44dp"
+                android:layout_height="46dp"
                 android:layout_weight="1"
                 android:text="🔔 Doorbell"
                 android:textColor="@color/black"
