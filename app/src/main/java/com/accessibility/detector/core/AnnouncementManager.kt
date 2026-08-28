@@ -2,10 +2,7 @@ package com.accessibility.detector.core
 
 import android.os.SystemClock
 import android.util.Log
-import com.accessibility.detector.detection.EventPriority
-import com.accessibility.detector.detection.PerceptionEvent
-import com.accessibility.detector.detection.PerceptionType
-import com.accessibility.detector.speech.TtsManager
+import com.accessibility.detector.communication.TtsManager
 import java.util.concurrent.ConcurrentHashMap
 
 /**

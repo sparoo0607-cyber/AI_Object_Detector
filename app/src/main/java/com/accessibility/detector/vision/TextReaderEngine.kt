@@ -1,18 +1,19 @@
-package com.accessibility.detector.ocr
+package com.accessibility.detector.vision
 
 import android.graphics.Bitmap
 import android.util.Log
-import com.accessibility.detector.detection.EventPriority
-import com.accessibility.detector.detection.PerceptionEvent
-import com.accessibility.detector.detection.PerceptionType
+import com.accessibility.detector.core.EventPriority
+import com.accessibility.detector.core.PerceptionEvent
+import com.accessibility.detector.core.PerceptionType
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 
 interface TextReaderListener {
-    fun onTextRecognized(
+    fun onTextDiscovered(
         blocks: List<ExtractedTextBlock>,
-        event: PerceptionEvent?
+        fullText: String,
+        isNewContent: Boolean
     )
     fun onTextReaderError(error: String)
 }
@@ -22,11 +23,13 @@ interface TextReaderListener {
  */
 class TextReaderEngine(
     private val listener: TextReaderListener,
-    private val textProcessor: TextProcessor = TextProcessor()
+    val textProcessor: TextProcessor = TextProcessor()
 ) {
 
     private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     private var isBusy = false
+    var cachedFullText: String = ""
+        private set
 
     fun processBitmap(bitmap: Bitmap, rotationDegrees: Int) {
         if (isBusy) return
@@ -42,21 +45,15 @@ class TextReaderEngine(
                     bitmap.height
                 )
 
-                val prominentBlock = blocks.firstOrNull()
-                val event = prominentBlock?.let {
-                    PerceptionEvent(
-                        type = PerceptionType.TEXT,
-                        label = it.text,
-                        spokenText = "Text: ${it.text}",
-                        confidence = 0.92f,
-                        priority = EventPriority.TEXT
-                    )
+                if (blocks.isNotEmpty()) {
+                    val fullText = blocks.joinToString(" ") { it.text }
+                    cachedFullText = fullText
+                    val isNew = textProcessor.isNewText(fullText)
+                    listener.onTextDiscovered(blocks, fullText, isNew)
                 }
-
-                listener.onTextRecognized(blocks, event)
             }
             .addOnFailureListener { e ->
-                Log.e(TAG, "OCR Recognition error: ${e.message}", e)
+                Log.e(TAG, "OCR error: ${e.message}", e)
                 listener.onTextReaderError("OCR Error: ${e.localizedMessage}")
             }
             .addOnCompleteListener {

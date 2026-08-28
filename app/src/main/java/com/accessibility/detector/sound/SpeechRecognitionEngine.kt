@@ -1,4 +1,4 @@
-package com.accessibility.detector.speech
+package com.accessibility.detector.sound
 
 import android.content.Context
 import android.content.Intent
@@ -9,19 +9,19 @@ import android.speech.SpeechRecognizer
 import android.util.Log
 import java.util.Locale
 
-interface SpeechRecognitionListener {
-    fun onSpeechResult(text: String)
+interface LiveSpeechListener {
+    fun onSpeechRecognized(text: String)
     fun onSpeechPartial(partialText: String)
-    fun onSpeechListening(isListening: Boolean)
+    fun onListeningStateChanged(isListening: Boolean)
     fun onSpeechError(errorMessage: String)
 }
 
 /**
- * Speech Recognition engine using native Android SpeechRecognizer.
+ * Speech Recognition Engine for Category 2: Live Captions & Live Transcription.
  */
-class SpeechEngine(
+class SpeechRecognitionEngine(
     private val context: Context,
-    private val listener: SpeechRecognitionListener
+    private val listener: LiveSpeechListener
 ) : RecognitionListener {
 
     private var speechRecognizer: SpeechRecognizer? = null
@@ -35,14 +35,14 @@ class SpeechEngine(
         currentLocale = locale
 
         if (!SpeechRecognizer.isRecognitionAvailable(context)) {
-            listener.onSpeechError("Speech recognition not available on device")
+            listener.onSpeechError("Speech recognition not available on this device")
             return
         }
 
         try {
             speechRecognizer?.destroy()
             speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context).apply {
-                setRecognitionListener(this@SpeechEngine)
+                setRecognitionListener(this@SpeechRecognitionEngine)
             }
 
             val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
@@ -54,11 +54,11 @@ class SpeechEngine(
 
             speechRecognizer?.startListening(intent)
             isListening = true
-            listener.onSpeechListening(true)
+            listener.onListeningStateChanged(true)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to start speech recognition: ${e.message}", e)
             isListening = false
-            listener.onSpeechListening(false)
+            listener.onListeningStateChanged(false)
             listener.onSpeechError("Speech error: ${e.localizedMessage}")
         }
     }
@@ -71,55 +71,48 @@ class SpeechEngine(
             Log.e(TAG, "Error stopping speech recognizer: ${e.message}")
         } finally {
             isListening = false
-            listener.onSpeechListening(false)
+            listener.onListeningStateChanged(false)
         }
     }
 
-    override fun onReadyForSpeech(params: Bundle?) {
-        Log.d(TAG, "Ready for speech")
-    }
-
-    override fun onBeginningOfSpeech() {
-        Log.d(TAG, "Speech started")
-    }
-
+    override fun onReadyForSpeech(params: Bundle?) {}
+    override fun onBeginningOfSpeech() {}
     override fun onRmsChanged(rmsdB: Float) {}
-
     override fun onBufferReceived(buffer: ByteArray?) {}
 
     override fun onEndOfSpeech() {
         isListening = false
-        listener.onSpeechListening(false)
+        listener.onListeningStateChanged(false)
     }
 
     override fun onError(error: Int) {
         isListening = false
-        listener.onSpeechListening(false)
+        listener.onListeningStateChanged(false)
         val msg = when (error) {
             SpeechRecognizer.ERROR_NO_MATCH -> "No speech detected"
             SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "Speech timed out"
-            SpeechRecognizer.ERROR_NETWORK -> "Network required for speech recognition"
+            SpeechRecognizer.ERROR_NETWORK -> "Network connection required for cloud speech"
             SpeechRecognizer.ERROR_AUDIO -> "Audio recording error"
-            else -> "Speech recognition error code: $error"
+            else -> "Speech recognition error ($error)"
         }
         listener.onSpeechError(msg)
     }
 
     override fun onResults(results: Bundle?) {
         isListening = false
-        listener.onSpeechListening(false)
+        listener.onListeningStateChanged(false)
         val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-        val bestResult = matches?.firstOrNull()
-        if (!bestResult.isNullOrBlank()) {
-            listener.onSpeechResult(bestResult)
+        val best = matches?.firstOrNull()
+        if (!best.isNullOrBlank()) {
+            listener.onSpeechRecognized(best)
         }
     }
 
     override fun onPartialResults(partialResults: Bundle?) {
         val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-        val bestPartial = matches?.firstOrNull()
-        if (!bestPartial.isNullOrBlank()) {
-            listener.onSpeechPartial(bestPartial)
+        val partial = matches?.firstOrNull()
+        if (!partial.isNullOrBlank()) {
+            listener.onSpeechPartial(partial)
         }
     }
 
@@ -136,6 +129,6 @@ class SpeechEngine(
     }
 
     companion object {
-        private const val TAG = "SpeechEngine"
+        private const val TAG = "SpeechRecognitionEngine"
     }
 }

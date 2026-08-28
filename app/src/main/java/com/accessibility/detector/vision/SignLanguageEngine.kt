@@ -1,17 +1,17 @@
-package com.accessibility.detector.sign
+package com.accessibility.detector.vision
 
 import android.graphics.Bitmap
-import com.accessibility.detector.detection.DetectionResult
-import com.accessibility.detector.detection.EventPriority
-import com.accessibility.detector.detection.PerceptionEvent
-import com.accessibility.detector.detection.PerceptionType
+import com.accessibility.detector.core.DetectionResult
+import com.accessibility.detector.core.EventPriority
+import com.accessibility.detector.core.PerceptionEvent
+import com.accessibility.detector.core.PerceptionType
 
 interface SignLanguageListener {
     fun onSignDetected(event: PerceptionEvent, signDetection: SignDetection)
 }
 
 /**
- * Perception engine detecting and recognizing sign language gestures in real time.
+ * Sign Language Engine converting recognized gestures into Text and Voice.
  */
 class SignLanguageEngine(
     private val listener: SignLanguageListener,

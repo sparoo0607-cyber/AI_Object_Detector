@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permissions for 3-Category AI Multimodal Accessibility -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
@@ -13,13 +15,10 @@
         android:name="android.hardware.camera.autofocus"
         android:required="false" />
     <uses-feature
-        android:name="android.hardware.camera.front"
-        android:required="false" />
-    <uses-feature
         android:name="android.hardware.microphone"
         android:required="false" />
 
-    <!-- Required on Android 11+ (API 30+) for TTS and Speech Recognition visibility -->
+    <!-- Queries for TextToSpeech and SpeechRecognizer engines -->
     <queries>
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
@@ -36,25 +35,44 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:hardwareAccelerated="true"
-        android:theme="@style/Theme.AccessibilityDetector">
+        android:theme="@style/Theme.AccessibilityDetector"
+        tools:targetApi="31">
 
+        <!-- Category 0: Home Screen (Launcher) -->
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".ui.HomeActivity"
             android:exported="true"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <!-- Category 1: Vision Assist (Camera-based) -->
+        <activity
+            android:name=".ui.VisionAssistActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- Category 2: Sound & Language Assist (Mic-based, No Camera) -->
+        <activity
+            android:name=".ui.SoundAssistActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- Category 3: Speak & Translate (Text/TTS/Translate, No Camera) -->
+        <activity
+            android:name=".ui.CommunicationActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Settings Dashboard -->
         <activity
             android:name=".ui.SettingsActivity"
             android:exported="false"
-            android:label="@string/title_settings"
-            android:parentActivityName=".ui.MainActivity" />
+            android:screenOrientation="portrait" />
 
     </application>
 

@@ -10,15 +10,15 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.accessibility.detector.R
-import com.accessibility.detector.detection.DetectionResult
-import com.accessibility.detector.detection.PerceptionType
-import com.accessibility.detector.ocr.ExtractedTextBlock
-import com.accessibility.detector.sign.SignDetection
+import com.accessibility.detector.core.DetectionResult
+import com.accessibility.detector.core.PerceptionType
+import com.accessibility.detector.vision.ExtractedTextBlock
+import com.accessibility.detector.vision.SignDetection
 import kotlin.math.max
 
 /**
- * Multi-layer custom canvas overlay for rendering Objects (Green), Hazards (Red),
- * OCR Text (Yellow), and Sign Language (Cyan).
+ * Multi-layer custom canvas overlay for Category 1: Vision Assist.
+ * Renders Objects (Green), Hazards/Danger (Red), OCR Text (Yellow), and Sign Language (Cyan).
  */
 class OverlayView @JvmOverloads constructor(
     context: Context,
@@ -65,7 +65,7 @@ class OverlayView @JvmOverloads constructor(
     }
 
     private val textBackgroundPaint = Paint().apply {
-        color = Color.parseColor("#E6000000") // 90% opaque dark
+        color = Color.parseColor("#E6000000")
         style = Paint.Style.FILL
         isAntiAlias = true
     }
@@ -144,8 +144,6 @@ class OverlayView @JvmOverloads constructor(
             }
 
             canvas.drawRoundRect(rect, 14f, 14f, currentPaint)
-
-            // Draw label pill
             val labelText = if (isDanger) "⚠️ ${result.label}" else "${result.label} ${(result.score * 100).toInt()}%"
             drawBadge(canvas, rect, labelText, accentColor)
         }
@@ -169,7 +167,7 @@ class OverlayView @JvmOverloads constructor(
             drawBadge(canvas, rect, "📖 ${ocrBlock.text}", ContextCompat.getColor(context, R.color.accent_yellow))
         }
 
-        // 3. Draw Sign Language Gesture Highlights
+        // 3. Draw Sign Language Highlights
         activeSign?.let { sign ->
             val box = sign.boundingBox
             val left = box.left * scaleFactor + offsetX

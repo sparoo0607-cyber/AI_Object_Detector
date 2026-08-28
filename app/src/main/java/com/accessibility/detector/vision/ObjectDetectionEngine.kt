@@ -1,7 +1,8 @@
-package com.accessibility.detector.detection
+package com.accessibility.detector.vision
 
 import android.content.Context
 import androidx.camera.core.ImageProxy
+import com.accessibility.detector.core.DetectionResult
 
 interface ObjectDetectionListener {
     fun onObjectsDetected(
@@ -14,7 +15,7 @@ interface ObjectDetectionListener {
 }
 
 /**
- * Perception Engine wrapping on-device object detection for SAHEY.
+ * Perception Engine wrapping on-device object detection for Category 1.
  */
 class ObjectDetectionEngine(
     context: Context,

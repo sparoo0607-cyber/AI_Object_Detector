@@ -1,4 +1,4 @@
-package com.accessibility.detector.ocr
+package com.accessibility.detector.vision
 
 import android.graphics.RectF
 import com.google.mlkit.vision.text.Text
@@ -10,12 +10,11 @@ data class ExtractedTextBlock(
 )
 
 /**
- * Utility to process, sanitize, and prioritize recognized text blocks.
+ * Utility to process, clean, and deduplicate OCR text.
  */
 class TextProcessor {
 
-    private var lastSpokenText: String? = null
-    private var lastSpokenTimestamp: Long = 0L
+    private var lastRecognizedSignature: String = ""
 
     fun processMlKitText(text: Text, imageWidth: Int, imageHeight: Int): List<ExtractedTextBlock> {
         val blocks = mutableListOf<ExtractedTextBlock>()
@@ -25,7 +24,6 @@ class TextProcessor {
             val box = block.boundingBox
 
             if (rawText.length >= 2 && box != null) {
-                // Filter out non-alphanumeric noise
                 val cleanText = sanitizeText(rawText)
                 if (cleanText.isNotBlank()) {
                     blocks.add(
@@ -39,8 +37,20 @@ class TextProcessor {
             }
         }
 
-        // Sort by area / centrality (largest/most prominent text first)
         return blocks.sortedByDescending { it.boundingBox.width() * it.boundingBox.height() }
+    }
+
+    fun isNewText(fullText: String): Boolean {
+        val signature = fullText.take(60).lowercase().replace(Regex("[^a-z0-9]"), "")
+        if (signature.isEmpty()) return false
+        if (signature == lastRecognizedSignature) return false
+
+        lastRecognizedSignature = signature
+        return true
+    }
+
+    fun resetSignature() {
+        lastRecognizedSignature = ""
     }
 
     fun sanitizeText(text: String): String {

@@ -1,4 +1,4 @@
-package com.accessibility.detector.detection
+package com.accessibility.detector.vision
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -6,6 +6,10 @@ import android.graphics.RectF
 import android.os.SystemClock
 import android.util.Log
 import androidx.camera.core.ImageProxy
+import com.accessibility.detector.core.DetectionResult
+import com.accessibility.detector.core.PerceptionType
+import com.accessibility.detector.core.ProximityLevel
+import com.accessibility.detector.core.SpatialPosition
 import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.Rot90Op
@@ -14,7 +18,7 @@ import org.tensorflow.lite.task.vision.detector.Detection
 import org.tensorflow.lite.task.vision.detector.ObjectDetector
 
 /**
- * TensorFlow Lite SSD MobileNet on-device object detection helper.
+ * TensorFlow Lite SSD MobileNet on-device object detection helper for Category 1: Vision Assist.
  */
 class ObjectDetectorHelper(
     private val context: Context,

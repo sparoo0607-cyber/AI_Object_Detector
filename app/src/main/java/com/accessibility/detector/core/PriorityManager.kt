@@ -1,11 +1,7 @@
 package com.accessibility.detector.core
 
-import com.accessibility.detector.detection.EventPriority
-import com.accessibility.detector.detection.PerceptionEvent
-import com.accessibility.detector.detection.PerceptionType
-
 /**
- * Priority Manager for the SAHEY AI Orchestrator.
+ * Priority Manager for the SAHEY AI Multimodal Platform.
  * Assigns priorities and decides speech preemption rules.
  */
 class PriorityManager {
@@ -25,11 +21,12 @@ class PriorityManager {
         return when {
             isImminentHazard -> EventPriority.CRITICAL
             type == PerceptionType.DANGER -> EventPriority.DANGER
+            type == PerceptionType.TRANSLATION -> EventPriority.NAVIGATION
             type == PerceptionType.TEXT -> EventPriority.TEXT
             type == PerceptionType.SIGN -> EventPriority.SIGN
             type == PerceptionType.SOUND -> EventPriority.SOUND
+            type == PerceptionType.SPEECH -> EventPriority.SPEECH
             type == PerceptionType.OBJECT -> EventPriority.OBJECT
-            type == PerceptionType.SPEECH || type == PerceptionType.TRANSLATION -> EventPriority.NAVIGATION
             else -> EventPriority.BACKGROUND
         }
     }

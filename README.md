@@ -1,119 +1,49 @@
 # 👁️ SAHEY — AI Multimodal Accessibility Assistant
 
-> **"See it. Hear it. Understand it."**
+> **"See it. Hear it. Understand it. Communicate."**
 
-SAHEY is an on-device, real-time AI-powered multimodal accessibility assistant built for visually impaired and hearing-impaired users, providing environmental awareness, navigation safety, printed text reading, sign language recognition, acoustic hazard alerts, and multilingual speech translation.
-
----
-
-## 🌟 7 Unified AI Perception Engines
-
-1. **👁️ Real-Time On-Device Object Detection**:
-   - Powered by **SSD MobileNet COCO** via TensorFlow Lite Task Vision.
-   - Detects 80 common object categories (*Person, Chair, Laptop, Bottle, Backpack, Cell Phone, etc.*) offline with zero internet dependency.
-
-2. **⚠️ Intelligent Danger & Hazard Radar**:
-   - Analyzes mobility hazards: approaching vehicles (*Car, Bus, Truck, Motorcycle, Bicycle*), obstacles in walking line, pedestrian crosswalks.
-   - Spatial risk reasoning with natural direction and proximity announcements (*"Warning! Car approaching on your left, very close!"*, *"Obstacle directly ahead"*).
-   - Hazard announcements **preempt and interrupt** lower-priority speech.
-
-3. **📖 Instant Printed Text Reader (OCR)**:
-   - On-device OCR via Google ML Kit Text Recognition.
-   - Reads street signs, notices, product packaging, menus, and documents.
-   - Spatial prioritization of prominent/central text.
-
-4. **🤟 Real-Time Sign Language Interpretation**:
-   - Recognizes core sign gestures (*"Hello"*, *"Thank you"*, *"Yes"*, *"No"*, *"Help"*, *"Water"*, *"Food"*, *"Stop"*, *"I need help"*).
-   - Requires temporal smoothing (held steadily for 300ms+) to prevent false positives.
-
-5. **🔊 Environmental Sound Awareness**:
-   - Real-time acoustic spectrum and energy analyzer listening for safety-critical sounds.
-   - Detects emergency sirens (ambulances, police), car horns, smoke/fire alarms, glass breaking, knocks, and loud impacts.
-
-6. **🗣️ Multilingual Speech Recognition**:
-   - Converts spoken speech into text with support for English, Hindi, Telugu, and Spanish.
-
-7. **🌍 Live Text & Speech Translation**:
-   - Instant bi-directional translation for navigation and accessibility vocabulary across English, Telugu, Hindi, and Spanish.
+SAHEY is an on-device, real-time AI multimodal accessibility assistant structured into **3 clearly separated categories** with complete mode isolation:
 
 ---
 
-## 🧠 Multimodal AI Orchestrator & Priority Hierarchy
+## 🌟 3 Main Accessibility Categories
 
-All 7 engines feed into **`SaheyAIOrchestrator`**, which coordinates context, spatial orientation, and speech timing:
-
-```
-                  ┌─────────────────────────────────────┐
-                  │          SAHEY PERCEPTION           │
-                  └──────────────────┬──────────────────┘
-                                     │
-           ┌─────────────────────────┴─────────────────────────┐
-           ▼                                                   ▼
-     VISION STREAM                                       AUDIO STREAM
-   ├── Object Detection (COCO)                        ├── Acoustic Classifier (Sirens, Horns, Alarms)
-   ├── Danger Radar (Vehicles, Hazards)               └── Speech Recognition (Voice Input)
-   ├── Sign Language (Gestures)
-   └── OCR (Printed Text Reader)
-           │                                                   │
-           └─────────────────────────┬─────────────────────────┘
-                                     │
-                                     ▼
-                      ┌──────────────────────────────┐
-                      │    SaheyAIOrchestrator       │
-                      │  • Context Fusion            │
-                      │  • Spatial Reasoning         │
-                      │  • Priority Manager (10-100) │
-                      └──────────────┬───────────────┘
-                                     │
-                                     ▼
-                      ┌──────────────────────────────┐
-                      │    AnnouncementManager       │
-                      │  • Speech Cooldown (2.5s)    │
-                      │  • Danger Interruption       │
-                      │  • Multi-Pattern Haptics     │
-                      └──────────────────────────────┘
-```
-
-### Priority Hierarchy:
-* **`CRITICAL` (100)**: Imminent vehicle collision, fire alarm.
-* **`DANGER` (80)**: Approaching vehicles, navigation obstacles.
-* **`NAVIGATION` (70)**: Stairs, crosswalks, doors, translation results.
-* **`TEXT` / `SIGN` / `SOUND` (50)**: Recognized text, sign language, ambient sounds.
-* **`OBJECT` (30)**: Normal objects (laptops, chairs, bottles).
-* **`BACKGROUND` (10)**: Low-confidence observations.
+### 👁️ Category 1 — VISION ASSIST (`VisionAssistActivity`)
+* **Target Audience**: Visually impaired users
+* **Primary Input**: **CAMERA ONLY** (Rear camera via CameraX)
+* **Features**:
+  1. **Real-time Object Detection**: SSD MobileNet COCO 80 classes with intelligent priority cooldown.
+  2. **⚠️ AI Danger & Hazard Radar**: Vehicle warnings (*"Vehicle on your left."*), obstacle alerts, fire detection, and slippery floor warnings (*"Warning. Possible slippery floor ahead."*).
+  3. **🤟 Sign Language Interpretation**: Real-time hand gesture interpreter with temporal smoothing (*"Hello"*, *"Thank you"*, *"Yes"*, *"No"*, *"Help"*, *"Stop"*, *"Water"*, *"Food"*).
+  4. **📖 Image Text Reading (OCR)**: Google ML Kit on-device OCR with interactive **Voice Confirmation flow** (*"Text detected. Would you like me to read it?"* -> answers *"Yes"* / *"Read"*).
 
 ---
 
-## 📳 Tactile Haptic Language
-
-* **Normal Object**: Single crisp pulse (40ms).
-* **Important Object / Sign Gesture**: Double pulse (50ms - 50ms).
-* **Text Captured**: Single click pulse (60ms).
-* **Danger Alert**: Pulsing alarm pattern.
-* **Critical Danger / Hazard**: Urgent SOS vibration pattern.
-
----
-
-## 🛡️ One-Tap Safety Shield (Emergency Mode)
-
-Tapping the **Safety Shield** enters maximum-priority hazard radar mode:
-- Suppresses non-critical object chatter.
-- Heightens hazard sensitivity for approaching vehicles, obstacles, and sirens.
+### 🔊 Category 2 — SOUND & LANGUAGE ASSIST (`SoundAssistActivity`)
+* **Target Audience**: Deaf & hard-of-hearing users
+* **Primary Input**: **MICROPHONE ONLY** (**NO CAMERA**)
+* **Features**:
+  1. **🎧 Environmental Sound Awareness**: Real-time acoustic classifier for Car Horns, Sirens, Smoke Alarms, Doorbells, Knocks, Glass Breaks.
+  2. **🚗 Sound → Multi-Pattern Vibration**: Distinct haptic vibration alerts for sirens, horns, alarms, doorbells.
+  3. **Live Speech Transcription**: Real-time live captions of surrounding spoken words.
+  4. **Live Translation**: Instant translation of spoken speech into target language (English, Telugu, Hindi, Tamil, Kannada, Malayalam, Spanish).
 
 ---
 
-## 🛠️ Hackathon Demo Panel
-
-Tapping **Demo** opens the built-in demonstration sheet:
-- Real-time health indicators for all 7 AI subsystems.
-- 1-click test triggers for Danger warnings, Emergency sirens, Sign gestures, and Translations.
+### 🗣️ Category 3 — SPEAK & TRANSLATION ASSIST (`CommunicationActivity`)
+* **Target Audience**: Non-verbal users / communication assistance
+* **Primary Input**: **TEXT / TTS / TRANSLATION / MIC** (**NO CAMERA**)
+* **Features**:
+  1. **User Types → SAHEY Speaks**: Large text input with Play, Repeat, Stop, Clear.
+  2. **One-Tap Quick Phrases**: Large accessible buttons for *HELP*, *WATER*, *FOOD*, *HOSPITAL*, *THANK YOU*, *YES/NO*.
+  3. **Text Translation + Speech**: Instant multilingual translation + voice synthesis.
+  4. **Two-Way Conversation**: Type ↔ Speak ↔ Mic Listen ↔ Translate ↔ Read dialog.
 
 ---
 
 ## 📦 APK Installation
 
 * **🚀 Signed Universal Release APK**: [**`SAHEY-Release.apk`**](file:///d:/Hackathon/DETECTOR/SAHEY-Release.apk) (`95.1 MB`)
-* **Gradle Output**: `app/build/outputs/apk/release/app-release.apk`
 
 ### Install via ADB:
 ```bash
@@ -121,7 +51,7 @@ adb install -r "d:\Hackathon\DETECTOR\SAHEY-Release.apk"
 ```
 
 ### Wi-Fi Direct Download:
-Open this URL in your mobile phone browser on the same Wi-Fi network:
+Open this URL in your phone's browser on the same Wi-Fi network:
 ```
 http://10.10.84.90:8080/SAHEY-Release.apk
 ```

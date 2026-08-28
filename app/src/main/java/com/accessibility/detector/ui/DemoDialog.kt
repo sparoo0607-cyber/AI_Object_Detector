@@ -7,20 +7,21 @@ import android.view.Window
 import android.widget.Button
 import android.widget.TextView
 import com.accessibility.detector.R
-import com.accessibility.detector.core.SaheyAIOrchestrator
-import com.accessibility.detector.detection.EventPriority
-import com.accessibility.detector.detection.PerceptionEvent
-import com.accessibility.detector.detection.PerceptionType
-import com.accessibility.detector.detection.ProximityLevel
-import com.accessibility.detector.detection.SpatialPosition
+import com.accessibility.detector.communication.SupportedLanguage
+import com.accessibility.detector.communication.TranslationEngine
+import com.accessibility.detector.communication.TtsManager
+import com.accessibility.detector.core.HapticManager
 
 /**
- * Interactive Demo Panel for Hackathon demonstrations.
+ * Interactive Demo Panel for Hackathon demonstrations across all 3 accessibility categories.
  */
 class DemoDialog(
-    context: Context,
-    private val orchestrator: SaheyAIOrchestrator
+    context: Context
 ) : Dialog(context) {
+
+    private val hapticManager = HapticManager(context)
+    private val ttsManager = TtsManager(context)
+    private val translationEngine = TranslationEngine()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,69 +36,38 @@ class DemoDialog(
         val btnTranslate = findViewById<Button>(R.id.btnDemoTranslate)
         val btnDismiss = findViewById<Button>(R.id.btnDismissDemo)
 
-        val statuses = orchestrator.modelManager.getAllStatuses()
-        val statusText = StringBuilder()
-        statuses.forEach { (mod, status) ->
-            statusText.append("● $mod: $status\n")
-        }
-        tvStatus.text = statusText.toString().trim()
+        tvStatus.text = "● Category 1 (Vision Assist): ACTIVE\n● Category 2 (Sound Assist): ACTIVE\n● Category 3 (Speak & Translate): ACTIVE"
 
         // 1. Test Danger
         btnDanger.setOnClickListener {
-            val event = PerceptionEvent(
-                type = PerceptionType.DANGER,
-                label = "Approaching Car (Left)",
-                spokenText = "Warning! Car approaching on your left, very close!",
-                confidence = 0.95f,
-                priority = EventPriority.CRITICAL,
-                spatialPosition = SpatialPosition.LEFT,
-                proximity = ProximityLevel.VERY_CLOSE
-            )
-            orchestrator.announcementManager.postEvent(event)
+            hapticManager.playCriticalSosPattern()
+            ttsManager.speak("Warning! Vehicle approaching on your left, very close!", interrupt = true)
             dismiss()
         }
 
         // 2. Test Siren Sound
         btnSiren.setOnClickListener {
-            val event = PerceptionEvent(
-                type = PerceptionType.SOUND,
-                label = "Emergency Siren",
-                spokenText = "Emergency siren heard nearby!",
-                confidence = 0.92f,
-                priority = EventPriority.DANGER
-            )
-            orchestrator.announcementManager.postEvent(event)
+            hapticManager.playSoundAlertPattern()
+            ttsManager.speak("Emergency siren heard nearby!", interrupt = true)
             dismiss()
         }
 
         // 3. Test Sign Language
         btnSign.setOnClickListener {
-            val event = PerceptionEvent(
-                type = PerceptionType.SIGN,
-                label = "Sign: Thank You",
-                spokenText = "Sign language recognized: Thank you.",
-                confidence = 0.91f,
-                priority = EventPriority.SIGN
-            )
-            orchestrator.announcementManager.postEvent(event)
+            hapticManager.playSignConfirmation()
+            ttsManager.speak("Sign recognized: Thank you.", interrupt = true)
             dismiss()
         }
 
         // 4. Test Translation
         btnTranslate.setOnClickListener {
-            val result = orchestrator.translationEngine.translate(
-                text = "Salida",
-                sourceLang = com.accessibility.detector.translation.SupportedLanguage.SPANISH,
-                targetLang = com.accessibility.detector.translation.SupportedLanguage.ENGLISH
+            val result = translationEngine.translate(
+                text = "Where is the exit?",
+                sourceLang = SupportedLanguage.ENGLISH,
+                targetLang = SupportedLanguage.TELUGU
             )
-            val event = PerceptionEvent(
-                type = PerceptionType.TRANSLATION,
-                label = "Translation: ${result.translatedText}",
-                spokenText = "Translated: ${result.originalText} means ${result.translatedText}",
-                confidence = 1.0f,
-                priority = EventPriority.NAVIGATION
-            )
-            orchestrator.announcementManager.postEvent(event)
+            hapticManager.playTranslationPulse()
+            ttsManager.speak("In Telugu: ${result.translatedText}", interrupt = true)
             dismiss()
         }
 
