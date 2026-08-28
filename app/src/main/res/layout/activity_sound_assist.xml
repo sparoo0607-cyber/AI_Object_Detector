@@ -51,11 +51,12 @@
                     android:textSize="17sp"
                     android:textStyle="bold" />
 
+                <!-- Offline / Online Status -->
                 <TextView
                     android:id="@+id/tvSoundStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🎙️ Active • Listening for speech &amp; sounds"
+                    android:text="🎙️ Active • Telugu Speech &amp; Sounds"
                     android:textColor="@color/accent_green"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -76,11 +77,121 @@
                 android:contentDescription="Toggle Listening" />
         </LinearLayout>
 
+        <!-- 1. LANGUAGE & OFFLINE ASR CONFIGURATION CARD -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:cardBackgroundColor="@color/surface_card"
+            app:cardCornerRadius="14dp"
+            app:strokeColor="@color/surface_border"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <!-- Speech Language Spinner -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="SPEECH LANGUAGE"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+
+                        <Spinner
+                            android:id="@+id/spnSpeechLanguage"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:background="@drawable/card_background"
+                            android:theme="@style/ThemeOverlay.AppCompat.Dark" />
+                    </LinearLayout>
+
+                    <Space
+                        android:layout_width="10dp"
+                        android:layout_height="wrap_content" />
+
+                    <!-- Mode Selector -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="RECOGNITION MODE"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+
+                        <Spinner
+                            android:id="@+id/spnRecognitionMode"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:background="@drawable/card_background"
+                            android:theme="@style/ThemeOverlay.AppCompat.Dark" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Offline ASR Status & Installer Link -->
+                <LinearLayout
+                    android:id="@+id/bannerOfflineAsrStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/card_background"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:id="@+id/tvOfflineAsrBadge"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🟢 Telugu Offline Speech Ready"
+                        android:textColor="@color/accent_green"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnDownloadVoiceModel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:layout_marginStart="8dp"
+                        android:text="↓ Download Model"
+                        android:textColor="@color/black"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="@color/accent_yellow"
+                        app:cornerRadius="8dp"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Live Audio Level Meter -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:background="@drawable/card_background"
@@ -107,11 +218,11 @@
                 android:progressTint="@color/accent_cyan" />
         </LinearLayout>
 
-        <!-- 1. LIVE SPEECH CAPTIONS CARD -->
+        <!-- 2. LIVE SPEECH CAPTIONS CARD -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="14dp"
             android:text="LIVE SPEECH CAPTIONS (TRANSCRIPTION)"
             android:textColor="@color/accent_cyan"
             android:textSize="13sp"
@@ -137,7 +248,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:minHeight="60dp"
-                    android:text="Speak near the phone — your words will appear here in real time..."
+                    android:text="తెలుగులో మాట్లాడండి — మీ మాటలు ఇక్కడ ప్రత్యక్షంగా కనిపిస్తాయి..."
                     android:textColor="@color/white"
                     android:textSize="19sp"
                     android:textStyle="bold"
@@ -152,7 +263,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="TRANSLATION"
+                    android:text="OFFLINE TRANSLATION (ENGLISH)"
                     android:textColor="@color/accent_purple"
                     android:textSize="11sp"
                     android:textStyle="bold" />
@@ -162,13 +273,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="Translations appear here automatically in Telugu / Hindi."
+                    android:text="Translations appear here automatically in English."
                     android:textColor="@color/accent_purple"
                     android:textSize="16sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- 2. ENVIRONMENT SOUND ALERTS -->
+        <!-- 3. ENVIRONMENT SOUND ALERTS -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -244,7 +355,7 @@
             android:textSize="13sp"
             android:lineSpacingExtra="4dp" />
 
-        <!-- 3. SIMULATION & TEST BUTTONS (For Hackathon/Demonstration) -->
+        <!-- 4. SIMULATION & TEST BUTTONS -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

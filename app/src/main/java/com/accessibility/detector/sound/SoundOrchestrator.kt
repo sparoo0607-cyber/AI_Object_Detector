@@ -21,7 +21,8 @@ interface SoundOrchestratorCallback {
 /**
  * Sound & Language Orchestrator for Category 2: Sound & Language Assist.
  * Operates purely with Microphone / Audio input (NO CAMERA).
- * Handles continuous human voice recognition, live captions, offline ML Kit translations, and acoustic volume alerts.
+ * Handles continuous human voice recognition (Telugu Offline ASR / English), live captions,
+ * ML Kit translations, and acoustic volume alerts (sirens, car horns, alarms).
  */
 class SoundOrchestrator(
     private val context: Context,
@@ -33,14 +34,33 @@ class SoundOrchestrator(
     val languageDetector = LanguageDetector()
     val hapticManager = HapticManager(context)
 
+    var inputSpeechLanguage: SupportedLanguage = SupportedLanguage.TELUGU
     var targetLanguage: SupportedLanguage = SupportedLanguage.ENGLISH
     var isLiveTranslationEnabled: Boolean = true
+    var speechRecognitionMode: SpeechRecognitionMode = SpeechRecognitionMode.PREFER_OFFLINE
 
     private var lastLoudSpikeTime = 0L
 
-    fun startSoundAssist(locale: Locale = Locale.getDefault()) {
-        speechEngine.startContinuousListening(locale)
-        callback.onListeningStatus(true, "Listening to live speech and surrounding sounds...")
+    fun startSoundAssist(
+        speechLang: SupportedLanguage = inputSpeechLanguage,
+        mode: SpeechRecognitionMode = speechRecognitionMode
+    ) {
+        inputSpeechLanguage = speechLang
+        speechRecognitionMode = mode
+
+        val locale = when (speechLang) {
+            SupportedLanguage.TELUGU -> Locale("te", "IN")
+            SupportedLanguage.HINDI -> Locale("hi", "IN")
+            SupportedLanguage.TAMIL -> Locale("ta", "IN")
+            SupportedLanguage.KANNADA -> Locale("kn", "IN")
+            SupportedLanguage.MALAYALAM -> Locale("ml", "IN")
+            SupportedLanguage.SPANISH -> Locale("es", "ES")
+            else -> Locale.US
+        }
+
+        speechEngine.startContinuousListening(locale, mode)
+        val modeText = if (mode == SpeechRecognitionMode.OFFLINE_ONLY) "Offline Mode" else "Listening"
+        callback.onListeningStatus(true, "🎙️ $modeText (${speechLang.displayName})")
     }
 
     fun stopSoundAssist() {
@@ -54,9 +74,11 @@ class SoundOrchestrator(
 
         if (isLiveTranslationEnabled) {
             val detected = languageDetector.detectLanguage(text)
+            val actualSource = if (inputSpeechLanguage != SupportedLanguage.AUTO) inputSpeechLanguage else detected
+
             translationEngine.translate(
                 text = text,
-                sourceLang = detected,
+                sourceLang = actualSource,
                 targetLang = targetLanguage
             ) { translation ->
                 callback.onTranslation(translation)
@@ -99,7 +121,11 @@ class SoundOrchestrator(
     }
 
     override fun onListeningStateChanged(isListening: Boolean) {
-        val statusMsg = if (isListening) "Listening for human voice..." else "Restarting listener..."
+        val statusMsg = if (isListening) {
+            "Listening for ${inputSpeechLanguage.displayName} speech..."
+        } else {
+            "Restarting listener..."
+        }
         callback.onListeningStatus(isListening, statusMsg)
     }
 
