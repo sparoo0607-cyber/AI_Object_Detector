@@ -12,7 +12,7 @@ object GeminiConfig {
     private const val KEY_API_KEY = "gemini_api_key"
     private const val KEY_MODEL = "gemini_model_name"
 
-    // Default API Key provided for instant out-of-the-box operation
+    // Fallback key (empty by default; configured dynamically via Settings)
     private const val DEFAULT_FALLBACK_KEY = ""
 
     // Default fast multimodal vision model
