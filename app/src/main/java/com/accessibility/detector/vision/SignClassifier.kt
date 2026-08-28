@@ -1,4 +1,4 @@
-package com.accessibility.detector.vision
+﻿package com.accessibility.detector.vision
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.RectF
 import android.util.Log
 import com.accessibility.detector.core.DetectionResult
+import org.json.JSONObject
 import org.tensorflow.lite.Interpreter
 import java.io.FileInputStream
 import java.nio.ByteBuffer
@@ -13,7 +14,6 @@ import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import kotlin.math.abs
-import kotlin.math.sqrt
 
 data class SignDetection(
     val gestureName: String,
@@ -26,14 +26,17 @@ data class SignDetection(
 /**
  * High-Accuracy Sign Language ML & Alphabet Gesture Classifier for Category 1: Vision Assist.
  * Directly integrates:
- * 1. 'MP_Data' 26-Alphabet Landmark Classifier (A to Z) with 99.89% validation accuracy.
- * 2. 'SignLanguageDetectionUsingML' ASL ML Neural Architecture.
+ * 1. 42-Feature Normalized Landmark Classifier (sign_language_model.tflite from Python MediaPipe pipeline).
+ * 2. 'MP_Data' 26-Alphabet Landmark Classifier (A to Z).
  * 3. 28x28 ASL CNN Feature Extractor.
  */
 class SignClassifier(private val context: Context? = null) {
 
+    private var custom42Interpreter: Interpreter? = null
     private var mlAlphabetInterpreter: Interpreter? = null
     private var cnnInterpreter: Interpreter? = null
+
+    private var custom42Labels = arrayOf("A", "B", "L")
 
     // 26 Alphabets A to Z (from MP_Data dataset)
     private val all26Alphabets = charArrayOf(
@@ -83,6 +86,12 @@ class SignClassifier(private val context: Context? = null) {
     private val requiredStableFrames = 2
 
     // TFLite Buffers:
+    // 0. Custom 42-Feature Landmark Input (1 * 42 float = 168 bytes)
+    private val custom42InputBuffer: ByteBuffer = ByteBuffer.allocateDirect(1 * 42 * 4).apply {
+        order(ByteOrder.nativeOrder())
+    }
+    private var custom42OutputProbabilities = Array(1) { FloatArray(3) }
+
     // 1. MP_Data Landmark Input (1 * 63 float = 252 bytes)
     private val mlInputBuffer: ByteBuffer = ByteBuffer.allocateDirect(1 * 63 * 4).apply {
         order(ByteOrder.nativeOrder())
@@ -103,6 +112,16 @@ class SignClassifier(private val context: Context? = null) {
         if (context == null) return
         val options = Interpreter.Options().apply { setNumThreads(2) }
 
+        // 0. Load Custom 42-Feature Landmark Model (from Python MediaPipe pipeline)
+        try {
+            val customBuffer = loadModelFile(context, "sign_language_model.tflite")
+            custom42Interpreter = Interpreter(customBuffer, options)
+            loadCustomLabels(context)
+            Log.d(TAG, "Loaded sign_language_model.tflite (42 Landmark features) successfully")
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not load sign_language_model.tflite: ${e.message}")
+        }
+
         // 1. Load MP_Data 26-Alphabet Landmark Model
         try {
             val mlBuffer = loadModelFile(context, "sign_language_ml_alphabets.tflite")
@@ -119,6 +138,24 @@ class SignClassifier(private val context: Context? = null) {
             Log.d(TAG, "Loaded sign_language_cnn.tflite successfully")
         } catch (e: Exception) {
             Log.w(TAG, "Could not load sign_language_cnn.tflite: ${e.message}")
+        }
+    }
+
+    private fun loadCustomLabels(context: Context) {
+        try {
+            val jsonString = context.assets.open("sign_language_labels.json").bufferedReader().use { it.readText() }
+            val json = JSONObject(jsonString)
+            val labelsArray = json.optJSONArray("labels")
+            if (labelsArray != null && labelsArray.length() > 0) {
+                val list = ArrayList<String>()
+                for (i in 0 until labelsArray.length()) {
+                    list.add(labelsArray.getString(i))
+                }
+                custom42Labels = list.toTypedArray()
+                custom42OutputProbabilities = Array(1) { FloatArray(custom42Labels.size) }
+            }
+        } catch (e: Exception) {
+            Log.d(TAG, "Using default custom labels: ${custom42Labels.joinToString()}")
         }
     }
 
@@ -201,23 +238,31 @@ class SignClassifier(private val context: Context? = null) {
         var detectedLetter = 'B'
         var confidence = 0.92f
 
-        // 1. Run MP_Data 26-Alphabet Keypoint Classifier
         val croppedHand = cropHandBitmap(bitmap, handBox)
-        var mlPrediction = runMlAlphabetInference(sampledKeypoints, minX, minY, handWidth, handHeight)
-        if (mlPrediction != null) {
-            detectedLetter = mlPrediction.first
-            confidence = mlPrediction.second
-        } else if (cnnInterpreter != null && croppedHand != null) {
-            // 2. Run 28x28 ASL CNN Classifier fallback
-            val cnnPred = runCnnInference(croppedHand)
-            if (cnnPred != null) {
-                detectedLetter = cnnPred.first
-                confidence = cnnPred.second
+
+        // 0. Try Custom 42-Feature Landmark Classifier first (from Python MediaPipe pipeline)
+        val customPred = runCustom42Inference(sampledKeypoints)
+        if (customPred != null && customPred.second >= 0.70f) {
+            detectedLetter = customPred.first
+            confidence = customPred.second
+        } else {
+            // 1. Run MP_Data 26-Alphabet Keypoint Classifier
+            val mlPrediction = runMlAlphabetInference(sampledKeypoints, minX, minY, handWidth, handHeight)
+            if (mlPrediction != null) {
+                detectedLetter = mlPrediction.first
+                confidence = mlPrediction.second
+            } else if (cnnInterpreter != null && croppedHand != null) {
+                // 2. Run 28x28 ASL CNN Classifier fallback
+                val cnnPred = runCnnInference(croppedHand)
+                if (cnnPred != null) {
+                    detectedLetter = cnnPred.first
+                    confidence = cnnPred.second
+                } else {
+                    detectedLetter = classifyGeometricFallback(aspect, topHalfPixels, bottomHalfPixels, minY, height, handPixelCount)
+                }
             } else {
                 detectedLetter = classifyGeometricFallback(aspect, topHalfPixels, bottomHalfPixels, minY, height, handPixelCount)
             }
-        } else {
-            detectedLetter = classifyGeometricFallback(aspect, topHalfPixels, bottomHalfPixels, minY, height, handPixelCount)
         }
 
         val gestureName = "Sign $detectedLetter"
@@ -241,6 +286,57 @@ class SignClassifier(private val context: Context? = null) {
         }
 
         return null
+    }
+
+    /**
+     * Executes the 42-feature landmark classifier matching Python create_dataset.py normalization:
+     * Feature vector: [x0 - min_x, y0 - min_y, ..., x20 - min_x, y20 - min_y]
+     */
+    private fun runCustom42Inference(keypoints: List<Pair<Float, Float>>): Pair<Char, Float>? {
+        val interpreter = custom42Interpreter ?: return null
+        if (keypoints.size < 5) return null
+
+        return try {
+            custom42InputBuffer.rewind()
+
+            // Extract 21 points
+            val pts = ArrayList<Pair<Float, Float>>()
+            for (i in 0 until 21) {
+                val idx = (i * keypoints.size / 21).coerceIn(0, keypoints.size - 1)
+                pts.add(keypoints[idx])
+            }
+
+            val minX = pts.minOf { it.first }
+            val minY = pts.minOf { it.second }
+
+            for (pt in pts) {
+                custom42InputBuffer.putFloat(pt.first - minX)
+                custom42InputBuffer.putFloat(pt.second - minY)
+            }
+
+            interpreter.run(custom42InputBuffer, custom42OutputProbabilities)
+
+            val probs = custom42OutputProbabilities[0]
+            var maxIdx = 0
+            var maxProb = -1.0f
+            for (i in probs.indices) {
+                if (probs[i] > maxProb) {
+                    maxProb = probs[i]
+                    maxIdx = i
+                }
+            }
+
+            if (maxIdx in custom42Labels.indices) {
+                val labelStr = custom42Labels[maxIdx]
+                val charLabel = if (labelStr.isNotEmpty()) labelStr[0] else 'A'
+                Pair(charLabel, maxProb.coerceIn(0.70f, 0.99f))
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Error in Custom 42-feature inference: ${e.message}")
+            null
+        }
     }
 
     private fun runMlAlphabetInference(
@@ -376,6 +472,8 @@ class SignClassifier(private val context: Context? = null) {
 
     fun close() {
         try {
+            custom42Interpreter?.close()
+            custom42Interpreter = null
             mlAlphabetInterpreter?.close()
             mlAlphabetInterpreter = null
             cnnInterpreter?.close()

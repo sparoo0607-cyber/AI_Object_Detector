@@ -1,0 +1,14 @@
+{
+  "num_classes": 3,
+  "input_features": 42,
+  "labels": [
+    "A",
+    "B",
+    "L"
+  ],
+  "class_indices": {
+    "0": 0,
+    "1": 1,
+    "2": 2
+  }
+}
