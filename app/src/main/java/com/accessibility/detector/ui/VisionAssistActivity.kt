@@ -92,7 +92,7 @@ class VisionAssistActivity : AppCompatActivity(), VisionUiCallback {
         }
 
         binding.btnCancelRead.setOnClickListener {
-            binding.voiceConfirmPromptCard.visibility = View.GONE
+            orchestrator.cancelVoiceConfirmation()
         }
 
         binding.btnGrantPermission.setOnClickListener {

@@ -66,6 +66,7 @@ class VisionOrchestrator(
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private var isWaitingForVoiceConfirmation = false
+    private var isCurrentlyReadingText = false
     private var pendingOcrTextToRead = ""
 
     // State cache
@@ -98,8 +99,8 @@ class VisionOrchestrator(
             imageProxy.close()
         }
 
-        // 2. OCR Text detection
-        if (frameBitmap != null && shouldOcr && !isWaitingForVoiceConfirmation) {
+        // 2. OCR Text detection (Paused while reading or waiting for confirmation)
+        if (frameBitmap != null && shouldOcr && !isWaitingForVoiceConfirmation && !isCurrentlyReadingText) {
             textEngine.processBitmap(frameBitmap, rotationDegrees)
         }
 
@@ -121,8 +122,8 @@ class VisionOrchestrator(
         // 1. Danger & Hazard check (Highest Priority: Real Fire, Fire on Screen, Vehicles, Slippery Floors, Obstacles)
         dangerEngine.analyzeHazards(results, latestFrameBitmap)
 
-        // 2. Normal Object Announcement (if no critical fire/hazard)
-        if (results.isNotEmpty()) {
+        // 2. Normal Object Announcement (if not actively reading text and no critical hazard)
+        if (results.isNotEmpty() && !isCurrentlyReadingText && !isWaitingForVoiceConfirmation) {
             val primary = results.maxByOrNull { it.score }
             if (primary != null) {
                 val dirPhrase = when (primary.spatialPosition) {
@@ -177,7 +178,9 @@ class VisionOrchestrator(
     // --- Sign Language Listener ---
     override fun onSignDetected(event: PerceptionEvent, signDetection: SignDetection) {
         lastActiveSign = signDetection
-        announcementManager.postEvent(event)
+        if (!isCurrentlyReadingText) {
+            announcementManager.postEvent(event)
+        }
     }
 
     // --- OCR Text Listener ---
@@ -187,7 +190,7 @@ class VisionOrchestrator(
         isNewContent: Boolean
     ) {
         lastOcrBlocks = blocks
-        if (isNewContent && !isWaitingForVoiceConfirmation) {
+        if (isNewContent && !isWaitingForVoiceConfirmation && !isCurrentlyReadingText) {
             pendingOcrTextToRead = fullText
             promptVoiceConfirmation()
         }
@@ -201,6 +204,8 @@ class VisionOrchestrator(
      * Starts the interactive Voice Confirmation Flow for reading text.
      */
     private fun promptVoiceConfirmation() {
+        if (isCurrentlyReadingText) return
+
         isWaitingForVoiceConfirmation = true
         hapticManager.playTextCapturePulse()
 
@@ -211,26 +216,40 @@ class VisionOrchestrator(
 
         // After speech prompt finishes, listen for "Yes" / "Read"
         mainHandler.postDelayed({
-            if (isWaitingForVoiceConfirmation) {
+            if (isWaitingForVoiceConfirmation && !isCurrentlyReadingText) {
                 voiceConfirmSpeechEngine.startContinuousListening()
             }
         }, 2200)
 
         // Timeout fallback after 6 seconds
         mainHandler.postDelayed({
-            if (isWaitingForVoiceConfirmation) {
+            if (isWaitingForVoiceConfirmation && !isCurrentlyReadingText) {
                 cancelVoiceConfirmation()
             }
         }, 6500)
     }
 
+    /**
+     * Reads the detected text out loud immediately without being interrupted by re-prompts.
+     */
     fun readTextImmediately() {
         val text = if (pendingOcrTextToRead.isNotBlank()) pendingOcrTextToRead else textEngine.cachedFullText
         if (text.isNotBlank()) {
             isWaitingForVoiceConfirmation = false
+            isCurrentlyReadingText = true
             voiceConfirmSpeechEngine.stopListening()
             uiCallback.onVoiceConfirmationState(false, "")
 
+            // Mark this text signature in the engine so it does not immediately re-prompt
+            textEngine.textProcessor.markTextAsRead(text)
+
+            // Play tactile feedback
+            hapticManager.playTextCapturePulse()
+
+            // Announce via TTS directly with interrupt to override prompt
+            ttsManager.speak(text, interrupt = true)
+
+            // Update UI card
             val event = PerceptionEvent(
                 type = PerceptionType.TEXT,
                 label = "OCR Text",
@@ -238,14 +257,27 @@ class VisionOrchestrator(
                 confidence = 0.95f,
                 priority = EventPriority.TEXT
             )
-            announcementManager.postEvent(event)
+            uiCallback.onLiveAnnouncement(event)
+
+            // Calculate reading duration estimate (approx 120 words per minute + 3 sec buffer)
+            val wordCount = text.split(Regex("\\s+")).size
+            val readingDurationMs = maxOf(4000L, (wordCount * 450L) + 2000L)
+
+            mainHandler.postDelayed({
+                isCurrentlyReadingText = false
+                pendingOcrTextToRead = ""
+            }, readingDurationMs)
         }
     }
 
-    private fun cancelVoiceConfirmation() {
+    fun cancelVoiceConfirmation() {
         isWaitingForVoiceConfirmation = false
         voiceConfirmSpeechEngine.stopListening()
         uiCallback.onVoiceConfirmationState(false, "")
+        if (pendingOcrTextToRead.isNotBlank()) {
+            textEngine.textProcessor.markTextAsRead(pendingOcrTextToRead)
+        }
+        pendingOcrTextToRead = ""
     }
 
     /**
@@ -285,7 +317,7 @@ class VisionOrchestrator(
     override fun onSpeechRecognized(text: String) {
         val normalized = text.lowercase().trim()
 
-        if (isWaitingForVoiceConfirmation) {
+        if (isWaitingForVoiceConfirmation && !isCurrentlyReadingText) {
             if (normalized.contains("yes") || normalized.contains("read") ||
                 normalized.contains("yeah") || normalized.contains("sure") ||
                 normalized.contains("ok") || normalized.contains("చదువు")
@@ -299,17 +331,18 @@ class VisionOrchestrator(
         }
 
         // Voice Command: "What is around me?" or "Is there any danger?"
-        if (normalized.contains("what is around") || normalized.contains("what's around") ||
+        if (!isCurrentlyReadingText && (
+            normalized.contains("what is around") || normalized.contains("what's around") ||
             normalized.contains("describe") || normalized.contains("danger") ||
             normalized.contains("చుట్టూ ఏమి ఉంది")
-        ) {
+        )) {
             askGeminiWhatIsAroundMe()
         }
     }
 
     override fun onSpeechPartial(partialText: String) {
         val normalized = partialText.lowercase().trim()
-        if (isWaitingForVoiceConfirmation && (normalized.contains("yes") || normalized.contains("read"))) {
+        if (isWaitingForVoiceConfirmation && !isCurrentlyReadingText && (normalized.contains("yes") || normalized.contains("read"))) {
             readTextImmediately()
         }
     }
