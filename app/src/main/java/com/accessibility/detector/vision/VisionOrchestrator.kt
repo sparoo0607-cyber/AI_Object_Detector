@@ -59,7 +59,7 @@ class VisionOrchestrator(
 
     private val objectEngine = ObjectDetectionEngine(context, this)
     private val dangerEngine = DangerDetectionEngine(this)
-    private val signEngine = SignLanguageEngine(this)
+    private val signEngine = SignLanguageEngine(context, this)
     val textEngine = TextReaderEngine(this)
     val voiceConfirmSpeechEngine = SpeechRecognitionEngine(context, this)
     val geminiVisionEngine = GeminiVisionEngine(context)
@@ -376,6 +376,7 @@ class VisionOrchestrator(
 
     fun shutdown() {
         objectEngine.shutdown()
+        signEngine.close()
         textEngine.close()
         voiceConfirmSpeechEngine.shutdown()
         ttsManager.shutdown()

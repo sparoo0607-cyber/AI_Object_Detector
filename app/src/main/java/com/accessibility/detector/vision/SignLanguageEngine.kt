@@ -1,5 +1,6 @@
 package com.accessibility.detector.vision
 
+import android.content.Context
 import android.graphics.Bitmap
 import com.accessibility.detector.core.DetectionResult
 import com.accessibility.detector.core.EventPriority
@@ -11,19 +12,21 @@ interface SignLanguageListener {
 }
 
 /**
- * Sign Language Engine converting recognized gestures into Text and Voice.
+ * Sign Language Engine converting recognized ASL gestures into Text, Overlay Badges, and Spoken Voice.
+ * Powered by the 24-class Sign Language CNN model.
  */
 class SignLanguageEngine(
-    private val listener: SignLanguageListener,
-    private val signClassifier: SignClassifier = SignClassifier()
+    context: Context? = null,
+    private val listener: SignLanguageListener
 ) {
+    val signClassifier: SignClassifier = SignClassifier(context)
 
     fun analyzeHandGestures(bitmap: Bitmap, detectionResults: List<DetectionResult>) {
         val detection = signClassifier.analyzeFrame(bitmap, detectionResults)
         if (detection != null) {
             val event = PerceptionEvent(
                 type = PerceptionType.SIGN,
-                label = "Sign: ${detection.gestureName}",
+                label = detection.gestureName,
                 spokenText = detection.spokenText,
                 confidence = detection.confidence,
                 priority = EventPriority.SIGN
@@ -34,5 +37,9 @@ class SignLanguageEngine(
 
     fun reset() {
         signClassifier.reset()
+    }
+
+    fun close() {
+        signClassifier.close()
     }
 }
