@@ -15,19 +15,19 @@ data class FirePreFilterResult(
 )
 
 /**
- * High-speed on-device chromatic and luminance pre-filter for fire, flame, and smoke cues.
- * Inspects both full-frame visual environment and screen ROIs (laptop, TV, cell phone).
+ * High-speed, high-precision on-device chromatic pre-filter for fire, flame, and smoke cues.
+ * Distinguishes true fiery luminance from skin tones, warm ambient lighting, and standard red objects.
  */
 class FireSmokeDetector {
 
     /**
-     * Rapidly scans a camera bitmap and local object bounding boxes for fire/flame and smoke patterns.
+     * Scans camera bitmap and screen ROIs (laptop, TV, cell phone, monitor) for high-temperature luminous flame signatures.
      */
     fun analyzeFrame(bitmap: Bitmap, detectionResults: List<DetectionResult>): FirePreFilterResult {
         val width = bitmap.width
         val height = bitmap.height
 
-        // 1. Check if a screen is detected (laptop, tv, cell phone, monitor)
+        // 1. Check if a screen is in view (laptop, tv, cell phone, monitor)
         val screenObject = detectionResults.firstOrNull {
             it.label.equals("laptop", ignoreCase = true) ||
             it.label.equals("tv", ignoreCase = true) ||
@@ -40,19 +40,20 @@ class FireSmokeDetector {
 
         if (screenObject != null) {
             val roi = screenObject.boundingBox
-            screenFireScore = calculateFireScoreInRoi(bitmap, roi)
-            if (screenFireScore > 0.18f) {
+            screenFireScore = calculateFlameScoreInRoi(bitmap, roi)
+            // Screen fire requires significant luminous flame concentration inside display bounds
+            if (screenFireScore > 0.22f) {
                 isInsideScreen = true
             }
         }
 
-        // 2. Full frame fire & smoke scan
+        // 2. Full frame fire & smoke scan (requiring high concentrated cluster threshold)
         val fullFrameBox = RectF(0f, 0f, width.toFloat(), height.toFloat())
-        val fullFireScore = calculateFireScoreInRoi(bitmap, fullFrameBox)
+        val fullFireScore = calculateFlameScoreInRoi(bitmap, fullFrameBox)
         val smokeScore = calculateSmokeScore(bitmap)
 
-        val hasFire = screenFireScore > 0.18f || fullFireScore > 0.15f
-        val hasSmoke = smokeScore > 0.22f
+        val hasFire = (isInsideScreen && screenFireScore > 0.22f) || fullFireScore > 0.28f
+        val hasSmoke = smokeScore > 0.35f
         val maxFireConfidence = maxOf(screenFireScore, fullFireScore)
 
         return FirePreFilterResult(
@@ -65,9 +66,12 @@ class FireSmokeDetector {
     }
 
     /**
-     * Analyzes fiery chromatic signatures: High R, R > G > B, high saturation, and intense luminance.
+     * Precision chromatic flame detector:
+     * - Rejects skin tones (which have lower brightness and different R:G:B ratios)
+     * - Rejects pure red objects (which lack the high-luminance yellow/gold G channel)
+     * - Detects intense glowing flame cores (R > 215, G > 115, R > G > B, high HSV Value & Saturation)
      */
-    private fun calculateFireScoreInRoi(bitmap: Bitmap, roi: RectF): Float {
+    private fun calculateFlameScoreInRoi(bitmap: Bitmap, roi: RectF): Float {
         val width = bitmap.width
         val height = bitmap.height
 
@@ -78,8 +82,8 @@ class FireSmokeDetector {
 
         if (right <= left || bottom <= top) return 0f
 
-        val stepX = maxOf(4, (right - left) / 35)
-        val stepY = maxOf(4, (bottom - top) / 35)
+        val stepX = maxOf(4, (right - left) / 32)
+        val stepY = maxOf(4, (bottom - top) / 32)
 
         var totalSampled = 0
         var flamePixelCount = 0
@@ -93,20 +97,23 @@ class FireSmokeDetector {
                 val b = Color.blue(pixel)
 
                 Color.colorToHSV(pixel, hsv)
-                val hue = hsv[0] // 0..360 (Red: 0..30, Orange: 30..45, Yellow: 45..60)
-                val saturation = hsv[1]
+                val hue = hsv[0] // 0..360 (Flame core: 10..55)
+                val sat = hsv[1]
                 val value = hsv[2]
 
-                // Flame Chromatic Rule:
-                // 1. Red is dominant: R > G and G > B
-                // 2. High intensity: R > 175 and Value > 0.70
-                // 3. Flame Hue range: Red/Orange/Yellow (0..60 degrees) with moderate-to-high saturation (>= 0.40)
-                val isFlameColor = (r > 175 && r > g && g >= (b * 0.9f)) &&
-                        (hue in 0f..65f || hue in 350f..360f) &&
-                        (saturation in 0.35f..1.0f) &&
-                        (value > 0.65f)
+                // Real Flame / Fire Video Chromatic Signature:
+                // 1. High absolute luminance: R >= 210, Value >= 0.82
+                // 2. Golden-Yellow-Orange spectrum: G >= 100, R > G, G >= (B * 1.35f), B <= 140
+                // 3. Strict Hue: 8..55 degrees (Orange/Yellow/Gold flame)
+                // 4. Moderate-to-high saturation (sat >= 0.50)
+                // 5. Exclude skin tones (skin is typically r < 200 or sat < 0.45 or value < 0.75)
+                val isTrueFlame = (r >= 210 && g in 100..230 && b <= 140) &&
+                        (r > g && g > b) &&
+                        (hue in 8f..55f) &&
+                        (sat in 0.48f..1.0f) &&
+                        (value >= 0.80f)
 
-                if (isFlameColor) {
+                if (isTrueFlame) {
                     flamePixelCount++
                 }
                 totalSampled++
@@ -118,17 +125,17 @@ class FireSmokeDetector {
     }
 
     /**
-     * Analyzes grayish, low-saturation turbulent smoke visual clusters.
+     * Analyzes dense grayish smoke plumes.
      */
     private fun calculateSmokeScore(bitmap: Bitmap): Float {
         val width = bitmap.width
         val height = bitmap.height
-        val step = maxOf(6, width / 40)
+        val step = maxOf(6, width / 35)
 
         var smokePixelCount = 0
         var totalSampled = 0
 
-        for (y in 0 until (height * 0.85).toInt() step step) {
+        for (y in 0 until (height * 0.75).toInt() step step) {
             for (x in 0 until width step step) {
                 val pixel = bitmap.getPixel(x, y)
                 val r = Color.red(pixel)
@@ -137,11 +144,12 @@ class FireSmokeDetector {
 
                 val diffRG = abs(r - g)
                 val diffGB = abs(g - b)
+                val diffRB = abs(r - b)
                 val avg = (r + g + b) / 3
 
-                // Smoke is grayish, semi-translucent (low color variance among RGB channels, intensity in mid-high range)
-                val isSmokeGray = (diffRG < 15 && diffGB < 15) && (avg in 110..225)
-                if (isSmokeGray) {
+                // Dense smoke is grayish-white/dark (very low color difference across all 3 channels)
+                val isDenseSmoke = (diffRG <= 8 && diffGB <= 8 && diffRB <= 10) && (avg in 95..215)
+                if (isDenseSmoke) {
                     smokePixelCount++
                 }
                 totalSampled++

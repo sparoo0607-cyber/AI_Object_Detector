@@ -27,9 +27,10 @@ class GeminiVisionEngine(
 
     private val scope = CoroutineScope(Dispatchers.Default + Job())
     private var lastGeminiCallTime: Long = 0L
-    private val minCooldownMs: Long = 2500L
+    private val minCooldownMs: Long = 2000L
     private var isBusy: Boolean = false
     private var lastAnnouncedDangerSignature: String = ""
+    private var lastAnnouncedDangerTime: Long = 0L
 
     /**
      * Selectively evaluates a suspicious frame (e.g. fire/smoke, fire on screen, slippery floor, obstacle).
@@ -69,8 +70,11 @@ class GeminiVisionEngine(
                         val parsed = GeminiResponseParser.parse(rawJson)
                         if (parsed != null && parsed.dangerDetected) {
                             val signature = "${parsed.dangerType}_${parsed.direction}"
-                            if (signature != lastAnnouncedDangerSignature) {
+                            val timeSinceLast = now - lastAnnouncedDangerTime
+
+                            if (signature != lastAnnouncedDangerSignature || timeSinceLast > 3500L) {
                                 lastAnnouncedDangerSignature = signature
+                                lastAnnouncedDangerTime = now
 
                                 Log.d(TAG_VISION_DEBUG, "GEMINI: danger_type = ${parsed.dangerType}, confidence = ${parsed.confidence}")
                                 Log.d(TAG_VISION_DEBUG, "FINAL: ${parsed.dangerType}, priority = ${parsed.priority}, TTS: \"${parsed.message}\"")

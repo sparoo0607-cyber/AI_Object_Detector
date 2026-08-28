@@ -14,7 +14,8 @@ interface DangerDetectionListener {
 
 /**
  * Intelligent Danger & Hazard Detection Engine for Category 1: Vision Assist.
- * Combines SSD object hazards, FireSmoke chromatic pre-filtering, and triggers Gemini deep verification.
+ * Evaluates all danger types (Vehicles, Stairs, Drops, Obstacles, Slippery Floors, Fire/Smoke)
+ * without starvation or getting stuck on one single hazard.
  */
 class DangerDetectionEngine(
     private val listener: DangerDetectionListener,
@@ -23,15 +24,19 @@ class DangerDetectionEngine(
 ) {
 
     private var consecutiveFireFrames = 0
-    private val requiredFireFrames = 2 // Temporal confirmation to prevent single-frame flickering
+    private val requiredFireFrames = 3 // Requires 3 consecutive confirmed frames to eliminate false triggers
 
     fun analyzeHazards(results: List<DetectionResult>, bitmap: Bitmap? = null) {
+        var topHazardEvent: PerceptionEvent? = null
+
         // 1. Analyze Object-based Hazards (Vehicles, Stairs, Drop edges, Obstacles)
         for (result in results) {
             val hazardEvent = riskAssessment.evaluateObjectRisk(result)
             if (hazardEvent != null) {
-                listener.onHazardDetected(hazardEvent)
-                return
+                // Keep the highest priority object hazard (e.g. Critical vehicle > Navigation stairs)
+                if (topHazardEvent == null || hazardEvent.priority > topHazardEvent.priority) {
+                    topHazardEvent = hazardEvent
+                }
             }
         }
 
@@ -49,44 +54,41 @@ class DangerDetectionEngine(
                         else -> "smoke"
                     }
 
-                    // Trigger Gemini deep verification + immediate local safety event
+                    // Trigger Gemini deep visual verification
                     listener.onPotentialHazardPreFiltered(hint, fireResult.isInsideScreen)
 
-                    if (fireResult.isInsideScreen) {
-                        listener.onHazardDetected(
-                            PerceptionEvent(
-                                type = PerceptionType.DANGER,
-                                label = "Screen Fire",
-                                spokenText = "Fire visible on the screen.",
-                                confidence = fireResult.fireConfidence,
-                                priority = EventPriority.DANGER,
-                                spatialPosition = SpatialPosition.CENTER
-                            )
+                    val fireEvent = if (fireResult.isInsideScreen) {
+                        PerceptionEvent(
+                            type = PerceptionType.DANGER,
+                            label = "Screen Fire",
+                            spokenText = "Fire visible on the screen.",
+                            confidence = fireResult.fireConfidence,
+                            priority = EventPriority.DANGER,
+                            spatialPosition = SpatialPosition.CENTER
                         )
                     } else if (fireResult.hasFireVisualCues) {
-                        listener.onHazardDetected(
-                            PerceptionEvent(
-                                type = PerceptionType.DANGER,
-                                label = "Fire Hazard",
-                                spokenText = "Warning. Fire detected.",
-                                confidence = fireResult.fireConfidence,
-                                priority = EventPriority.CRITICAL,
-                                spatialPosition = SpatialPosition.CENTER
-                            )
+                        PerceptionEvent(
+                            type = PerceptionType.DANGER,
+                            label = "Fire Hazard",
+                            spokenText = "Warning. Fire detected.",
+                            confidence = fireResult.fireConfidence,
+                            priority = EventPriority.CRITICAL,
+                            spatialPosition = SpatialPosition.CENTER
                         )
                     } else {
-                        listener.onHazardDetected(
-                            PerceptionEvent(
-                                type = PerceptionType.DANGER,
-                                label = "Smoke Hazard",
-                                spokenText = "Warning. Smoke detected.",
-                                confidence = 0.85f,
-                                priority = EventPriority.DANGER,
-                                spatialPosition = SpatialPosition.CENTER
-                            )
+                        PerceptionEvent(
+                            type = PerceptionType.DANGER,
+                            label = "Smoke Hazard",
+                            spokenText = "Warning. Smoke detected.",
+                            confidence = 0.85f,
+                            priority = EventPriority.DANGER,
+                            spatialPosition = SpatialPosition.CENTER
                         )
                     }
-                    return
+
+                    if (topHazardEvent == null || fireEvent.priority >= topHazardEvent.priority) {
+                        topHazardEvent = fireEvent
+                    }
                 }
             } else {
                 consecutiveFireFrames = 0
@@ -95,8 +97,15 @@ class DangerDetectionEngine(
             // 3. Surface-based Slippery/Wet Floor cues
             val surfaceEvent = riskAssessment.evaluateFloorHazards(bitmap)
             if (surfaceEvent != null) {
-                listener.onHazardDetected(surfaceEvent)
+                if (topHazardEvent == null || surfaceEvent.priority > topHazardEvent.priority) {
+                    topHazardEvent = surfaceEvent
+                }
             }
+        }
+
+        // Dispatch the active top hazard if one was detected
+        if (topHazardEvent != null) {
+            listener.onHazardDetected(topHazardEvent)
         }
     }
 }
