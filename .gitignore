@@ -9,3 +9,7 @@
 .cxx
 local.properties
 **/build/
+
+MP_Data*
+SignLanguageDetectionUsingML-main*
+*.zip
