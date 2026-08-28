@@ -32,18 +32,20 @@ class CommunicationManager(
     )
 
     private var lastSpokenPhrase: String = ""
+    private var lastSpokenLanguage: SupportedLanguage = SupportedLanguage.ENGLISH
 
     fun speakText(text: String, interrupt: Boolean = true) {
         if (text.isBlank()) return
         lastSpokenPhrase = text
+        lastSpokenLanguage = languageDetector.detectLanguage(text)
         hapticManager.playTranslationPulse()
-        ttsManager.speak(text, interrupt = interrupt)
+        ttsManager.speak(text, interrupt, lastSpokenLanguage)
     }
 
     fun repeatLastPhrase() {
         if (lastSpokenPhrase.isNotBlank()) {
             hapticManager.playTranslationPulse()
-            ttsManager.speak(lastSpokenPhrase, interrupt = true)
+            ttsManager.speak(lastSpokenPhrase, true, lastSpokenLanguage)
         }
     }
 
@@ -65,10 +67,11 @@ class CommunicationManager(
             sourceLang = sourceLanguage,
             targetLang = targetLanguage
         ) { result ->
-            if (result.translatedText.isNotBlank()) {
+            if (result.translatedText.isNotBlank() && result.isSuccessful) {
                 lastSpokenPhrase = result.translatedText
+                lastSpokenLanguage = result.targetLanguage
                 hapticManager.playTranslationPulse()
-                ttsManager.speak(result.translatedText, interrupt = true)
+                ttsManager.speak(result.translatedText, true, result.targetLanguage)
             }
             onComplete(result)
         }
@@ -88,10 +91,11 @@ class CommunicationManager(
             targetLang = targetLanguage
         )
 
-        if (translation.translatedText.isNotBlank()) {
+        if (translation.translatedText.isNotBlank() && translation.isSuccessful) {
             lastSpokenPhrase = translation.translatedText
+            lastSpokenLanguage = translation.targetLanguage
             hapticManager.playTranslationPulse()
-            ttsManager.speak(translation.translatedText, interrupt = true)
+            ttsManager.speak(translation.translatedText, true, translation.targetLanguage)
         }
         return translation
     }

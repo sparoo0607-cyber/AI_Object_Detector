@@ -65,23 +65,26 @@ class OverlayView @JvmOverloads constructor(
     }
 
     private val textBackgroundPaint = Paint().apply {
-        color = Color.parseColor("#E6000000")
+        color = Color.parseColor("#B3000000")
         style = Paint.Style.FILL
         isAntiAlias = true
     }
 
     private val textPaint = Paint().apply {
         color = Color.WHITE
-        textSize = 40f
+        textSize = 30f
         isAntiAlias = true
         isFakeBoldText = true
     }
 
     private val badgeBorderPaint = Paint().apply {
-        strokeWidth = 3f
+        strokeWidth = 2f
         style = Paint.Style.STROKE
         isAntiAlias = true
     }
+
+    /** Max object badges drawn at once — keeps labels from stacking on top of each other. */
+    private val maxObjectBadges = 4
 
     fun setPerceptionResults(
         detectedObjects: List<DetectionResult>,
@@ -115,101 +118,63 @@ class OverlayView @JvmOverloads constructor(
         val offsetX = (width - scaledWidth) / 2f
         val offsetY = (height - scaledHeight) / 2f
 
-        // 1. Draw Object & Danger Bounding Boxes
-        for (result in results) {
-            val box = result.boundingBox
-            val left = box.left * scaleFactor + offsetX
-            val top = box.top * scaleFactor + offsetY
-            val right = box.right * scaleFactor + offsetX
-            val bottom = box.bottom * scaleFactor + offsetY
+        fun mapRect(box: RectF) = RectF(
+            maxOf(0f, box.left * scaleFactor + offsetX),
+            maxOf(0f, box.top * scaleFactor + offsetY),
+            minOf(width.toFloat(), box.right * scaleFactor + offsetX),
+            minOf(height.toFloat(), box.bottom * scaleFactor + offsetY)
+        )
 
-            val rect = RectF(
-                maxOf(0f, left),
-                maxOf(0f, top),
-                minOf(width.toFloat(), right),
-                minOf(height.toFloat(), bottom)
-            )
-
-            val isDanger = result.type == PerceptionType.DANGER ||
-                    result.label.lowercase().contains("car") ||
-                    result.label.lowercase().contains("truck") ||
-                    result.label.lowercase().contains("bus") ||
-                    result.label.lowercase().contains("motorcycle")
-
-            val currentPaint = if (isDanger) dangerBoxPaint else objectBoxPaint
-            val accentColor = if (isDanger) {
-                ContextCompat.getColor(context, R.color.accent_red)
-            } else {
-                ContextCompat.getColor(context, R.color.accent_green)
-            }
-
-            canvas.drawRoundRect(rect, 14f, 14f, currentPaint)
-            val labelText = if (isDanger) "⚠️ ${result.label}" else "${result.label} ${(result.score * 100).toInt()}%"
-            drawBadge(canvas, rect, labelText, accentColor)
-        }
-
-        // 2. Draw OCR Text Highlights
+        // 1. OCR: box outlines only (no text badges — that is what used to overlap).
         for (ocrBlock in ocrBlocks) {
-            val box = ocrBlock.boundingBox
-            val left = box.left * scaleFactor + offsetX
-            val top = box.top * scaleFactor + offsetY
-            val right = box.right * scaleFactor + offsetX
-            val bottom = box.bottom * scaleFactor + offsetY
-
-            val rect = RectF(
-                maxOf(0f, left),
-                maxOf(0f, top),
-                minOf(width.toFloat(), right),
-                minOf(height.toFloat(), bottom)
-            )
-
-            canvas.drawRoundRect(rect, 8f, 8f, ocrBoxPaint)
-            drawBadge(canvas, rect, "📖 ${ocrBlock.text}", ContextCompat.getColor(context, R.color.accent_yellow))
+            canvas.drawRoundRect(mapRect(ocrBlock.boundingBox), 8f, 8f, ocrBoxPaint)
         }
 
-        // 3. Draw Sign Language Highlights
+        // 2. Objects / hazards: draw all boxes, but label only the few most confident.
+        val ranked = results.sortedByDescending { it.score }
+        ranked.forEachIndexed { index, result ->
+            val rect = mapRect(result.boundingBox)
+            val isDanger = result.type == PerceptionType.DANGER ||
+                result.label.lowercase().let {
+                    it.contains("car") || it.contains("truck") || it.contains("bus") || it.contains("motorcycle")
+                }
+            canvas.drawRoundRect(rect, 14f, 14f, if (isDanger) dangerBoxPaint else objectBoxPaint)
+
+            if (isDanger || index < maxObjectBadges) {
+                val accent = ContextCompat.getColor(
+                    context, if (isDanger) R.color.accent_red else R.color.accent_green
+                )
+                val label = if (isDanger) "⚠ ${result.label}" else result.label
+                drawBadge(canvas, rect, label, accent)
+            }
+        }
+
+        // 3. Active sign: one clean badge.
         activeSign?.let { sign ->
-            val box = sign.boundingBox
-            val left = box.left * scaleFactor + offsetX
-            val top = box.top * scaleFactor + offsetY
-            val right = box.right * scaleFactor + offsetX
-            val bottom = box.bottom * scaleFactor + offsetY
-
-            val rect = RectF(
-                maxOf(0f, left),
-                maxOf(0f, top),
-                minOf(width.toFloat(), right),
-                minOf(height.toFloat(), bottom)
-            )
-
+            val rect = mapRect(sign.boundingBox)
             canvas.drawRoundRect(rect, 16f, 16f, signBoxPaint)
-            drawBadge(canvas, rect, "🤟 Sign: ${sign.gestureName}", ContextCompat.getColor(context, R.color.accent_cyan))
+            drawBadge(canvas, rect, sign.gestureName, ContextCompat.getColor(context, R.color.accent_cyan))
         }
     }
 
-    private fun drawBadge(canvas: Canvas, targetRect: RectF, text: String, borderColor: Int) {
+    private fun drawBadge(canvas: Canvas, targetRect: RectF, rawText: String, borderColor: Int) {
+        val text = if (rawText.length > 22) rawText.take(21) + "…" else rawText
         textPaint.getTextBounds(text, 0, text.length, textBounds)
         val textWidth = textPaint.measureText(text)
-        val textHeight = textBounds.height()
+        val textHeight = textBounds.height().toFloat()
 
-        val paddingH = 16f
-        val paddingV = 12f
+        val padH = 12f
+        val padV = 8f
+        val badgeH = textHeight + padV * 2
 
-        val badgeTop = if (targetRect.top - textHeight - paddingV * 2 < 0) {
-            targetRect.top + 8f
-        } else {
-            targetRect.top - textHeight - paddingV * 2 - 6f
-        }
-        val badgeBottom = badgeTop + textHeight + paddingV * 2
+        val badgeTop = if (targetRect.top - badgeH - 4f < 0f) targetRect.top + 6f
+        else targetRect.top - badgeH - 4f
         val badgeLeft = targetRect.left
-        val badgeRight = badgeLeft + textWidth + paddingH * 2
+        val bgRect = RectF(badgeLeft, badgeTop, badgeLeft + textWidth + padH * 2, badgeTop + badgeH)
 
-        val bgRect = RectF(badgeLeft, badgeTop, badgeRight, badgeBottom)
         badgeBorderPaint.color = borderColor
-
-        canvas.drawRoundRect(bgRect, 12f, 12f, textBackgroundPaint)
-        canvas.drawRoundRect(bgRect, 12f, 12f, badgeBorderPaint)
-
-        canvas.drawText(text, badgeLeft + paddingH, badgeTop + paddingV + textHeight - 2f, textPaint)
+        canvas.drawRoundRect(bgRect, 10f, 10f, textBackgroundPaint)
+        canvas.drawRoundRect(bgRect, 10f, 10f, badgeBorderPaint)
+        canvas.drawText(text, badgeLeft + padH, badgeTop + padV + textHeight - 2f, textPaint)
     }
 }

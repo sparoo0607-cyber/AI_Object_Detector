@@ -83,7 +83,7 @@ class VisionOrchestrator(
     init {
         // Start listening for voice commands ("turn on sign mode", etc.)
         try {
-            voiceConfirmSpeechEngine.startContinuousListening()
+            voiceConfirmSpeechEngine.startContinuousListening(java.util.Locale.US)
         } catch (e: Exception) {
             Log.w(TAG, "Voice command recognizer init: ${e.message}")
         }
@@ -297,7 +297,7 @@ class VisionOrchestrator(
 
         mainHandler.postDelayed({
             if (isWaitingForVoiceConfirmation && !isCurrentlyReadingText) {
-                voiceConfirmSpeechEngine.startContinuousListening()
+                voiceConfirmSpeechEngine.startContinuousListening(java.util.Locale.US)
             }
         }, 2200)
 

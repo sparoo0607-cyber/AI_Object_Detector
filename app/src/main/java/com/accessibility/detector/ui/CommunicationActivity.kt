@@ -15,6 +15,7 @@ import com.accessibility.detector.communication.TtsManager
 import com.accessibility.detector.databinding.ActivityCommunicationBinding
 import com.accessibility.detector.sound.LiveSpeechListener
 import com.accessibility.detector.sound.SpeechRecognitionEngine
+import java.util.Locale
 
 /**
  * Category 3: Speak & Translate Assist Activity.
@@ -47,6 +48,12 @@ class CommunicationActivity : AppCompatActivity(), LiveSpeechListener {
         setContentView(binding.root)
 
         ttsManager = TtsManager(this)
+        ttsManager.onSpeakingChanged = { speaking ->
+            runOnUiThread {
+                binding.btnSpeak.isEnabled = !speaking
+                binding.btnTranslateAndSpeak.isEnabled = !speaking
+            }
+        }
         communicationManager = CommunicationManager(this, ttsManager)
         speechEngine = SpeechRecognitionEngine(this, this)
         offlineLanguageManager = OfflineLanguageManager(this)
@@ -196,11 +203,14 @@ class CommunicationActivity : AppCompatActivity(), LiveSpeechListener {
         binding.btnListenOtherPerson.setOnClickListener {
             if (speechEngine.isListening) {
                 speechEngine.stopListening()
-                binding.btnListenOtherPerson.text = "🎤 Listen to Other Person's Response"
+                binding.btnListenOtherPerson.text = LISTEN_IDLE
             } else {
-                speechEngine.startContinuousListening()
-                binding.btnListenOtherPerson.text = "🔴 Listening... Speak now"
-                binding.tvOtherPersonResponse.text = "Listening..."
+                // Listen in the source language the user picked (so recognition is accurate),
+                // falling back to English for Auto-detect.
+                val listenLocale = TtsManager.localeOf(sourceLanguage) ?: Locale.US
+                speechEngine.startContinuousListening(listenLocale)
+                binding.btnListenOtherPerson.text = LISTEN_ACTIVE
+                binding.tvOtherPersonResponse.text = "Listening…"
             }
         }
     }
@@ -280,7 +290,7 @@ class CommunicationActivity : AppCompatActivity(), LiveSpeechListener {
     // --- LiveSpeechListener ---
     override fun onSpeechRecognized(text: String) {
         runOnUiThread {
-            binding.btnListenOtherPerson.text = "🎤 Listen to Other Person's Response"
+            binding.btnListenOtherPerson.text = LISTEN_IDLE
             communicationManager.translateAndSpeak(
                 text = text,
                 sourceLanguage = SupportedLanguage.AUTO,
@@ -304,14 +314,14 @@ class CommunicationActivity : AppCompatActivity(), LiveSpeechListener {
     override fun onListeningStateChanged(isListening: Boolean) {
         runOnUiThread {
             if (!isListening && !speechEngine.shouldKeepListening) {
-                binding.btnListenOtherPerson.text = "🎤 Listen to Other Person's Response"
+                binding.btnListenOtherPerson.text = LISTEN_IDLE
             }
         }
     }
 
     override fun onSpeechError(errorMessage: String) {
         runOnUiThread {
-            binding.btnListenOtherPerson.text = "🎤 Listen to Other Person's Response"
+            binding.btnListenOtherPerson.text = LISTEN_IDLE
             binding.tvOtherPersonResponse.text = "Speech input error: $errorMessage"
         }
     }
@@ -325,5 +335,7 @@ class CommunicationActivity : AppCompatActivity(), LiveSpeechListener {
 
     companion object {
         private const val TAG = "CommunicationActivity"
+        private const val LISTEN_IDLE = "Listen to the other person"
+        private const val LISTEN_ACTIVE = "Listening… speak now"
     }
 }

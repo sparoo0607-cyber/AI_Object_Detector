@@ -16,6 +16,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <!-- Faint Lens-style viewfinder brackets -->
+    <ImageView
+        android:layout_width="280dp"
+        android:layout_height="280dp"
+        android:layout_gravity="center"
+        android:alpha="0.35"
+        android:importantForAccessibility="no"
+        android:src="@drawable/scan_frame" />
+
     <!-- ===== Top bar ===== -->
     <LinearLayout
         android:id="@+id/topBar"
@@ -25,34 +34,38 @@
         android:fitsSystemWindows="true"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="12dp"
+        android:paddingHorizontal="14dp"
         android:paddingTop="8dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnBack"
             style="@style/Widget.Material3.Button.IconButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:contentDescription="@string/back"
+            app:backgroundTint="#66000000"
+            app:cornerRadius="999dp"
             app:icon="@drawable/ic_arrow_back"
             app:iconTint="@color/white" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
+            android:layout_marginStart="10dp"
             android:layout_weight="1"
             android:background="@drawable/pill"
             android:orientation="vertical"
             android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp">
+            android:paddingVertical="7dp">
 
             <TextView
                 android:id="@+id/tvModeTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="@string/onb_vision_title"
-                android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+                android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
                 android:textColor="@color/accent_green" />
 
             <TextView
@@ -62,7 +75,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="@string/status_scanning"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
                 android:textColor="@color/white" />
 
             <TextView
@@ -71,119 +84,96 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                android:textColor="#B0BEC5" />
+                android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                android:textColor="#99FFFFFF" />
         </LinearLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnMuteToggle"
-            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:contentDescription="@string/status_muted"
-            app:icon="@drawable/ic_speaker" />
     </LinearLayout>
 
-    <!-- ===== Gemini status banner ===== -->
+    <!-- ===== Gemini result card (bottom, above control bar) ===== -->
     <LinearLayout
         android:id="@+id/geminiStatusBanner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:layout_marginTop="96dp"
+        android:layout_gravity="bottom"
         android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="132dp"
         android:background="@drawable/bg_surface_container_high"
+        android:elevation="8dp"
         android:orientation="vertical"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="10dp"
+        android:paddingHorizontal="18dp"
+        android:paddingVertical="14dp"
         android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_scan"
+                app:tint="?attr/colorPrimary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:letterSpacing="0.06"
+                android:text="Gemini"
+                android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+                android:textColor="?attr/colorPrimary" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvGeminiStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
             android:textColor="?attr/colorOnSurface" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:indeterminate="true"
+            app:indicatorColor="?attr/colorPrimary"
+            app:trackCornerRadius="4dp" />
     </LinearLayout>
 
-    <!-- ===== Right action rail ===== -->
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|center_vertical"
-        android:layout_marginEnd="12dp"
-        android:background="@drawable/pill"
-        android:orientation="vertical"
-        android:padding="6dp">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSafetyShield"
-            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:layout_marginVertical="4dp"
-            android:contentDescription="@string/status_safety_mode"
-            app:icon="@drawable/ic_shield"
-            app:iconTint="@color/accent_red" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSignModeToggle"
-            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:layout_marginVertical="4dp"
-            android:contentDescription="@string/onb_speak_title"
-            app:icon="@drawable/ic_sign"
-            app:iconTint="@color/accent_cyan" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnForceReadText"
-            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:layout_marginVertical="4dp"
-            android:contentDescription="@string/onb_vision_title"
-            app:icon="@drawable/ic_book"
-            app:iconTint="@color/accent_yellow" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAskGemini"
-            style="@style/Widget.Material3.Button.IconButton.Filled"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:layout_marginVertical="4dp"
-            android:contentDescription="@string/onb_welcome_title"
-            app:icon="@drawable/ic_demo" />
-    </LinearLayout>
-
-    <!-- ===== Voice-confirm card (read text?) ===== -->
+    <!-- ===== Voice-confirm card ===== -->
     <androidx.cardview.widget.CardView
         android:id="@+id/voiceConfirmPromptCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_margin="16dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="120dp"
         android:visibility="gone"
         app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
-        app:cardCornerRadius="24dp">
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="18dp">
 
             <TextView
                 android:id="@+id/tvVoiceConfirmPrompt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.Sahey.Title"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                 android:textColor="?attr/colorOnSurface" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="14dp"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
@@ -215,6 +205,7 @@
         android:visibility="gone"
         app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
         app:cardCornerRadius="28dp"
+        app:cardElevation="10dp"
         app:cardPreventCornerOverlap="false">
 
         <LinearLayout
@@ -278,6 +269,74 @@
                 android:text="Exit sign mode" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
+    <!-- ===== Bottom control bar (Lens-style) ===== -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="28dp"
+        android:background="@drawable/bg_bottom_bar"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="10dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSafetyShield"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:contentDescription="@string/status_safety_mode"
+            app:icon="@drawable/ic_shield"
+            app:iconTint="@color/white" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnForceReadText"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:contentDescription="Read text"
+            app:icon="@drawable/ic_book"
+            app:iconTint="@color/white" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAskGemini"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginHorizontal="14dp"
+            android:contentDescription="Ask Gemini about this view"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            app:backgroundTint="@color/white"
+            app:cornerRadius="999dp"
+            app:icon="@drawable/ic_scan"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="28dp"
+            app:iconTint="@color/black" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSignModeToggle"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:contentDescription="Sign mode"
+            app:icon="@drawable/ic_sign"
+            app:iconTint="@color/white" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnMuteToggle"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:contentDescription="@string/status_muted"
+            app:icon="@drawable/ic_speaker"
+            app:iconTint="@color/white" />
+    </LinearLayout>
 
     <!-- ===== Permission gate ===== -->
     <LinearLayout

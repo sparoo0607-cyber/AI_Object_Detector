@@ -7,8 +7,15 @@ import android.util.Log
 import java.util.Locale
 
 /**
- * Text-to-Speech manager for SAHEY providing clean utterance queuing,
- * cancellation, interruptible speech, and multi-language support.
+ * Text-to-Speech manager for SAHEY.
+ *
+ * Smoothness:
+ *  - a request made before the engine finishes initialising is queued and spoken on init
+ *    (no more silent "TTS not ready" taps).
+ *  - [onSpeakingChanged] reports start/stop so the UI can reflect state.
+ * Accuracy:
+ *  - [speak] can switch the voice to the phrase's language, so a Telugu / Hindi translation
+ *    is spoken with the right voice instead of the English one.
  */
 class TtsManager(
     context: Context,
@@ -19,11 +26,19 @@ class TtsManager(
     var isInitialized = false
         private set
 
-    var speechRate: Float = 1.0f
+    /** Invoked on the main thread with true when an utterance starts, false when it ends. */
+    var onSpeakingChanged: ((Boolean) -> Unit)? = null
+
+    var speechRate: Float = 0.96f
         set(value) {
             field = value
             textToSpeech?.setSpeechRate(value)
         }
+
+    private var currentLocale: Locale = Locale.US
+    private var pendingText: String? = null
+    private var pendingInterrupt: Boolean = true
+    private var pendingLocale: Locale? = null
 
     init {
         try {
@@ -35,50 +50,105 @@ class TtsManager(
     }
 
     override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
-            val result = textToSpeech?.setLanguage(Locale.US)
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                Log.w(TAG, "Default language US not supported on this device")
-            }
-            textToSpeech?.setSpeechRate(speechRate)
-            isInitialized = true
-            onInitStatus?.invoke(true)
-            Log.d(TAG, "TextToSpeech initialized successfully")
-        } else {
-            Log.e(TAG, "TTS Initialization failed with status code: $status")
+        if (status != TextToSpeech.SUCCESS) {
+            Log.e(TAG, "TTS init failed: $status")
             isInitialized = false
             onInitStatus?.invoke(false)
-        }
-    }
-
-    fun setLanguage(locale: Locale) {
-        if (isInitialized) {
-            textToSpeech?.setLanguage(locale)
-        }
-    }
-
-    fun speak(text: String, interrupt: Boolean = false, utteranceId: String = System.currentTimeMillis().toString()) {
-        if (!isInitialized || textToSpeech == null) {
-            Log.w(TAG, "TTS not ready to speak: \"$text\"")
             return
         }
 
-        val queueMode = if (interrupt) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
-        textToSpeech?.speak(text, queueMode, null, utteranceId)
-    }
+        applyLocale(Locale.US)
+        textToSpeech?.setSpeechRate(speechRate)
+        textToSpeech?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) = post { onSpeakingChanged?.invoke(true) }
+            override fun onDone(utteranceId: String?) = post { onSpeakingChanged?.invoke(false) }
+            @Deprecated("kept for API < 21 signature")
+            override fun onError(utteranceId: String?) = post { onSpeakingChanged?.invoke(false) }
+            override fun onError(utteranceId: String?, errorCode: Int) = post { onSpeakingChanged?.invoke(false) }
+        })
 
-    fun stop() {
-        if (isInitialized) {
-            textToSpeech?.stop()
+        isInitialized = true
+        onInitStatus?.invoke(true)
+        Log.d(TAG, "TextToSpeech ready")
+
+        pendingText?.let { text ->
+            val loc = pendingLocale
+            pendingText = null
+            pendingLocale = null
+            speak(text, pendingInterrupt, loc)
         }
     }
 
-    fun isSpeaking(): Boolean {
-        return textToSpeech?.isSpeaking ?: false
+    private fun post(block: () -> Unit) {
+        textToSpeech?.let { android.os.Handler(android.os.Looper.getMainLooper()).post(block) } ?: block()
     }
+
+    fun setLanguage(locale: Locale) {
+        if (isInitialized) applyLocale(locale)
+    }
+
+    /** Sets the voice for a [SupportedLanguage]; falls back to English if that voice is missing. */
+    fun setPreferredLanguage(language: SupportedLanguage) {
+        localeOf(language)?.let { setLanguage(it) }
+    }
+
+    private fun applyLocale(locale: Locale) {
+        val tts = textToSpeech ?: return
+        if (locale == currentLocale) return
+        val res = tts.isLanguageAvailable(locale)
+        if (res == TextToSpeech.LANG_AVAILABLE ||
+            res == TextToSpeech.LANG_COUNTRY_AVAILABLE ||
+            res == TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE
+        ) {
+            tts.language = locale
+            currentLocale = locale
+        } else {
+            Log.w(TAG, "TTS voice for $locale not installed (code $res); keeping $currentLocale")
+        }
+    }
+
+    /**
+     * @param language optional — switch the voice to this language for this utterance.
+     */
+    fun speak(
+        text: String,
+        interrupt: Boolean = false,
+        language: SupportedLanguage?,
+        utteranceId: String = System.currentTimeMillis().toString()
+    ) {
+        speak(text, interrupt, localeOf(language), utteranceId)
+    }
+
+    fun speak(
+        text: String,
+        interrupt: Boolean = false,
+        locale: Locale? = null,
+        utteranceId: String = System.currentTimeMillis().toString()
+    ) {
+        if (text.isBlank()) return
+        if (!isInitialized || textToSpeech == null) {
+            pendingText = text
+            pendingInterrupt = interrupt
+            pendingLocale = locale
+            Log.d(TAG, "TTS not ready — queued: \"${text.take(40)}\"")
+            return
+        }
+        locale?.let { applyLocale(it) }
+        val mode = if (interrupt) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
+        textToSpeech?.speak(text, mode, null, utteranceId)
+    }
+
+    fun stop() {
+        pendingText = null
+        if (isInitialized) textToSpeech?.stop()
+        onSpeakingChanged?.invoke(false)
+    }
+
+    fun isSpeaking(): Boolean = textToSpeech?.isSpeaking ?: false
 
     fun shutdown() {
         try {
+            pendingText = null
             textToSpeech?.stop()
             textToSpeech?.shutdown()
             textToSpeech = null
@@ -90,5 +160,16 @@ class TtsManager(
 
     companion object {
         private const val TAG = "TtsManager"
+
+        fun localeOf(language: SupportedLanguage?): Locale? = when (language) {
+            SupportedLanguage.ENGLISH -> Locale.US
+            SupportedLanguage.TELUGU -> Locale("te", "IN")
+            SupportedLanguage.HINDI -> Locale("hi", "IN")
+            SupportedLanguage.TAMIL -> Locale("ta", "IN")
+            SupportedLanguage.KANNADA -> Locale("kn", "IN")
+            SupportedLanguage.MALAYALAM -> Locale("ml", "IN")
+            SupportedLanguage.SPANISH -> Locale("es", "ES")
+            else -> null
+        }
     }
 }
