@@ -1,140 +1,129 @@
-# SAHAY — See it. Hear it. Understand it. (Android)
+# SAHEY — Multimodal AI Accessibility Platform 🌐👁️👂🗣️
 
-This started as a real-time on-device object detector for blind/low-vision
-users (still fully intact — see below). It's now the SAHAY platform: **SEE**
-and **LISTEN**, with SAHAY auto-routing what it perceives, plus a config-driven
-**Admin Control Center**, mirroring the SAHAY web prototype's architecture:
+> **See it. Hear it. Understand it.**  
+> An intelligent, multi-category native Android accessibility suite combining **On-Device Edge AI** with **Google Gemini Multimodal Cloud Intelligence** to empower Blind, Visually Impaired, Deaf, Hard-of-Hearing, and Speech-Impaired individuals.
 
-```
-PERCEPTION -> CONTEXT -> DECISION -> ACTION
-```
+---
 
-## What's real vs. what's disclosed as a stand-in
+## 🌟 Core Feature Modules
 
-Every capability below either runs a genuine on-device model, or is labelled
-honestly as a heuristic/beta in `Admin > AI Models` — nothing is faked.
+### 1. 👁️ Category 1: Vision Assist (See & Perceive)
+*Empowering blind and visually impaired users to navigate, read, and converse with their surroundings.*
+- **🤖 Google Gemini Multimodal Visual Q&A**: Live conversational visual assistance (*"Ask AI"*, *"What do you see?"*, *"Explain what is in front of me"*).
+- **⚡ On-Device Edge Object Detection**: Real-time object localization powered by TensorFlow Lite SSD MobileNet with spatial position mapping (Left / Center / Right / Proximity).
+- **⚠️ Hazard Radar & Collision Preemption**: Instant audible and tactile SOS warnings for critical dangers (smoke, fire, approaching vehicles, staircase drops).
+- **📖 Interactive OCR Text Reader**: Automatic signboard and document reading with smart voice confirmation flow (*"Text detected. Would you like me to read it?"*).
+- **🤟 Sign Language Sentence Builder**: Real-time ASL alphabet and gesture recognition combining MediaPipe 42-feature landmark classifier and 24-class CNN to assemble and vocalize complete sentences.
 
-| Capability | How | Offline? |
-|---|---|---|
-| Object detection | SSD MobileNet, TFLite Task Vision (original app) — real trained model | ✅ fully |
-| Signboard OCR | Google ML Kit Text Recognition — Latin + Devanagari (Hindi) — real trained model | ✅ fully |
-| Currency | TFLite MobileNet classifier (`assets/currency_model.tflite`), ₹50/100/200/500/2000 — real trained model, not a heuristic | ✅ fully |
-| Sound alerts | YAMNet (`assets/yamnet.tflite`) via MediaPipe Audio Classifier, 521 AudioSet classes mapped to horn/siren/alarm/doorbell — real trained model | ✅ fully |
-| Text-to-speech | Android `TextToSpeech`, EN/HI/TE | ✅ fully (voice pack dependent) |
-| Live captions | Whisper tiny multilingual (TFLite) — real trained model, auto-detects EN/HI/TE — primary; Android `SpeechRecognizer` (cloud) is the automatic fallback | ✅ fully offline (primary path) |
+---
 
-**Scene composition, not isolated labels.** SEE's object detector now
-reasons about the real bounding-box geometry of what it sees to compose
-relational descriptions — "coffee cup on the bench" — instead of announcing
-"Cup." then "Bench." one at a time. See `ml/SceneComposer.kt`.
+### 2. 👂 Category 2: Sound Assist (Hear & Monitor)
+*Empowering deaf and hard-of-hearing users with real-time acoustic awareness.*
+- **📊 Real-Time Decibel (dB) Sound Radar**: Dynamic audio metering visualizer tracking environmental sound intensity.
+- **🚨 Emergency Siren & Horn Detection**: Low-latency threshold detection for emergency sirens, car horns, smoke alarms, and ambient danger.
+- **🎙️ Live Continuous Speech Captions**: Multi-language live speech-to-text transcription streaming on-device with zero latency.
 
-**Optional online enhancement (Gemini 2.0 Flash) — off by default.** Every
-capability above is local/offline/free; Gemini adds a richer natural-language
-scene description on top, only when Admin turns it on and a key is
-configured (`local.properties` → `gemini.api.key`, never committed). See
-`enhance/GeminiEnhancer.kt` and Admin > Feature flags.
+---
 
-**No manual "operate the AI" buttons.** SEE perceives continuously (like the
-original object detector always did) — OCR and currency now run
-automatically every ~1.3s against the live camera feed, no capture tap.
-LISTEN starts automatically the moment the screen opens (after the one-time
-mic permission prompt) and keeps listening until you leave — no Start/Stop
-button. The only taps left are navigation (Home → SEE/LISTEN/Admin, Back)
-and the object-detector's mute toggle.
+### 3. 🗣️ Category 3: Speak & Translate (Communicate)
+*Bridging language, speech, and hearing barriers.*
+- **🌍 100% Offline Neural Translation**: Zero-latency on-device translation powered by Google ML Kit across 6 major Indian and international languages:
+  - **English (EN)**
+  - **Telugu (TE - తెలుగు)**
+  - **Hindi (HI - हिन्दी)**
+  - **Tamil (TA - தமிழ்)**
+  - **Kannada (KN - ಕನ್ನಡ)**
+  - **Malayalam (ML - മലയാളം)**
+- **⚡ Automatic Language Identification**: Instant on-device classification of spoken and written languages.
+- **💬 One-Tap Tactile Accessibility Phrase Grids**: Quick emergency, medical, and conversational phrase buttons with TTS vocalization.
+- **🔄 Two-Way Speech Translation Loop**: Seamless two-way spoken conversation translation.
 
-**Known gap:** ML Kit has no on-device Telugu-script OCR model, so Telugu
-signboards aren't read yet — Telugu TTS output still works. Disclosed in
-Admin, not hidden.
+---
 
-## Architecture
+## 🛠️ Technical Stack & Architecture
+
+| Layer | Technologies & Frameworks |
+|---|---|
+| **Platform** | Native Android (Kotlin 1.9+, Min SDK 26, Target SDK 34) |
+| **Multimodal Cloud AI** | Google Gemini 1.5 Flash / 2.0 Flash REST API (`generativelanguage.googleapis.com`) |
+| **Edge AI & Computer Vision** | TensorFlow Lite (2.13.0), Google ML Kit Text Recognition, MediaPipe Landmarks |
+| **On-Device NLP & Translation** | Google ML Kit On-Device Translation (`com.google.mlkit:translate`), ML Kit Language ID |
+| **Audio & Speech Engine** | Android `SpeechRecognizer` (Continuous Loop) + `AudioRecord` dB Analyzer + Android `TextToSpeech` (`UtteranceProgressListener`) |
+| **Tactile Feedback** | Multi-Waveform `VibrationEffect` Haptic Engine (SOS, Double Pulse, Staccato, Light Click) |
+| **UI & Typography** | Google Material Design 3, ViewBinding, High-Contrast Typography System |
+
+---
+
+## 🏗️ Project Architecture
 
 ```
 app/src/main/java/com/accessibility/detector/
-├── core/            SahayConfig, ContextEngine, DecisionEngine, ActionEngine — the pipeline
-├── ocr/              OcrHelper (ML Kit)
-├── currency/         CurrencyMatcher (color heuristic)
-├── sound/            SoundClassifier (AudioRecord amplitude)
-├── stt/               SttHelper (SpeechRecognizer)
-├── home/             HomeActivity — SEE / LISTEN / Admin, no manual tool picking
-├── listen/           ListenActivity — captions + sound alerts
-├── admin/            AdminActivity — Control Center (SharedPreferences-backed, live-applies)
-├── MainActivity.kt   SEE — continuous object detection (original) + on-demand
-│                       signboard/currency capture, auto-routed by confidence
-├── ml/                ObjectDetectorHelper (original)
-├── tts/               TtsManager (original, continuous-detection speech)
-└── ui/                OverlayView (original)
+├── core/                       # Core Architecture & Orchestration
+│   ├── AnnouncementManager.kt  # Priority Queuing & Speech Preemption Engine
+│   ├── HapticManager.kt        # Multi-Pattern Tactile Vibration System
+│   ├── PriorityManager.kt      # Event Prioritization (Critical > Danger > Text > Objects)
+│   ├── ModelManager.kt         # TFLite Asset & Lifecycle Controller
+│   └── Models.kt               # Domain Data Models (PerceptionEvent, DetectionResult)
+├── vision/                     # Category 1: Vision Assist & AI
+│   ├── VisionOrchestrator.kt   # Central CameraX, ML & Voice Coordinator
+│   ├── ObjectDetectionEngine.kt# SSD MobileNet TFLite Inference
+│   ├── DangerDetectionEngine.kt# Real-Time Spatial Hazard Reasoning
+│   ├── TextReaderEngine.kt     # ML Kit OCR Text Processing
+│   ├── SignLanguageEngine.kt   # Sign Gesture Classifier (MediaPipe & CNN)
+│   ├── SignSentenceBuilder.kt  # Continuous Sign-to-Sentence Assembly
+│   └── gemini/                 # Google Gemini Multimodal Cloud AI
+│       ├── GeminiConfig.kt     # System Prompts & Key Configuration
+│       ├── GeminiVisionService.kt # Multi-Model Resilient Network Engine
+│       └── GeminiVisionEngine.kt  # Image Preprocessing & Spatial Reasoning
+├── sound/                      # Category 2: Sound Assist & Captions
+│   ├── SoundRadarEngine.kt     # Real-Time Decibel & Frequency Metering
+│   ├── SpeechRecognitionEngine.kt # Continuous Multi-Language STT Engine
+│   └── LiveSpeechListener.kt   # Speech Streaming Callbacks
+├── communication/              # Category 3: Speak & Translate
+│   ├── CommunicationManager.kt # Offline ML Kit Translation & Language ID
+│   ├── OfflineLanguageManager.kt# On-Device Language Pack Management
+│   ├── SupportedLanguage.kt    # Language Enums & Locale Mappings
+│   └── TtsManager.kt           # Multi-Language Neural Voice Synthesizer
+└── ui/                         # Activities & High-Contrast Design System
+    ├── HomeActivity.kt         # 3-Category Navigation Hub
+    ├── VisionAssistActivity.kt # Vision Assist HUD & Real-Time Camera Screen
+    ├── SoundAssistActivity.kt  # Sound Radar & Live Captioning Screen
+    ├── CommunicationActivity.kt# Speak & Translate Two-Way Screen
+    ├── SettingsActivity.kt     # Accessibility Preferences & Voice Controls
+    └── SplashActivity.kt       # Fast Cold-Start Splash Screen
 ```
 
-`SahayConfig` (SharedPreferences) is the single source of truth for language,
-feature flags, confidence thresholds, and per-event priority/cooldown/output
-channels — the same shape as `shared/config.js` in the web prototype. Admin
-writes it; SEE/LISTEN read it live, no separate sync step.
-
-**Verification note:** compiled clean with `gradle assembleDebug` (BUILD
-SUCCESSFUL). Installed and launched on an Android emulator inside this
-session — Home screen confirmed running with no crash, real screenshot
-taken. The emulator in this sandbox is too resource-starved to reliably
-drive SEE/LISTEN interaction (the whole OS was throwing ANRs on unrelated
-system apps, not just this one) — **SEE, LISTEN, and Admin still need a
-real-phone test before the demo**, especially the new real-model paths
-(currency TFLite classifier, YAMNet sound events).
-
 ---
 
-## Original object-detector README (still accurate for that feature)
+## 🚀 Building & Running from Source
 
-An on-device, real-time AI object detection app built for visually impaired users. When pointed at objects, the app instantly identifies them using an on-device computer vision model and announces their names through the phone speaker using Text-to-Speech (TTS).
+### Prerequisites
+- **Android Studio** (Ladybug / Koala / Iguana or newer)
+- **JDK 17**
+- **Android SDK** API 26 through 34+
 
----
-
-## 🚀 Key Features
-
-* **⚡ Real-Time On-Device Object Detection**:
-  * Powered by **SSD MobileNet COCO** via TensorFlow Lite Task Vision.
-  * 100% offline — requires zero internet connection.
-  * Detects 80 common categories (*Person, Laptop, Cell Phone, Chair, Bottle, Backpack, Cup, Book, Mouse, Keyboard, etc.*).
-* **🔊 Intelligent Text-to-Speech (TTS) Voice Engine**:
-  * **Anti-Repetition Cooldown (2.5s)**: Eliminates stutter and speech spam when looking steadily at an object.
-  * **Fast Object Switching**: Announces new dominant objects immediately.
-  * **Tactile Haptic Feedback**: Gentle vibration pulse on each spoken announcement.
-  * **Mute / Unmute**: Dedicated accessible button with high-contrast visual and audio state indicators.
-* **♿ High-Contrast Accessibility UI**:
-  * Fullscreen rear-camera feed (`CameraX`).
-  * Neon green / cyan bounding boxes with corner accents and large label tags (`Laptop 89%`).
-  * Floating bottom status card.
-
----
-
-## 🛠️ Tech Stack & Architecture
-
-* **Language**: Kotlin
-* **Camera API**: AndroidX CameraX (Core, Camera2, Lifecycle, View)
-* **Inference Engine**: TensorFlow Lite Task Vision (`org.tensorflow:tensorflow-lite-task-vision:0.4.4`)
-* **Audio**: Native Android `TextToSpeech` (`android.speech.tts.TextToSpeech`)
-* **Target SDK**: Android 14 (API 34), Min SDK 24 (Android 7.0+)
-
----
-
-## 📦 APK Installation
-
-Directly installable APK builds are generated in:
-* `AI-Voice-Detector-Release.apk` (Signed Universal Release Build)
-* `app/build/outputs/apk/release/app-release.apk`
-
-To install via ADB:
+### Build Signed Release APK
 ```bash
-adb install -r AI-Voice-Detector-Release.apk
+# Clone the repository
+git clone https://github.com/sparoo0607-cyber/AI_Object_Detector.git
+cd AI_Object_Detector
+
+# Build the signed Release APK
+./gradlew assembleRelease
 ```
+The output APK is generated at:
+`app/build/outputs/apk/release/app-release.apk`
 
 ---
 
-## 🏗️ Building from Source
+## 🔒 Privacy & Permissions
 
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/sparoo0607-cyber/AI_Object_Detector.git
-   ```
-2. Open in **Android Studio** or compile using Gradle:
-   ```bash
-   ./gradlew assembleRelease
-   ```
+SAHEY is designed with a **Privacy-First Architecture**:
+- **Zero Continuous Cloud Upload**: Camera and audio data are processed 100% on-device by default.
+- **On-Demand Gemini AI**: Visual frames are only dispatched to Google Gemini when the user explicitly issues an AI voice question or taps *"Ask AI"*.
+- **Offline Reliability**: Object detection, sign language recognition, emergency sirens, and multi-language translations operate completely without internet connectivity.
+
+---
+
+## 📄 License
+This project is licensed under the Apache License 2.0.

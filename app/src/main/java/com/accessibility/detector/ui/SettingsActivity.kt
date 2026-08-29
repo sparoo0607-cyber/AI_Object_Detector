@@ -1,6 +1,7 @@
 package com.accessibility.detector.ui
 
 import android.os.Bundle
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -25,25 +26,12 @@ class SettingsActivity : AppCompatActivity() {
         offlineLanguageManager = OfflineLanguageManager(this)
 
         setupListeners()
-        loadApiKeyStatus()
         refreshAllLanguagePackStatuses()
     }
 
     private fun setupListeners() {
         binding.btnBack.setOnClickListener {
             finish()
-        }
-
-        // Gemini API Key Save Button
-        binding.btnSaveApiKey.setOnClickListener {
-            val key = binding.etApiKey.text.toString().trim()
-            if (key.isNotBlank()) {
-                GeminiConfig.saveApiKey(this, key)
-                Toast.makeText(this, "Gemini API Key saved successfully!", Toast.LENGTH_SHORT).show()
-                loadApiKeyStatus()
-            } else {
-                Toast.makeText(this, "Please enter a valid API Key", Toast.LENGTH_SHORT).show()
-            }
         }
 
         // Offline Language Pack Buttons
@@ -53,18 +41,6 @@ class SettingsActivity : AppCompatActivity() {
         setupLanguagePackControl(SupportedLanguage.TAMIL, binding.tvStatusTa, binding.btnDownloadTa)
         setupLanguagePackControl(SupportedLanguage.KANNADA, binding.tvStatusKn, binding.btnDownloadKn)
         setupLanguagePackControl(SupportedLanguage.MALAYALAM, binding.tvStatusMl, binding.btnDownloadMl)
-    }
-
-    private fun loadApiKeyStatus() {
-        if (GeminiConfig.isGeminiConfigured(this)) {
-            val key = GeminiConfig.getApiKey(this)
-            val masked = if (key.length > 8) "${key.take(4)}...${key.takeLast(4)}" else "Configured"
-            binding.tvApiKeyStatus.text = "✓ Configured ($masked)"
-            binding.tvApiKeyStatus.setTextColor(ContextCompat.getColor(this, R.color.accent_green))
-        } else {
-            binding.tvApiKeyStatus.text = "Not configured (Using offline models)"
-            binding.tvApiKeyStatus.setTextColor(ContextCompat.getColor(this, R.color.text_muted))
-        }
     }
 
     private fun setupLanguagePackControl(

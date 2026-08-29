@@ -421,8 +421,11 @@
                 android:layout_height="wrap_content"
                 android:text="@string/status_scanning"
                 android:textColor="@color/primary_blue"
-                android:textSize="19sp"
+                android:textSize="20sp"
                 android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.01"
+                android:lineSpacingExtra="2dp"
+                android:includeFontPadding="false"
                 android:maxLines="2"
                 android:ellipsize="end" />
 
@@ -430,11 +433,12 @@
                 android:id="@+id/tvDetailText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
+                android:layout_marginTop="4dp"
                 android:text="Objects • Danger Radar • Sign Language • Image OCR"
                 android:textColor="@color/text_secondary"
-                android:textSize="12.5sp"
-                android:fontFamily="sans-serif-medium" />
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-bold"
+                android:letterSpacing="0.01" />
         </LinearLayout>
 
         <!-- Vision Assist Dual Action Controls -->

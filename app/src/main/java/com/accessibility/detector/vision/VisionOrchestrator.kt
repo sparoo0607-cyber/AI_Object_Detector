@@ -19,6 +19,14 @@ import com.accessibility.detector.sound.LiveSpeechListener
 import com.accessibility.detector.sound.SpeechRecognitionEngine
 import com.accessibility.detector.vision.gemini.GeminiVisionEngine
 
+enum class VisionAiState {
+    LISTENING,
+    CAPTURING,
+    ANALYZING,
+    RESPONDING,
+    ERROR
+}
+
 interface VisionUiCallback {
     fun onVisionResultsUpdated(
         objects: List<DetectionResult>,
@@ -29,15 +37,15 @@ interface VisionUiCallback {
     )
     fun onLiveAnnouncement(event: PerceptionEvent)
     fun onVoiceConfirmationState(isWaitingForConfirmation: Boolean, prompt: String)
-    fun onGeminiReasoningStatus(isAnalyzing: Boolean, statusMessage: String)
     fun onSignModeStateChanged(isActive: Boolean)
     fun onSignSentenceUpdated(sentence: String, latestWord: String)
+    fun onAiStateChanged(state: VisionAiState, message: String, detail: String)
 }
 
 /**
  * Master Vision Orchestrator for Category 1: Vision Assist.
  * Coordinates Local Real-Time AI (SSD Object Detection, Fire & Danger Radar, Sign Language, OCR)
- * and Hybrid Cloud AI (Gemini Multimodal Visual Reasoning Engine).
+ * and Hybrid Cloud AI (Google Gemini Multimodal Visual Reasoning Engine).
  * Supports Dedicated "Sign Mode" for continuous gesture-to-sentence translation.
  */
 class VisionOrchestrator(
@@ -73,6 +81,7 @@ class VisionOrchestrator(
     private var isWaitingForVoiceConfirmation = false
     private var isCurrentlyReadingText = false
     private var pendingOcrTextToRead = ""
+    private var isAiProcessing = false
 
     // State cache
     private var lastOcrBlocks: List<ExtractedTextBlock> = emptyList()
@@ -81,11 +90,28 @@ class VisionOrchestrator(
     private var latestFrameBitmap: Bitmap? = null
 
     init {
-        // Start listening for voice commands ("turn on sign mode", etc.)
+        // Start continuous microphone listening for voice commands and AI questions
+        startListening()
+    }
+
+    fun startListening() {
         try {
-            voiceConfirmSpeechEngine.startContinuousListening()
+            voiceConfirmSpeechEngine.startContinuousListening(java.util.Locale.US)
+            uiCallback.onAiStateChanged(
+                VisionAiState.LISTENING,
+                "🎙️ Listening...",
+                "Ask \"What do you see?\" or any question"
+            )
         } catch (e: Exception) {
             Log.w(TAG, "Voice command recognizer init: ${e.message}")
+        }
+    }
+
+    fun stopListening() {
+        try {
+            voiceConfirmSpeechEngine.stopListening()
+        } catch (e: Exception) {
+            Log.w(TAG, "Voice command recognizer stop: ${e.message}")
         }
     }
 
@@ -348,43 +374,119 @@ class VisionOrchestrator(
     }
 
     /**
-     * User-initiated "Ask AI" triggered via button or voice query ("What is around me?").
+     * User-initiated or Voice-triggered Visual Q&A powered by the REAL Google Gemini Multimodal API.
+     * Flow:
+     * 1. Show CAPTURING ("📷 Capturing scene...")
+     * 2. Capture a fresh camera frame
+     * 3. Show ANALYZING ("🤖 Analyzing with AI...")
+     * 4. Send image + user question to Google Gemini
+     * 5. Show RESPONDING ("🔊 Speaking...") and speak answer aloud via TTS
+     * 6. Automatically resume LISTENING ("🎙️ Listening...") when TTS finishes.
      */
-    fun askGeminiWhatIsAroundMe(onFinished: ((String) -> Unit)? = null) {
-        val bitmap = latestFrameBitmap
-        if (bitmap == null) {
-            val fallbackMsg = "Scanning environment in front of you."
-            ttsManager.speak(fallbackMsg)
-            onFinished?.invoke(fallbackMsg)
+    fun askGeminiVisionWithPrompt(promptText: String = "Describe what you see in the scene.") {
+        if (isAiProcessing) {
+            Log.d(TAG, "Gemini Vision request dropped: already processing an active request.")
             return
         }
 
-        uiCallback.onGeminiReasoningStatus(true, "Gemini AI is analyzing the scene...")
-        ttsManager.speak("Analyzing what is around you...")
+        isAiProcessing = true
 
-        geminiVisionEngine.askAi(bitmap, "Describe the scene concisely for a visually impaired user in 1-2 sentences.") { event ->
-            uiCallback.onGeminiReasoningStatus(false, "")
-            if (event != null) {
-                announcementManager.postEvent(event)
-                onFinished?.invoke(event.spokenText)
-            } else {
-                val localSummary = if (lastDetectionResults.isNotEmpty()) {
-                    val labels = lastDetectionResults.take(3).joinToString(", ") { it.label }
-                    "In front of you: $labels."
-                } else {
-                    "Scene is clear ahead."
+        // 1. CAPTURING STATE
+        uiCallback.onAiStateChanged(
+            VisionAiState.CAPTURING,
+            "📷 Capturing scene...",
+            "Taking fresh camera frame"
+        )
+        hapticManager.playNormalPulse()
+
+        // Temporarily pause continuous speech listening so mic does not pick up TTS speech or background noise
+        stopListening()
+
+        // Allow CameraX analyzer a brief moment to commit the freshest frame
+        mainHandler.postDelayed({
+            val freshBitmap = latestFrameBitmap
+            if (freshBitmap == null) {
+                isAiProcessing = false
+                uiCallback.onAiStateChanged(
+                    VisionAiState.ERROR,
+                    "⚠️ I couldn't analyze the scene. Please try again.",
+                    "AI scene analysis is currently unavailable."
+                )
+                ttsManager.speak("AI scene analysis is currently unavailable.", interrupt = true) {
+                    resumeListeningState()
                 }
-                ttsManager.speak(localSummary)
-                onFinished?.invoke(localSummary)
+                return@postDelayed
             }
+
+            // 2. ANALYZING STATE
+            uiCallback.onAiStateChanged(
+                VisionAiState.ANALYZING,
+                "🤖 Analyzing with AI...",
+                "Google Gemini Multimodal Analysis"
+            )
+
+            val cleanedQuestion = cleanAiQuery(promptText)
+            Log.d(TAG, "Sending prompt to Gemini Vision: \"$cleanedQuestion\"")
+
+            geminiVisionEngine.askGeminiVision(freshBitmap, cleanedQuestion) { answer, isHazard, isSuccess ->
+                if (!isSuccess || answer.isBlank()) {
+                    isAiProcessing = false
+                    uiCallback.onAiStateChanged(
+                        VisionAiState.ERROR,
+                        "⚠️ I couldn't analyze the scene. Please try again.",
+                        "AI scene analysis is currently unavailable."
+                    )
+                    ttsManager.speak("AI scene analysis is currently unavailable.", interrupt = true) {
+                        resumeListeningState()
+                    }
+                    return@askGeminiVision
+                }
+
+                // 3. RESPONDING STATE
+                if (isHazard) {
+                    hapticManager.playDangerPattern()
+                } else {
+                    hapticManager.playNormalPulse()
+                }
+
+                uiCallback.onAiStateChanged(
+                    VisionAiState.RESPONDING,
+                    "🔊 Speaking...",
+                    answer
+                )
+
+                val event = PerceptionEvent(
+                    type = if (isHazard) PerceptionType.DANGER else PerceptionType.OBJECT,
+                    label = if (isHazard) "AI Hazard Alert" else "AI Scene Description",
+                    spokenText = answer,
+                    confidence = 0.98f,
+                    priority = if (isHazard) EventPriority.CRITICAL else EventPriority.OBJECT
+                )
+                uiCallback.onLiveAnnouncement(event)
+
+                // 4. Speak response via TTS and resume listening when completed
+                ttsManager.speak(answer, interrupt = true) {
+                    isAiProcessing = false
+                    resumeListeningState()
+                }
+            }
+        }, 120)
+    }
+
+    fun resumeListeningState() {
+        if (!signSentenceBuilder.isSignModeActive) {
+            startListening()
         }
     }
 
     // --- Live Speech Listener for Voice Confirmation & Voice Commands ---
     override fun onSpeechRecognized(text: String) {
-        val normalized = text.lowercase().trim()
+        if (isAiProcessing || isCurrentlyReadingText) return
 
-        // 1. Voice Command: "turn on sign mode" / "turn off sign mode"
+        val normalized = text.lowercase().trim()
+        Log.d(TAG, "Speech recognized in Vision Assist: \"$text\" (normalized: \"$normalized\")")
+
+        // 1. Voice Command: Sign Mode Toggle
         if (normalized.contains("turn on sign mode") || normalized.contains("turn on the sign mode") ||
             normalized.contains("start sign mode") || normalized.contains("sign mode") ||
             normalized.contains("open sign language") || normalized.contains("enable sign mode")) {
@@ -399,8 +501,8 @@ class VisionOrchestrator(
             return
         }
 
-        // 2. OCR Confirmation
-        if (isWaitingForVoiceConfirmation && !isCurrentlyReadingText) {
+        // 2. Voice Command: OCR Confirmation
+        if (isWaitingForVoiceConfirmation) {
             if (normalized.contains("yes") || normalized.contains("read") || normalized.contains("sure") ||
                 normalized.contains("please") || normalized.contains("okay") || normalized.contains("ok")) {
                 readTextImmediately()
@@ -410,10 +512,87 @@ class VisionOrchestrator(
             return
         }
 
-        // 3. General Voice Queries
-        if (normalized.contains("what is around me") || normalized.contains("describe scene") || normalized.contains("what do you see")) {
-            askGeminiWhatIsAroundMe()
+        // 3. AI Voice Command & Visual Q&A Intent Detection
+        if (isAiVisionIntent(normalized)) {
+            askGeminiVisionWithPrompt(text)
         }
+    }
+
+    private fun isAiVisionIntent(text: String): Boolean {
+        val norm = text.lowercase().trim()
+
+        if (norm.startsWith("ask ai") || norm.startsWith("ai ") || norm.startsWith("hey ai") ||
+            norm.startsWith("ask gemini") || norm.startsWith("sahey") || norm == "ask ai") {
+            return true
+        }
+
+        val triggers = listOf(
+            "what do you see",
+            "what can you see",
+            "describe this",
+            "describe the scene",
+            "describe what is in front",
+            "describe what's in front",
+            "explain what is in front",
+            "explain what's in front",
+            "tell me what is visible",
+            "what is this",
+            "what is that",
+            "read this",
+            "read that",
+            "what does this say",
+            "what does that say",
+            "read that sign",
+            "read this sign",
+            "what is in front of me",
+            "what's in front of me",
+            "what is around me",
+            "what's around me",
+            "what is on the left",
+            "what is on the right",
+            "what is on the table",
+            "is that dangerous",
+            "is there any danger",
+            "what color is",
+            "is there anyone",
+            "is anyone in front",
+            "tell me more"
+        )
+
+        for (trigger in triggers) {
+            if (norm.contains(trigger)) return true
+        }
+
+        if (norm.startsWith("what is") || norm.startsWith("what are") || norm.startsWith("who is") ||
+            norm.startsWith("where is") || norm.startsWith("how many") || norm.startsWith("is there") ||
+            norm.startsWith("can you read") || norm.startsWith("can you tell") || norm.startsWith("tell me about")) {
+            return true
+        }
+
+        return false
+    }
+
+    private fun cleanAiQuery(text: String): String {
+        var clean = text.trim()
+        val lower = clean.lowercase()
+
+        if (lower == "ask ai" || lower == "ai" || lower == "hey ai" || lower == "describe" || lower == "describe this") {
+            return "Describe what is around the user in 1-2 concise sentences for a visually impaired person."
+        }
+
+        if (lower.startsWith("ask ai what do you see") || lower.startsWith("what do you see") || lower == "what do you see?") {
+            return "Describe what you see in front of the user clearly and concisely."
+        }
+
+        if (lower.startsWith("ask ai") || lower.startsWith("hey ai")) {
+            clean = clean.replace(Regex("^(?i)(ask ai|hey ai|sahey|gemini)[,:\\s]*"), "").trim()
+        }
+
+        if (clean.isBlank()) {
+            return "Describe what is around the user in 1-2 concise sentences for a visually impaired person."
+        }
+
+        return clean
     }
 
     override fun onSpeechPartial(partialText: String) {

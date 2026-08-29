@@ -16,6 +16,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.accessibility.detector.R
 import com.accessibility.detector.core.DetectionResult
+import com.accessibility.detector.core.EventPriority
 import com.accessibility.detector.core.PerceptionEvent
 import com.accessibility.detector.core.PerceptionType
 import com.accessibility.detector.core.PermissionManager
@@ -99,10 +100,10 @@ class VisionAssistActivity : AppCompatActivity(), VisionUiCallback {
             orchestrator.setSignMode(false)
         }
 
-        // Ask Gemini AI Button
+        // Ask Gemini AI Button (Real Multimodal Visual Q&A)
         binding.btnAskGemini.setOnClickListener {
             orchestrator.hapticManager.playNormalPulse()
-            orchestrator.askGeminiWhatIsAroundMe()
+            orchestrator.askGeminiVisionWithPrompt("Describe what you see in the scene for a visually impaired user.")
         }
 
         // Scan & Read Text Button
@@ -278,9 +279,29 @@ class VisionAssistActivity : AppCompatActivity(), VisionUiCallback {
                 else -> "👁️"
             }
 
+            val detailMessage = when (event.type) {
+                PerceptionType.DANGER -> {
+                    val level = when {
+                        event.priority >= EventPriority.CRITICAL -> "Critical danger"
+                        event.priority >= EventPriority.DANGER -> "High danger"
+                        else -> "Caution"
+                    }
+                    val label = event.label.ifBlank { "Hazard detected" }.replaceFirstChar { it.uppercase() }
+                    "⚠️ $label — $level"
+                }
+                PerceptionType.OBJECT -> {
+                    val label = event.label.ifBlank { "Item" }.replaceFirstChar { it.uppercase() }
+                    "Object Identified • $label"
+                }
+                PerceptionType.TEXT -> "Text Recognized • OCR Active"
+                PerceptionType.SIGN -> "Sign Gesture • ${event.label.ifBlank { "Detected" }}"
+                PerceptionType.SOUND -> "Sound Alert • ${event.label.ifBlank { "Environmental Audio" }}"
+                else -> "Live Assistant Active"
+            }
+
             binding.tvLiveLabel.text = "$icon ${event.spokenText}"
             binding.tvLiveLabel.setTextColor(color)
-            binding.tvDetailText.text = "Perception: ${event.type.name} • Pri: ${event.priority}"
+            binding.tvDetailText.text = detailMessage
         }
     }
 
@@ -334,15 +355,57 @@ class VisionAssistActivity : AppCompatActivity(), VisionUiCallback {
         }
     }
 
-    override fun onGeminiReasoningStatus(isAnalyzing: Boolean, statusMessage: String) {
+    override fun onAiStateChanged(state: com.accessibility.detector.vision.VisionAiState, message: String, detail: String) {
         runOnUiThread {
-            if (isAnalyzing) {
-                binding.geminiStatusBanner.visibility = View.VISIBLE
-                binding.tvGeminiStatus.text = statusMessage
-            } else {
-                binding.geminiStatusBanner.visibility = View.GONE
+            when (state) {
+                com.accessibility.detector.vision.VisionAiState.LISTENING -> {
+                    binding.tvLiveLabel.text = "🎙️ Listening..."
+                    binding.tvLiveLabel.setTextColor(ContextCompat.getColor(this, R.color.primary_blue))
+                    binding.tvDetailText.text = "Ask \"What do you see?\" or any question"
+                    binding.geminiStatusBanner.visibility = View.GONE
+                }
+                com.accessibility.detector.vision.VisionAiState.CAPTURING -> {
+                    binding.tvLiveLabel.text = "📷 Capturing scene..."
+                    binding.tvLiveLabel.setTextColor(ContextCompat.getColor(this, R.color.accent_cyan))
+                    binding.tvDetailText.text = "Capturing fresh camera frame..."
+                    binding.geminiStatusBanner.visibility = View.VISIBLE
+                    binding.tvGeminiStatus.text = "📷 Capturing fresh camera frame..."
+                }
+                com.accessibility.detector.vision.VisionAiState.ANALYZING -> {
+                    binding.tvLiveLabel.text = "🤖 Analyzing with AI..."
+                    binding.tvLiveLabel.setTextColor(ContextCompat.getColor(this, R.color.accent_purple))
+                    binding.tvDetailText.text = "Google Gemini Multimodal Analysis"
+                    binding.geminiStatusBanner.visibility = View.VISIBLE
+                    binding.tvGeminiStatus.text = "🤖 Analyzing scene with Gemini AI..."
+                }
+                com.accessibility.detector.vision.VisionAiState.RESPONDING -> {
+                    binding.tvLiveLabel.text = "🔊 Speaking..."
+                    binding.tvLiveLabel.setTextColor(ContextCompat.getColor(this, R.color.accent_green))
+                    binding.tvDetailText.text = detail
+                    binding.geminiStatusBanner.visibility = View.VISIBLE
+                    binding.tvGeminiStatus.text = "AI: $detail"
+                }
+                com.accessibility.detector.vision.VisionAiState.ERROR -> {
+                    binding.tvLiveLabel.text = "⚠️ I couldn't analyze the scene. Please try again."
+                    binding.tvLiveLabel.setTextColor(ContextCompat.getColor(this, R.color.accent_red))
+                    binding.tvDetailText.text = "AI scene analysis is currently unavailable."
+                    binding.geminiStatusBanner.visibility = View.VISIBLE
+                    binding.tvGeminiStatus.text = "⚠️ Gemini Vision is unavailable"
+                }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (PermissionManager.hasVisionPermissions(this)) {
+            orchestrator.startListening()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        orchestrator.stopListening()
     }
 
     override fun onDestroy() {

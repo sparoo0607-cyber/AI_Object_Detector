@@ -18,6 +18,21 @@
         <item name="android:navigationBarColor">@color/window_background</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
         <item name="android:windowBackground">@color/window_background</item>
-        <item name="android:colorBackground">@color/window_background</item>
+        <!-- Typography Theme Defaults -->
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="textAppearanceHeadline1">@style/TextAppearance.Sahey.DisplayLarge</item>
+        <item name="textAppearanceHeadline2">@style/TextAppearance.Sahey.DisplayMedium</item>
+        <item name="textAppearanceHeadline5">@style/TextAppearance.Sahey.Headline</item>
+        <item name="textAppearanceHeadline6">@style/TextAppearance.Sahey.HeadlineSmall</item>
+        <item name="textAppearanceSubtitle1">@style/TextAppearance.Sahey.Title</item>
+        <item name="textAppearanceSubtitle2">@style/TextAppearance.Sahey.TitleMedium</item>
+        <item name="textAppearanceBody1">@style/TextAppearance.Sahey.Body</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.Sahey.BodySecondary</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.Sahey.Caption</item>
+        <item name="textAppearanceButton">@style/TextAppearance.Sahey.ButtonPrimary</item>
+        <item name="textAppearanceOverline">@style/TextAppearance.Sahey.SectionHeader</item>
     </style>
 </resources>

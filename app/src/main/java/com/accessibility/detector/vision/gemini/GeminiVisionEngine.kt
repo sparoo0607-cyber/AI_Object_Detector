@@ -64,10 +64,15 @@ class GeminiVisionEngine(
                     }
 
                     Log.d(TAG_VISION_DEBUG, "VISION_AI: Sending selected frame to Gemini Vision...")
-                    val rawJson = service.analyzeImage(base64Jpeg, prompt)
+                    val result = service.analyzeImage(
+                        base64Jpeg = base64Jpeg,
+                        prompt = prompt,
+                        systemInstructionText = GeminiConfig.SYSTEM_PROMPT,
+                        asJson = true
+                    )
 
-                    if (!rawJson.isNullOrBlank()) {
-                        val parsed = GeminiResponseParser.parse(rawJson)
+                    if (result is GeminiCallResult.Success) {
+                        val parsed = GeminiResponseParser.parse(result.text)
                         if (parsed != null && parsed.dangerDetected) {
                             val signature = "${parsed.dangerType}_${parsed.direction}"
                             val timeSinceLast = now - lastAnnouncedDangerTime
@@ -132,14 +137,17 @@ class GeminiVisionEngine(
     }
 
     /**
-     * User-requested Visual Q&A (e.g. "What is around me?" or "Is there any danger?").
+     * Primary Multimodal Voice & Visual Q&A function powered by the REAL Google Gemini API.
+     * Takes the fresh camera frame and user's spoken question/command, performs accessibility reasoning,
+     * and returns the exact spoken answer.
      */
-    fun askAi(
+    fun askGeminiVision(
         bitmap: Bitmap,
-        question: String = "Describe what is around the user in 1-2 concise sentences for a visually impaired person.",
-        onResult: (PerceptionEvent?) -> Unit
+        question: String,
+        onResult: (answer: String, isHazard: Boolean, isSuccess: Boolean) -> Unit
     ) {
         if (isBusy) {
+            Log.d(TAG_VISION_DEBUG, "Gemini Vision request skipped: already processing an active request.")
             return
         }
 
@@ -149,31 +157,82 @@ class GeminiVisionEngine(
         scope.launch {
             try {
                 val base64Jpeg = compressBitmapToBase64(bitmap)
-                Log.d(TAG_VISION_DEBUG, "VISION_AI: User Ask AI query: \"$question\"")
+                Log.d(TAG_VISION_DEBUG, "VISION_AI: Calling Google Gemini API with user query: \"$question\"")
 
-                val rawJson = service.analyzeImage(base64Jpeg, question)
-                if (!rawJson.isNullOrBlank()) {
-                    val parsed = GeminiResponseParser.parse(rawJson)
-                    if (parsed != null) {
-                        Log.d(TAG_VISION_DEBUG, "GEMINI Ask AI Result: \"${parsed.message}\"")
-                        val event = GeminiResponseParser.toPerceptionEvent(parsed)
-                        withContext(Dispatchers.Main) {
-                            onResult(event)
+                val result = service.analyzeImage(
+                    base64Jpeg = base64Jpeg,
+                    prompt = question,
+                    systemInstructionText = GeminiConfig.ACCESSIBILITY_SYSTEM_PROMPT,
+                    asJson = false
+                )
+
+                when (result) {
+                    is GeminiCallResult.Success -> {
+                        var text = result.text.trim()
+                        if (text.startsWith("```json")) {
+                            text = text.removePrefix("```json").trim()
                         }
-                        return@launch
+                        if (text.startsWith("```")) {
+                            text = text.removePrefix("```").trim()
+                        }
+                        if (text.endsWith("```")) {
+                            text = text.removeSuffix("```").trim()
+                        }
+                        if (text.startsWith("{") && text.contains("\"message\"")) {
+                            try {
+                                val json = org.json.JSONObject(text)
+                                text = json.optString("message", text)
+                            } catch (ignored: Exception) {}
+                        }
+
+                        val lower = text.lowercase()
+                        val isHazard = lower.contains("warning") || lower.contains("danger") ||
+                                lower.contains("hazard") || lower.contains("fire") || lower.contains("smoke") ||
+                                lower.contains("caution") || lower.contains("obstacle") || lower.contains("approaching")
+
+                        Log.d(TAG_VISION_DEBUG, "Gemini Vision Response: \"$text\" (Hazard=$isHazard)")
+                        withContext(Dispatchers.Main) {
+                            onResult(text, isHazard, true)
+                        }
+                    }
+                    is GeminiCallResult.Error -> {
+                        Log.w(TAG, "Gemini Vision API error: ${result.message}")
+                        withContext(Dispatchers.Main) {
+                            onResult("AI scene analysis is currently unavailable.", false, false)
+                        }
                     }
                 }
-
-                withContext(Dispatchers.Main) {
-                    onResult(null)
-                }
             } catch (e: Exception) {
-                Log.w(TAG, "Ask AI error: ${e.message}")
+                Log.e(TAG, "Error in Gemini Vision reasoning: ${e.message}")
                 withContext(Dispatchers.Main) {
-                    onResult(null)
+                    onResult("AI scene analysis is currently unavailable.", false, false)
                 }
             } finally {
                 isBusy = false
+            }
+        }
+    }
+
+    /**
+     * User-requested Visual Q&A (e.g. "What is around me?" or "Is there any danger?").
+     */
+    fun askAi(
+        bitmap: Bitmap,
+        question: String = "Describe what is around the user in 1-2 concise sentences for a visually impaired person.",
+        onResult: (PerceptionEvent?) -> Unit
+    ) {
+        askGeminiVision(bitmap, question) { answer, isHazard, isSuccess ->
+            if (isSuccess && answer.isNotBlank()) {
+                val event = PerceptionEvent(
+                    type = if (isHazard) PerceptionType.DANGER else PerceptionType.OBJECT,
+                    label = if (isHazard) "AI Hazard" else "AI Vision",
+                    spokenText = answer,
+                    confidence = 0.95f,
+                    priority = if (isHazard) EventPriority.DANGER else EventPriority.OBJECT
+                )
+                onResult(event)
+            } else {
+                onResult(null)
             }
         }
     }

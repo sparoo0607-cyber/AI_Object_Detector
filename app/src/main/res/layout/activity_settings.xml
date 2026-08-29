@@ -76,116 +76,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- 1. Gemini Cloud AI Configuration Card (Matching Reference Screen 4 Top) -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="18dp"
-            app:cardElevation="2dp"
-            app:strokeColor="@color/surface_border"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/ic_sparkle"
-                        app:tint="@color/primary_blue"
-                        android:contentDescription="Sparkle" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:text="Gemini Multimodal Cloud AI"
-                        android:textColor="@color/primary_blue"
-                        android:textSize="14sp"
-                        android:fontFamily="sans-serif-bold" />
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="Enter your Google Gemini API Key for deep visual reasoning and screen fire detection:"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp"
-                    android:lineSpacingExtra="1dp" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilApiKey"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:hint="Gemini API Key (AIzaSy...)"
-                    android:textColorHint="@color/text_muted"
-                    app:boxBackgroundColor="@color/window_background"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@color/primary_blue"
-                    app:passwordToggleEnabled="true"
-                    app:passwordToggleTint="@color/text_muted">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etApiKey"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="textPassword"
-                        android:maxLines="1"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSaveApiKey"
-                        android:layout_width="wrap_content"
-                        android:layout_height="40dp"
-                        android:text="SAVE API KEY"
-                        android:textColor="@color/white"
-                        android:fontFamily="sans-serif-bold"
-                        android:textSize="12sp"
-                        app:backgroundTint="@color/primary_blue"
-                        app:cornerRadius="10dp" />
-
-                    <Space
-                        android:layout_width="12dp"
-                        android:layout_height="wrap_content" />
-
-                    <TextView
-                        android:id="@+id/tvApiKeyStatus"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="✓ Not configured"
-                        android:textColor="@color/accent_green"
-                        android:textSize="12sp"
-                        android:fontFamily="sans-serif-bold" />
-                </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- 2. AI PERCEPTION MODULES Card (Matching Reference Screen 4 Middle) -->
+        <!-- 1. AI PERCEPTION MODULES Card (User-Facing Controls) -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -212,7 +103,7 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <!-- 1. Object Identification -->
+                <!-- 1. Object Recognition -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -231,7 +122,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="12dp"
-                        android:text="Object Identification (COCO)"
+                        android:text="Object Recognition"
                         android:textColor="@color/text_primary"
                         android:textSize="13.5sp"
                         android:fontFamily="sans-serif-medium" />
@@ -545,7 +436,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="Offline Languages (Google ML Kit)"
+                        android:text="Offline Language Packs"
                         android:textColor="@color/primary_blue"
                         android:textSize="14sp"
                         android:fontFamily="sans-serif-bold" />

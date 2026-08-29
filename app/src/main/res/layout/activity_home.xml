@@ -84,20 +84,22 @@
             android:gravity="center"
             android:text="SAHEY"
             android:textColor="@color/primary_blue"
-            android:textSize="40sp"
+            android:textSize="42sp"
             android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.04" />
+            android:letterSpacing="0.04"
+            android:includeFontPadding="false" />
 
         <!-- Tagline & Description -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="6dp"
             android:gravity="center"
             android:text="See it. Hear it. Understand it."
             android:textColor="@color/text_primary"
-            android:textSize="17sp"
-            android:fontFamily="sans-serif-bold" />
+            android:textSize="17.5sp"
+            android:fontFamily="sans-serif-bold"
+            android:letterSpacing="0.01" />
 
         <TextView
             android:layout_width="match_parent"
@@ -106,9 +108,9 @@
             android:gravity="center"
             android:text="AI-Powered Assistance for a\nMore Accessible World."
             android:textColor="@color/text_secondary"
-            android:textSize="13sp"
+            android:textSize="13.5sp"
             android:fontFamily="sans-serif-medium"
-            android:lineSpacingExtra="2dp" />
+            android:lineSpacingExtra="3dp" />
 
         <!-- Central Glowing AI Orb Graphic -->
         <FrameLayout
@@ -134,7 +136,7 @@
             android:layout_marginTop="28dp"
             android:text="GET STARTED     →"
             android:textColor="@color/white"
-            android:textSize="15sp"
+            android:textSize="14.5sp"
             android:fontFamily="sans-serif-black"
             android:letterSpacing="0.06"
             app:backgroundTint="@color/primary_blue"
@@ -177,9 +179,10 @@
                     android:text="VISION\nASSIST"
                     android:gravity="center_vertical"
                     android:textColor="@color/text_primary"
-                    android:textSize="10.5sp"
+                    android:textSize="11sp"
                     android:fontFamily="sans-serif-black"
-                    android:lineSpacingExtra="1dp" />
+                    android:letterSpacing="0.02"
+                    android:lineSpacingExtra="1.5dp" />
             </LinearLayout>
 
             <Space android:layout_width="8dp" android:layout_height="wrap_content" />
@@ -213,9 +216,10 @@
                     android:text="SOUND\nASSIST"
                     android:gravity="center_vertical"
                     android:textColor="@color/text_primary"
-                    android:textSize="10.5sp"
+                    android:textSize="11sp"
                     android:fontFamily="sans-serif-black"
-                    android:lineSpacingExtra="1dp" />
+                    android:letterSpacing="0.02"
+                    android:lineSpacingExtra="1.5dp" />
             </LinearLayout>
 
             <Space android:layout_width="8dp" android:layout_height="wrap_content" />
@@ -249,9 +253,10 @@
                     android:text="SPEAK &amp;\nTRANSLATE"
                     android:gravity="center_vertical"
                     android:textColor="@color/text_primary"
-                    android:textSize="10.5sp"
+                    android:textSize="11sp"
                     android:fontFamily="sans-serif-black"
-                    android:lineSpacingExtra="1dp" />
+                    android:letterSpacing="0.02"
+                    android:lineSpacingExtra="1.5dp" />
             </LinearLayout>
         </LinearLayout>
 

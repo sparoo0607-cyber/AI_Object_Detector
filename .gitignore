@@ -12,5 +12,8 @@ local.properties
 
 MP_Data*
 SignLanguageDetectionUsingML-main*
+Currency_Detection-master*
 *.zip
 *.apk
+.gradle/
+build/

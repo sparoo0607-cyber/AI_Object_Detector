@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- SAHEY Design System: Unified High-Legibility Typography -->
+
+    <!-- 1. Display & Hero Titles -->
+    <style name="TextAppearance.Sahey.DisplayLarge" parent="TextAppearance.MaterialComponents.Headline3">
+        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:textSize">38sp</item>
+        <item name="android:textColor">@color/primary_blue</item>
+        <item name="android:letterSpacing">0.03</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="TextAppearance.Sahey.DisplayMedium" parent="TextAppearance.MaterialComponents.Headline4">
+        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <!-- 2. Screen & Card Headlines -->
+    <style name="TextAppearance.Sahey.Headline" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="android:fontFamily">sans-serif-bold</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:lineSpacingExtra">2dp</item>
+    </style>
+
+    <style name="TextAppearance.Sahey.HeadlineSmall" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:fontFamily">sans-serif-bold</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <!-- 3. Section Badges & Overlines (Uppercase, Letterspaced) -->
+    <style name="TextAppearance.Sahey.SectionHeader" parent="TextAppearance.MaterialComponents.Overline">
+        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">@color/primary_blue</item>
+        <item name="android:letterSpacing">0.06</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <!-- 4. Titles & Row Labels -->
+    <style name="TextAppearance.Sahey.Title" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="android:fontFamily">sans-serif-bold</item>
+        <item name="android:textSize">14.5sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">0.005</item>
+    </style>
+
+    <style name="TextAppearance.Sahey.TitleMedium" parent="TextAppearance.MaterialComponents.Subtitle2">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">13.5sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <!-- 5. Body Text & Descriptions -->
+    <style name="TextAppearance.Sahey.Body" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:lineSpacingExtra">3dp</item>
+    </style>
+
+    <style name="TextAppearance.Sahey.BodySecondary" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:lineSpacingExtra">2dp</item>
+    </style>
+
+    <style name="TextAppearance.Sahey.Caption" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">@color/text_muted</item>
+    </style>
+
+    <!-- 6. Real-time Live Transcription & Captions (Ultra-High Legibility) -->
+    <style name="TextAppearance.Sahey.Transcription" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">17.5sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:lineSpacingExtra">5dp</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <!-- 7. Vision HUD Alert Label -->
+    <style name="TextAppearance.Sahey.HudLiveLabel" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:textSize">19sp</item>
+        <item name="android:textColor">@color/primary_blue</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:lineSpacingExtra">2dp</item>
+    </style>
+
+    <style name="TextAppearance.Sahey.HudDetail" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:fontFamily">sans-serif-bold</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <!-- 8. Interactive Buttons -->
+    <style name="TextAppearance.Sahey.ButtonPrimary" parent="TextAppearance.MaterialComponents.Button">
+        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:letterSpacing">0.04</item>
+    </style>
+
+    <style name="TextAppearance.Sahey.ButtonSmall" parent="TextAppearance.MaterialComponents.Button">
+        <item name="android:fontFamily">sans-serif-bold</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+</resources>

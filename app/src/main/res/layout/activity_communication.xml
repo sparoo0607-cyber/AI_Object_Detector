@@ -71,7 +71,7 @@
                     android:id="@+id/tvTranslationStatusBadge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🟢 Offline ML Kit Translation Available"
+                    android:text="🟢 Offline Real-Time Translation Ready"
                     android:textColor="@color/accent_green"
                     android:textSize="11sp"
                     android:fontFamily="sans-serif-medium" />
@@ -236,8 +236,9 @@
                     android:hint="Type what you want to say..."
                     android:textColorHint="@color/text_muted"
                     android:textColor="@color/text_primary"
-                    android:textSize="17sp"
+                    android:textSize="17.5sp"
                     android:fontFamily="sans-serif-medium"
+                    android:lineSpacingExtra="4dp"
                     android:background="@android:color/transparent"
                     android:inputType="textMultiLine|textCapSentences" />
 
@@ -352,9 +353,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="Translated speech will appear and play here."
-                    android:textColor="@color/text_secondary"
-                    android:textSize="15sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:textColor="@color/text_primary"
+                    android:textSize="16.5sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:lineSpacingExtra="4dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -386,7 +388,8 @@
                 android:text="🆘 I NEED HELP"
                 android:textColor="@color/white"
                 android:fontFamily="sans-serif-bold"
-                android:textSize="10.5sp"
+                android:textSize="11sp"
+                android:letterSpacing="0.01"
                 app:backgroundTint="@color/accent_red"
                 app:cornerRadius="10dp" />
 
@@ -399,7 +402,8 @@
                 android:text="💧 NEED WATER"
                 android:textColor="@color/white"
                 android:fontFamily="sans-serif-bold"
-                android:textSize="10.5sp"
+                android:textSize="11sp"
+                android:letterSpacing="0.01"
                 app:backgroundTint="@color/primary_blue"
                 app:cornerRadius="10dp" />
 
@@ -412,7 +416,8 @@
                 android:text="🍲 NEED FOOD"
                 android:textColor="@color/black"
                 android:fontFamily="sans-serif-bold"
-                android:textSize="10.5sp"
+                android:textSize="11sp"
+                android:letterSpacing="0.01"
                 app:backgroundTint="@color/accent_yellow"
                 app:cornerRadius="10dp" />
 
@@ -425,7 +430,8 @@
                 android:text="🏥 HOSPITAL"
                 android:textColor="@color/white"
                 android:fontFamily="sans-serif-bold"
-                android:textSize="10.5sp"
+                android:textSize="11sp"
+                android:letterSpacing="0.01"
                 app:backgroundTint="@color/accent_pink"
                 app:cornerRadius="10dp" />
 
@@ -438,7 +444,8 @@
                 android:text="🙏 THANK YOU"
                 android:textColor="@color/white"
                 android:fontFamily="sans-serif-bold"
-                android:textSize="10.5sp"
+                android:textSize="11sp"
+                android:letterSpacing="0.01"
                 app:backgroundTint="@color/accent_green"
                 app:cornerRadius="10dp" />
 
