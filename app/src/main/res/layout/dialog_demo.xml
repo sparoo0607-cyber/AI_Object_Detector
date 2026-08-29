@@ -4,24 +4,40 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/card_background"
+    android:background="@drawable/card_white_rounded"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="22dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_demo"
+            app:tint="@color/primary_blue"
+            android:contentDescription="Demo" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:text="System Health &amp; Subsystems"
+            android:textColor="@color/text_primary"
+            android:textSize="17sp"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.02" />
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="🛠️ System Health &amp; Demo Panel"
-        android:textColor="@color/accent_cyan"
-        android:textSize="17sp"
-        android:fontFamily="sans-serif-black"
-        android:letterSpacing="0.04" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
-        android:text="Test each AI perception module on demand."
+        android:layout_marginTop="4dp"
+        android:text="Test and simulate each AI perception subsystem on demand."
         android:textColor="@color/text_secondary"
         android:textSize="12.5sp"
         android:fontFamily="sans-serif-medium" />
@@ -30,13 +46,15 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginVertical="12dp"
-        android:background="@color/surface_border" />
+        android:background="@color/surface_border_subtle" />
 
     <!-- Subsystem Health Indicators -->
     <TextView
         android:id="@+id/tvSubsystemStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/pill_status_active"
+        android:padding="12dp"
         android:text="● Vision: ACTIVE  ● Danger: ACTIVE  ● OCR: ACTIVE\n● Sound: ACTIVE   ● Sign: ACTIVE    ● Speech: ACTIVE\n● Translation: ACTIVE"
         android:textColor="@color/accent_green"
         android:textSize="11.5sp"
@@ -47,16 +65,16 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginVertical="12dp"
-        android:background="@color/surface_border" />
+        android:background="@color/surface_border_subtle" />
 
     <!-- Demo Action Buttons -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnDemoDanger"
         android:layout_width="match_parent"
-        android:layout_height="46dp"
+        android:layout_height="48dp"
         android:text="🚨 Test Danger: Approaching Vehicle (Left)"
         android:textColor="@color/white"
-        android:fontFamily="sans-serif-medium"
+        android:fontFamily="sans-serif-bold"
         android:textSize="12sp"
         app:backgroundTint="@color/accent_red"
         app:cornerRadius="12dp" />
@@ -64,49 +82,48 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnDemoSiren"
         android:layout_width="match_parent"
-        android:layout_height="46dp"
+        android:layout_height="48dp"
         android:layout_marginTop="8dp"
         android:text="🔊 Test Sound: Emergency Siren Alert"
         android:textColor="@color/white"
-        android:fontFamily="sans-serif-medium"
+        android:fontFamily="sans-serif-bold"
         android:textSize="12sp"
-        app:backgroundTint="@color/accent_blue"
+        app:backgroundTint="@color/primary_blue"
         app:cornerRadius="12dp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnDemoSign"
         android:layout_width="match_parent"
-        android:layout_height="46dp"
+        android:layout_height="48dp"
         android:layout_marginTop="8dp"
         android:text="🤟 Test Sign: 'Thank You' Gesture"
-        android:textColor="@color/black"
-        android:fontFamily="sans-serif-medium"
-        android:textStyle="bold"
-        android:textSize="12sp"
-        app:backgroundTint="@color/accent_cyan"
-        app:cornerRadius="12dp" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnDemoTranslate"
-        android:layout_width="match_parent"
-        android:layout_height="46dp"
-        android:layout_marginTop="8dp"
-        android:text="🌍 Test Translation: 'Salida' → 'Exit'"
         android:textColor="@color/white"
-        android:fontFamily="sans-serif-medium"
+        android:fontFamily="sans-serif-bold"
         android:textSize="12sp"
         app:backgroundTint="@color/accent_purple"
         app:cornerRadius="12dp" />
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDemoTranslate"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:text="🌍 Test Translation: 'Salida' → 'Exit'"
+        android:textColor="@color/white"
+        android:fontFamily="sans-serif-bold"
+        android:textSize="12sp"
+        app:backgroundTint="@color/primary_blue"
+        app:cornerRadius="12dp" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnDismissDemo"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
-        android:layout_marginTop="12dp"
+        android:layout_height="46dp"
+        android:layout_marginTop="14dp"
         android:text="Close"
-        android:textColor="@color/white"
-        android:fontFamily="sans-serif-medium"
-        app:backgroundTint="@color/surface_dark"
+        android:textColor="@color/text_primary"
+        android:fontFamily="sans-serif-bold"
+        app:backgroundTint="@color/white"
         app:cornerRadius="12dp"
         app:strokeColor="@color/surface_border"
         app:strokeWidth="1dp" />

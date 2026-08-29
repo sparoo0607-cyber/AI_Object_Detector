@@ -1,0 +1,23 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Chat Bubble Body -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M24,6 C14.06,6 6,13.16 6,22 C6,26.54 8.16,30.61 11.66,33.56 L10.2,40.48 C10.02,41.34 10.94,42 11.68,41.52 L19.46,36.56 C20.91,37.16 22.42,37.5 24,37.5 C33.94,37.5 42,30.34 42,21.5 C42,12.66 33.94,6 24,6 Z" />
+    <!-- Audio Wave Bars inside Bubble (colored primary blue) -->
+    <path
+        android:fillColor="#FF1D68FF"
+        android:pathData="M16,19 A2,2 0 0,0 14,21 L14,24 A2,2 0 0,0 18,24 L18,21 A2,2 0 0,0 16,19 Z" />
+    <path
+        android:fillColor="#FF1D68FF"
+        android:pathData="M21,15 A2,2 0 0,0 19,17 L19,28 A2,2 0 0,0 23,28 L23,17 A2,2 0 0,0 21,15 Z" />
+    <path
+        android:fillColor="#FF1D68FF"
+        android:pathData="M27,13 A2,2 0 0,0 25,15 L25,30 A2,2 0 0,0 29,30 L29,15 A2,2 0 0,0 27,13 Z" />
+    <path
+        android:fillColor="#FF1D68FF"
+        android:pathData="M32,18 A2,2 0 0,0 30,20 L30,25 A2,2 0 0,0 34,25 L34,20 A2,2 0 0,0 32,18 Z" />
+</vector>

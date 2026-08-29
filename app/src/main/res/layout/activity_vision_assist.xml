@@ -28,7 +28,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Top Floating Navigation Bar -->
+    <!-- Top Floating Navigation Bar (Matching Reference Header Style) -->
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="0dp"
@@ -51,14 +51,15 @@
             android:insetTop="0dp"
             android:insetRight="0dp"
             android:insetBottom="0dp"
-            app:cornerRadius="14dp"
-            app:backgroundTint="@color/surface_glass"
+            app:cornerRadius="22dp"
+            app:backgroundTint="@color/white"
             app:icon="@drawable/ic_back_arrow"
-            app:iconTint="@color/white"
+            app:iconTint="@color/text_primary"
             app:iconSize="20dp"
             app:iconGravity="textStart"
             app:strokeColor="@color/surface_border"
             app:strokeWidth="1dp"
+            app:elevation="3dp"
             android:contentDescription="Go back to Home Screen" />
 
         <Space
@@ -70,17 +71,17 @@
             android:layout_width="0dp"
             android:layout_height="44dp"
             android:layout_weight="1"
-            android:background="@drawable/pill_background"
-            android:backgroundTint="@color/surface_glass"
+            android:background="@drawable/card_white_rounded"
+            android:elevation="3dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingHorizontal="14dp">
 
             <View
-                android:layout_width="7dp"
-                android:layout_height="7dp"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
                 android:background="@drawable/pill_background"
-                android:backgroundTint="@color/accent_green"
+                android:backgroundTint="@color/primary_blue"
                 android:layout_marginEnd="8dp" />
 
             <TextView
@@ -108,14 +109,15 @@
             android:insetTop="0dp"
             android:insetRight="0dp"
             android:insetBottom="0dp"
-            app:cornerRadius="14dp"
-            app:backgroundTint="@color/surface_glass"
+            app:cornerRadius="22dp"
+            app:backgroundTint="@color/white"
             app:icon="@drawable/ic_sign"
-            app:iconTint="@color/accent_cyan"
+            app:iconTint="@color/accent_purple"
             app:iconSize="20dp"
             app:iconGravity="textStart"
-            app:strokeColor="@color/accent_cyan_border"
+            app:strokeColor="@color/surface_border"
             app:strokeWidth="1dp"
+            app:elevation="3dp"
             android:contentDescription="Toggle Sign Language Mode" />
 
         <Space
@@ -132,14 +134,15 @@
             android:insetTop="0dp"
             android:insetRight="0dp"
             android:insetBottom="0dp"
-            app:cornerRadius="14dp"
-            app:backgroundTint="@color/surface_glass"
+            app:cornerRadius="22dp"
+            app:backgroundTint="@color/white"
             app:icon="@drawable/ic_shield"
             app:iconTint="@color/accent_red"
             app:iconSize="20dp"
             app:iconGravity="textStart"
-            app:strokeColor="@color/accent_red_border"
+            app:strokeColor="@color/surface_border"
             app:strokeWidth="1dp"
+            app:elevation="3dp"
             android:contentDescription="Toggle Emergency Hazard Safety Shield" />
 
         <Space
@@ -156,12 +159,13 @@
             android:insetTop="0dp"
             android:insetRight="0dp"
             android:insetBottom="0dp"
-            app:cornerRadius="14dp"
-            app:backgroundTint="@color/accent_green"
+            app:cornerRadius="22dp"
+            app:backgroundTint="@color/primary_blue"
             app:icon="@drawable/ic_speaker"
-            app:iconTint="@color/black"
+            app:iconTint="@color/white"
             app:iconSize="20dp"
             app:iconGravity="textStart"
+            app:elevation="3dp"
             android:contentDescription="Mute or Unmute Voice Output" />
     </LinearLayout>
 
@@ -172,20 +176,21 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="10dp"
-        android:background="@drawable/pill_accent_cyan"
+        android:background="@drawable/card_white_rounded"
+        android:elevation="4dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingHorizontal="14dp"
-        android:paddingVertical="9dp"
+        android:paddingVertical="10dp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/topBar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <ProgressBar
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:indeterminateTint="@color/accent_cyan_glow" />
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:indeterminateTint="@color/primary_blue" />
 
         <TextView
             android:id="@+id/tvGeminiStatus"
@@ -193,9 +198,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:text="Gemini AI is analyzing the scene..."
-            android:textColor="@color/accent_cyan_glow"
-            android:textSize="12.5sp"
-            android:fontFamily="sans-serif-medium" />
+            android:textColor="@color/primary_blue"
+            android:textSize="13sp"
+            android:fontFamily="sans-serif-bold" />
     </LinearLayout>
 
     <!-- 🤟 DEDICATED SIGN LANGUAGE SENTENCE BUILDER CARD -->
@@ -205,10 +210,10 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="10dp"
-        app:cardBackgroundColor="@color/surface_glass"
-        app:cardCornerRadius="22dp"
-        app:cardElevation="0dp"
-        app:strokeColor="@color/accent_cyan"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="6dp"
+        app:strokeColor="@color/accent_purple"
         app:strokeWidth="1.5dp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/geminiStatusBanner"
@@ -232,7 +237,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="🤟 SIGN SENTENCE BUILDER"
-                    android:textColor="@color/accent_cyan"
+                    android:textColor="@color/accent_purple"
                     android:textSize="12sp"
                     android:fontFamily="sans-serif-black"
                     android:letterSpacing="0.05" />
@@ -241,13 +246,13 @@
                     android:id="@+id/tvCurrentSignBadge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/pill_accent_cyan"
+                    android:background="@drawable/pill_accent_purple"
                     android:paddingHorizontal="10dp"
                     android:paddingVertical="4dp"
                     android:text="Sign: Ready"
-                    android:textColor="@color/accent_cyan_glow"
+                    android:textColor="@color/accent_purple"
                     android:textSize="11.5sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="sans-serif-bold" />
             </LinearLayout>
 
             <!-- Live Accumulated Sentence Text -->
@@ -260,14 +265,14 @@
                 android:text="Show sign gestures to the camera — words will assemble into sentences here..."
                 android:textColor="@color/text_primary"
                 android:textSize="18sp"
-                android:fontFamily="sans-serif-medium"
+                android:fontFamily="sans-serif-bold"
                 android:lineSpacingExtra="3dp" />
 
             <!-- Sentence Action Buttons -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="14dp"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
@@ -276,11 +281,10 @@
                     android:layout_height="44dp"
                     android:layout_weight="1.3"
                     android:text="🔊 Speak Sentence"
-                    android:textColor="@color/black"
-                    android:fontFamily="sans-serif-medium"
-                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:fontFamily="sans-serif-bold"
                     android:textSize="12sp"
-                    app:backgroundTint="@color/accent_cyan"
+                    app:backgroundTint="@color/accent_purple"
                     app:cornerRadius="12dp" />
 
                 <Space
@@ -293,9 +297,9 @@
                     android:layout_height="44dp"
                     android:layout_weight="1"
                     android:text="Clear"
-                    android:textColor="@color/white"
+                    android:textColor="@color/text_primary"
                     android:textSize="12sp"
-                    app:backgroundTint="@color/surface_dark"
+                    app:backgroundTint="@color/white"
                     app:strokeColor="@color/surface_border"
                     app:strokeWidth="1dp"
                     app:cornerRadius="12dp" />
@@ -312,7 +316,7 @@
                     android:text="Exit"
                     android:textColor="@color/accent_red"
                     android:textSize="12sp"
-                    app:backgroundTint="@color/surface_dark"
+                    app:backgroundTint="@color/white"
                     app:strokeColor="@color/surface_border"
                     app:strokeWidth="1dp"
                     app:cornerRadius="12dp" />
@@ -327,8 +331,8 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="10dp"
-        android:background="@drawable/card_background"
-        android:backgroundTint="@color/surface_glass"
+        android:background="@drawable/card_white_rounded"
+        android:elevation="6dp"
         android:orientation="vertical"
         android:padding="16dp"
         android:visibility="gone"
@@ -343,8 +347,7 @@
             android:text="📖 Text detected. Would you like me to read it?"
             android:textColor="@color/accent_yellow"
             android:textSize="16sp"
-            android:fontFamily="sans-serif-medium"
-            android:textStyle="bold" />
+            android:fontFamily="sans-serif-bold" />
 
         <TextView
             android:layout_width="match_parent"
@@ -366,9 +369,8 @@
                 android:layout_height="42dp"
                 android:layout_weight="1"
                 android:text="Read Now"
-                android:textColor="@color/black"
-                android:fontFamily="sans-serif-medium"
-                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:fontFamily="sans-serif-bold"
                 android:textSize="12sp"
                 app:backgroundTint="@color/accent_yellow"
                 app:cornerRadius="12dp" />
@@ -383,16 +385,16 @@
                 android:layout_height="42dp"
                 android:layout_weight="1"
                 android:text="Cancel"
-                android:textColor="@color/white"
+                android:textColor="@color/text_primary"
                 android:textSize="12sp"
-                app:backgroundTint="@color/surface_dark"
+                app:backgroundTint="@color/white"
                 app:strokeColor="@color/surface_border"
                 app:strokeWidth="1dp"
                 app:cornerRadius="12dp" />
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Bottom Status Card & Actions -->
+    <!-- Bottom Status Card & Actions (Clean White Glass HUD) -->
     <LinearLayout
         android:id="@+id/bottomSection"
         android:layout_width="0dp"
@@ -408,8 +410,8 @@
             android:id="@+id/bottomCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/card_background"
-            android:backgroundTint="@color/surface_glass"
+            android:background="@drawable/card_white_rounded"
+            android:elevation="6dp"
             android:orientation="vertical"
             android:padding="16dp">
 
@@ -418,8 +420,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/status_scanning"
-                android:textColor="@color/accent_green"
-                android:textSize="20sp"
+                android:textColor="@color/primary_blue"
+                android:textSize="19sp"
                 android:fontFamily="sans-serif-black"
                 android:maxLines="2"
                 android:ellipsize="end" />
@@ -446,34 +448,34 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAskGemini"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+                android:layout_height="52dp"
                 android:layout_weight="1.2"
                 android:text="🤖 Ask AI (Scene)"
-                android:textColor="@color/black"
-                android:fontFamily="sans-serif-medium"
-                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:fontFamily="sans-serif-bold"
                 android:textSize="13.5sp"
-                app:backgroundTint="@color/accent_cyan"
-                app:cornerRadius="25dp"
+                app:backgroundTint="@color/primary_blue"
+                app:cornerRadius="26dp"
+                app:elevation="4dp"
                 android:contentDescription="Ask Gemini Visual AI to describe everything around you" />
 
             <Space
-                android:layout_width="8dp"
+                android:layout_width="10dp"
                 android:layout_height="wrap_content" />
 
             <!-- 2. Scan & Read Text Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnForceReadText"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+                android:layout_height="52dp"
                 android:layout_weight="1"
                 android:text="📖 Read Text"
-                android:textColor="@color/black"
-                android:fontFamily="sans-serif-medium"
-                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:fontFamily="sans-serif-bold"
                 android:textSize="13.5sp"
                 app:backgroundTint="@color/accent_yellow"
-                app:cornerRadius="25dp"
+                app:cornerRadius="26dp"
+                app:elevation="4dp"
                 android:contentDescription="Read detected text out loud" />
         </LinearLayout>
     </LinearLayout>
@@ -485,7 +487,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="24dp"
         android:padding="28dp"
-        android:background="@drawable/card_background"
+        android:background="@drawable/card_white_rounded"
+        android:elevation="8dp"
         android:orientation="vertical"
         android:gravity="center"
         android:visibility="gone"
@@ -499,7 +502,7 @@
             android:layout_height="56dp"
             android:src="@drawable/ic_camera"
             android:contentDescription="Camera required"
-            app:tint="@color/accent_green" />
+            app:tint="@color/primary_blue" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -527,9 +530,9 @@
             android:layout_marginTop="20dp"
             android:text="@string/grant_permission"
             android:textSize="14sp"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="@color/black"
-            app:backgroundTint="@color/accent_green"
+            android:fontFamily="sans-serif-bold"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/primary_blue"
             app:cornerRadius="14dp" />
     </LinearLayout>
 

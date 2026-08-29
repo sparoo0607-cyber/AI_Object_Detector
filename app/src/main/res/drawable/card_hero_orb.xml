@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Outer Glow Ring -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#1A1D68FF" />
+            <size android:width="170dp" android:height="170dp" />
+        </shape>
+    </item>
+    <!-- Middle Ring -->
+    <item
+        android:top="12dp"
+        android:bottom="12dp"
+        android:left="12dp"
+        android:right="12dp">
+        <shape android:shape="oval">
+            <solid android:color="#331D68FF" />
+        </shape>
+    </item>
+    <!-- Inner Gradient Orb -->
+    <item
+        android:top="24dp"
+        android:bottom="24dp"
+        android:left="24dp"
+        android:right="24dp">
+        <shape android:shape="oval">
+            <gradient
+                android:startColor="#FF38BDF8"
+                android:centerColor="#FF1D68FF"
+                android:endColor="#FF0D52E0"
+                android:angle="270"
+                android:type="linear" />
+        </shape>
+    </item>
+</layer-list>

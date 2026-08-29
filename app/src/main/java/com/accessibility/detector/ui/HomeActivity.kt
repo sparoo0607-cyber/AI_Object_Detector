@@ -31,6 +31,12 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
+        // Primary Get Started CTA
+        binding.btnGetStarted.setOnClickListener {
+            hapticManager.playNormalPulse()
+            startActivity(Intent(this, VisionAssistActivity::class.java))
+        }
+
         // Category 1: Vision Assist
         binding.cardVisionAssist.setOnClickListener {
             hapticManager.playNormalPulse()

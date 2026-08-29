@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
+    android:background="@color/window_background"
     android:fillViewport="true">
 
     <LinearLayout
@@ -12,10 +12,10 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingHorizontal="18dp"
-        android:paddingTop="24dp"
-        android:paddingBottom="28dp">
+        android:paddingTop="20dp"
+        android:paddingBottom="24dp">
 
-        <!-- Top Header & Navigation -->
+        <!-- Top Header & Navigation Banner (Matching Reference Image) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -31,41 +31,49 @@
                 android:insetTop="0dp"
                 android:insetRight="0dp"
                 android:insetBottom="0dp"
-                app:cornerRadius="14dp"
-                app:backgroundTint="@color/surface_card"
+                app:cornerRadius="22dp"
+                app:backgroundTint="@color/white"
                 app:icon="@drawable/ic_back_arrow"
-                app:iconTint="@color/white"
+                app:iconTint="@color/text_primary"
                 app:iconSize="20dp"
                 app:iconGravity="textStart"
                 app:strokeColor="@color/surface_border"
                 app:strokeWidth="1dp"
+                app:elevation="2dp"
                 android:contentDescription="Back to Home" />
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/ic_mic"
+                app:tint="@color/accent_green"
+                android:contentDescription="Mic" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="14dp"
+                android:layout_marginStart="8dp"
                 android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="SOUND ASSIST"
-                    android:textColor="@color/accent_cyan"
-                    android:textSize="18sp"
+                    android:text="SOUND &amp; LANGUAGE ASSIST"
+                    android:textColor="@color/accent_green"
+                    android:textSize="14sp"
                     android:fontFamily="sans-serif-black"
-                    android:letterSpacing="0.04" />
+                    android:letterSpacing="0.02" />
 
-                <!-- Offline / Online Status -->
+                <!-- Status line -->
                 <TextView
                     android:id="@+id/tvSoundStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="1dp"
-                    android:text="🎙️ Active • Telugu Speech &amp; Sound Radar"
-                    android:textColor="@color/accent_green"
-                    android:textSize="11.5sp"
+                    android:text="Active • Listening for తెలుగు (Telugu) speech..."
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp"
                     android:fontFamily="sans-serif-medium" />
             </LinearLayout>
 
@@ -79,12 +87,15 @@
                 android:insetTop="0dp"
                 android:insetRight="0dp"
                 android:insetBottom="0dp"
-                app:cornerRadius="14dp"
-                app:backgroundTint="@color/accent_green"
+                app:cornerRadius="22dp"
+                app:backgroundTint="@color/accent_green_subtle"
                 app:icon="@drawable/ic_speaker"
-                app:iconTint="@color/black"
+                app:iconTint="@color/accent_green"
                 app:iconSize="20dp"
                 app:iconGravity="textStart"
+                app:strokeColor="@color/accent_green_border"
+                app:strokeWidth="1dp"
+                app:elevation="0dp"
                 android:contentDescription="Toggle Listening" />
         </LinearLayout>
 
@@ -93,11 +104,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:cardBackgroundColor="@color/surface_card"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="2dp"
             app:strokeColor="@color/surface_border"
-            app:strokeWidth="1.5dp">
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -125,15 +136,15 @@
                             android:textColor="@color/text_muted"
                             android:textSize="10sp"
                             android:fontFamily="sans-serif-black"
-                            android:letterSpacing="0.06" />
+                            android:letterSpacing="0.04" />
 
                         <Spinner
                             android:id="@+id/spnSpeechLanguage"
                             android:layout_width="match_parent"
                             android:layout_height="42dp"
                             android:layout_marginTop="4dp"
-                            android:background="@drawable/card_background"
-                            android:theme="@style/ThemeOverlay.AppCompat.Dark" />
+                            android:background="@drawable/card_white_rounded"
+                            android:theme="@style/ThemeOverlay.AppCompat.Light" />
                     </LinearLayout>
 
                     <Space
@@ -154,15 +165,15 @@
                             android:textColor="@color/text_muted"
                             android:textSize="10sp"
                             android:fontFamily="sans-serif-black"
-                            android:letterSpacing="0.06" />
+                            android:letterSpacing="0.04" />
 
                         <Spinner
                             android:id="@+id/spnRecognitionMode"
                             android:layout_width="match_parent"
                             android:layout_height="42dp"
                             android:layout_marginTop="4dp"
-                            android:background="@drawable/card_background"
-                            android:theme="@style/ThemeOverlay.AppCompat.Dark" />
+                            android:background="@drawable/card_white_rounded"
+                            android:theme="@style/ThemeOverlay.AppCompat.Light" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -172,22 +183,20 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:background="@drawable/pill_status_active"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="8dp">
+                    android:paddingHorizontal="4dp"
+                    android:paddingVertical="4dp">
 
                     <TextView
                         android:id="@+id/tvOfflineAsrBadge"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="🟢 Telugu Offline Speech Ready"
+                        android:text="🟢 Telugu Offline Ready"
                         android:textColor="@color/accent_green"
-                        android:textSize="11sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:textStyle="bold" />
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif-bold" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnDownloadVoiceModel"
@@ -195,47 +204,44 @@
                         android:layout_height="34dp"
                         android:layout_marginStart="8dp"
                         android:text="Download"
-                        android:textColor="@color/black"
+                        android:textColor="@color/white"
                         android:textSize="10.5sp"
                         android:fontFamily="sans-serif-bold"
-                        app:backgroundTint="@color/accent_yellow"
+                        app:backgroundTint="@color/accent_green"
                         app:cornerRadius="10dp"
                         android:visibility="gone" />
                 </LinearLayout>
+
+                <!-- Live Audio Level Meter -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvMicIndicator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🎙️ Mic Active"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <ProgressBar
+                        android:id="@+id/pbAudioLevel"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="8dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:max="100"
+                        android:progress="20"
+                        android:progressDrawable="@drawable/progress_meter_gradient" />
+                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-
-        <!-- Live Audio Level Meter -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="@drawable/card_background"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="10dp">
-
-            <TextView
-                android:id="@+id/tvMicIndicator"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🎙️ Mic Level:"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                android:fontFamily="sans-serif-medium" />
-
-            <ProgressBar
-                android:id="@+id/pbAudioLevel"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="0dp"
-                android:layout_height="8dp"
-                android:layout_weight="1"
-                android:layout_marginStart="12dp"
-                android:max="100"
-                android:progress="10"
-                android:progressDrawable="@drawable/progress_meter_gradient" />
-        </LinearLayout>
 
         <!-- 2. LIVE SPEECH CAPTIONS CARD -->
         <TextView
@@ -243,26 +249,26 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:text="LIVE SPEECH CAPTIONS (TRANSCRIPTION)"
-            android:textColor="@color/accent_cyan"
+            android:textColor="@color/accent_green"
             android:textSize="11sp"
             android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.06" />
+            android:letterSpacing="0.04" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardBackgroundColor="@color/surface_card"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="0dp"
-            app:strokeColor="@color/accent_cyan_border"
-            app:strokeWidth="1.5dp">
+            android:layout_marginTop="6dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="2dp"
+            app:strokeColor="@color/surface_border"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="18dp">
+                android:padding="16dp">
 
                 <TextView
                     android:id="@+id/tvLiveTranscription"
@@ -272,32 +278,32 @@
                     android:text="తెలుగులో మాట్లాడండి — మీ మాటలు ఇక్కడ ప్రత్యక్షంగా కనిపిస్తాయి..."
                     android:textColor="@color/text_primary"
                     android:textSize="18sp"
-                    android:fontFamily="sans-serif-medium"
+                    android:fontFamily="sans-serif-black"
                     android:lineSpacingExtra="4dp" />
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginVertical="10dp"
-                    android:background="@color/surface_border" />
+                    android:background="@color/surface_border_subtle" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="OFFLINE TRANSLATION (ENGLISH)"
-                    android:textColor="@color/accent_purple"
+                    android:textColor="@color/accent_green"
                     android:textSize="10.5sp"
                     android:fontFamily="sans-serif-black"
-                    android:letterSpacing="0.06" />
+                    android:letterSpacing="0.04" />
 
                 <TextView
                     android:id="@+id/tvLiveTranslation"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="3dp"
                     android:text="Translations appear here automatically in English."
-                    android:textColor="@color/accent_purple_glow"
-                    android:textSize="15sp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14.5sp"
                     android:fontFamily="sans-serif-medium" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -311,18 +317,18 @@
             android:textColor="@color/accent_yellow"
             android:textSize="11sp"
             android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.06" />
+            android:letterSpacing="0.04" />
 
-        <!-- Most Recent Sound Alert Banner -->
+        <!-- Most Recent Sound Alert Banner (Matching Reference Image) -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardLatestSound"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardBackgroundColor="@color/surface_dark"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="0dp"
-            app:strokeColor="@color/accent_yellow"
+            android:layout_marginTop="6dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="2dp"
+            app:strokeColor="@color/surface_border"
             app:strokeWidth="1dp">
 
             <LinearLayout
@@ -332,12 +338,20 @@
                 android:gravity="center_vertical"
                 android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/tvLatestSoundIcon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🔊"
-                    android:textSize="26sp" />
+                <!-- Loud Sound Blue Icon Badge -->
+                <LinearLayout
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/pill_accent_cyan"
+                    android:gravity="center">
+
+                    <TextView
+                        android:id="@+id/tvLatestSoundIcon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🔊"
+                        android:textSize="22sp" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -350,20 +364,20 @@
                         android:id="@+id/tvLatestSoundTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Monitoring surrounding acoustics"
+                        android:text="Loud Sound / Siren Spike"
                         android:textColor="@color/text_primary"
-                        android:textSize="16sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:textStyle="bold" />
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-bold" />
 
                     <TextView
                         android:id="@+id/tvLatestSoundDesc"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="Monitoring for sirens, car horns, smoke alarms, doorbells, etc."
+                        android:text="High intensity acoustic spike detected (9 dB)\n(23:53:52)"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:lineSpacingExtra="2dp" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -373,12 +387,12 @@
             android:id="@+id/tvSoundHistory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/card_background"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/card_white_rounded"
             android:padding="14dp"
-            android:text="Recent Sounds:\n• Ready to classify acoustic events..."
+            android:text="Recent Sound Alerts:\n• 23:53:52 🔊 Loud Sound / Siren Spike — High intensity acoustic spike detected (9 dB)"
             android:textColor="@color/text_secondary"
-            android:textSize="12.5sp"
+            android:textSize="12sp"
             android:fontFamily="sans-serif-medium"
             android:lineSpacingExtra="3dp" />
 
@@ -386,12 +400,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
+            android:layout_marginTop="16dp"
             android:text="TEST SOUND &amp; HAPTIC PATTERNS"
             android:textColor="@color/text_muted"
             android:textSize="11sp"
             android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.06" />
+            android:letterSpacing="0.04" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -402,12 +416,12 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSimulateSiren"
                 android:layout_width="0dp"
-                android:layout_height="46dp"
+                android:layout_height="44dp"
                 android:layout_weight="1"
                 android:text="🚑 Siren"
                 android:textColor="@color/white"
                 android:textSize="11.5sp"
-                android:fontFamily="sans-serif-medium"
+                android:fontFamily="sans-serif-bold"
                 app:backgroundTint="@color/accent_red"
                 app:cornerRadius="12dp" />
 
@@ -418,13 +432,13 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSimulateHorn"
                 android:layout_width="0dp"
-                android:layout_height="46dp"
+                android:layout_height="44dp"
                 android:layout_weight="1"
                 android:text="🚗 Horn"
                 android:textColor="@color/white"
                 android:textSize="11.5sp"
-                android:fontFamily="sans-serif-medium"
-                app:backgroundTint="@color/accent_blue"
+                android:fontFamily="sans-serif-bold"
+                app:backgroundTint="@color/primary_blue"
                 app:cornerRadius="12dp" />
 
             <Space
@@ -434,12 +448,12 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSimulateDoorbell"
                 android:layout_width="0dp"
-                android:layout_height="46dp"
+                android:layout_height="44dp"
                 android:layout_weight="1"
                 android:text="🔔 Doorbell"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:textSize="11.5sp"
-                android:fontFamily="sans-serif-medium"
+                android:fontFamily="sans-serif-bold"
                 app:backgroundTint="@color/accent_yellow"
                 app:cornerRadius="12dp" />
         </LinearLayout>
